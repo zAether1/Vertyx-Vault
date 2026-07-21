@@ -1,8 +1,0 @@
-{
-  "permissions": {
-    "allow": [
-      "PowerShell(npm *)",
-      "PowerShell(Get-ChildItem E:\\\\VertyxDashboard\\\\node_modules -Directory | Select-Object -ExpandProperty Name; \\(Get-Content E:\\\\VertyxDashboard\\\\node_modules\\\\gsap\\\\package.json | ConvertFrom-Json\\).version)"
-    ]
-  }
-}
