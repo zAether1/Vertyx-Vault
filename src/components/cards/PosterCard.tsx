@@ -100,11 +100,14 @@ export function PosterCard({ item, priority = false }: { item: ContentItem; prio
                   "radial-gradient(280px circle at var(--mx) var(--my), rgb(196 176 255 / 0.14), transparent 65%)",
               }}
             />
+            {/* Rating badge — always visible, reference style */}
+            <span className="absolute left-2.5 top-2.5 rounded-md bg-void/75 px-1.5 py-0.5 font-mono text-micro text-success backdrop-blur-sm">
+              {(item.score / 10).toFixed(1)}
+            </span>
+            {/* Title reveals on hover (always visible on touch devices) */}
             <div
-              aria-hidden="true"
-              className="absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-void/90 to-transparent"
-            />
-            <div className="absolute inset-x-0 bottom-0 p-3">
+              className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-void/95 via-void/60 to-transparent p-3 pt-10 opacity-0 transition-opacity duration-[var(--duration-base)] group-hover:opacity-100 group-focus-within:opacity-100 [@media(pointer:coarse)]:opacity-100"
+            >
               <p className="font-display text-[0.95rem] font-semibold leading-tight text-ink">
                 {title}
               </p>

@@ -6,6 +6,8 @@ import { useRef, useState } from "react";
 import { gsap, useGSAP, ScrollTrigger, FULL_MOTION_QUERY } from "@/lib/gsap";
 import { useI18n } from "@/lib/i18n/LocaleProvider";
 import { LocaleSwitcher } from "./LocaleSwitcher";
+import { NavSearch } from "./NavSearch";
+import { NoticeBell } from "./NoticeBell";
 import {
   HeartIcon,
   ClockIcon,
@@ -121,8 +123,12 @@ export function Navbar() {
           </NavLink>
         </nav>
 
-        <div className="hidden md:block">
-          <LocaleSwitcher />
+        <div className="flex items-center gap-2">
+          <NavSearch />
+          <NoticeBell />
+          <div className="hidden md:block">
+            <LocaleSwitcher />
+          </div>
         </div>
       </div>
     </header>

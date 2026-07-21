@@ -31,7 +31,7 @@ export function SearchView() {
   const { t, locale } = useI18n();
   const searchParams = useSearchParams();
   const initialGenre = searchParams.get("genre");
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState(searchParams.get("q") ?? "");
   const [genre, setGenre] = useState<GenreId | "all">(
     initialGenre && genres.some((g) => g.id === initialGenre)
       ? (initialGenre as GenreId)
