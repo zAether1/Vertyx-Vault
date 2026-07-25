@@ -66,7 +66,7 @@ export default function Header({ onOpenMobileSearch }: { onOpenMobileSearch: () 
   }, []);
 
   return (
-    <header className={`fixed top-0 z-[101] flex w-full items-center justify-between px-4 py-3 lg:px-10 transition-all duration-300 ${scrolled ? 'vault-glass border-x-0 border-t-0 shadow-2xl shadow-black/20' : 'bg-transparent'}`}>
+    <header className={`fixed top-0 z-50 flex w-full items-center justify-between px-4 py-3 lg:px-10 transition-all duration-300 ${scrolled ? 'vault-glass border-x-0 border-t-0 shadow-2xl shadow-black/20' : 'bg-transparent'}`}>
       <div className="flex items-center flex-1">
         <a href="/" className="flex items-center group" aria-label="Vertyx Vault, inicio">
           {/* eslint-disable-next-line @next/next/no-img-element */}
