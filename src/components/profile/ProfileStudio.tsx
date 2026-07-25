@@ -11,6 +11,7 @@ import { AVATAR_FRAMES, PROFILE_ACCENTS, PROFILE_BACKGROUNDS, profilePublicUrl }
 import { profileFromSession, type AdvancedProfile, type ProfileIntegrationStatus } from '@/types/profile';
 import type { ActionResult, OAuthProvider, ProfileAssetKind } from '@/types/infrastructure';
 import type { AccountSecurityOverview } from '@/types/account';
+import type { ProSubscriptionState } from '@/types/pro';
 
 const TABS = [
   { id: 'identity', label: 'Identidad' },
@@ -24,6 +25,7 @@ type TabId = (typeof TABS)[number]['id'];
 
 const emptyStatus: ProfileIntegrationStatus = { auth: false, blob: false, payments: false, discord: false, moderation: false, activity: false };
 const emptySecurity: AccountSecurityOverview = { ready: false, sessions: [], loginHistory: [], twoFactorEnabled: false, providers: { google: false, discord: false } };
+const emptyPro: ProSubscriptionState = { ready: false, status: 'inactive', priceUsd: 2, interval: 'month', discordSync: 'unavailable', benefits: [] };
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return <label className="vault-profile-field"><span>{label}</span>{children}</label>;
@@ -50,6 +52,7 @@ export default function ProfileStudio() {
   const [notice, setNotice] = useState<string>();
   const [integrations, setIntegrations] = useState<ProfileIntegrationStatus>(emptyStatus);
   const [security, setSecurity] = useState<AccountSecurityOverview>(emptySecurity);
+  const [pro, setPro] = useState<ProSubscriptionState>(emptyPro);
   const [profile, setProfile] = useState<AdvancedProfile>(() => profileFromSession());
   const panelRef = useRef<HTMLDivElement>(null);
   const avatarRef = useRef<HTMLDivElement>(null);
@@ -105,6 +108,10 @@ export default function ProfileStudio() {
       setSecurity(overview);
       setProfile((current) => ({ ...current, security: { ...current.security, sessions: overview.sessions, loginHistory: overview.loginHistory, twoFactorEnabled: overview.twoFactorEnabled, providers: overview.providers } }));
     }).catch(() => setSecurity(emptySecurity));
+    void fetch('/api/profile/pro/subscription').then((response) => response.ok ? response.json() as Promise<ProSubscriptionState> : emptyPro).then((subscription) => {
+      setPro(subscription);
+      setProfile((current) => ({ ...current, plan: subscription.status === 'active' ? 'pro' : current.plan }));
+    }).catch(() => setPro(emptyPro));
   }, []);
 
   useEffect(() => {
@@ -176,7 +183,13 @@ export default function ProfileStudio() {
     }
   };
   const requestOAuth = (provider: OAuthProvider) => void runAction(`/api/profile/oauth/${provider}`);
-  const requestProCheckout = () => void runAction('/api/profile/pro/checkout');
+  const requestProCheckout = async () => {
+    const result = await runAction('/api/profile/pro/checkout') as Partial<ActionResult> & { checkoutUrl?: string; subscription?: ProSubscriptionState };
+    if (result.subscription) setPro(result.subscription);
+    if (result.checkoutUrl) window.location.href = result.checkoutUrl;
+  };
+  const requestProPortal = () => void runAction('/api/profile/pro/portal');
+  const requestDiscordProSync = () => void runAction('/api/profile/pro/discord');
   const requestEmailChange = () => void runAction('/api/account/email', { email: profile.security.email });
   const requestPasswordChange = () => void runAction('/api/account/password');
   const requestTwoFactor = (enabled: boolean) => {
@@ -252,7 +265,7 @@ export default function ProfileStudio() {
             <Field label="Color del perfil"><input type="color" value={profile.theme.profileColor} onChange={(event) => setProfile((current) => ({ ...current, theme: { ...current.theme, profileColor: event.target.value } }))} /></Field>
             <div className="vault-profile-section vault-profile-section--wide"><h3>Fondos exclusivos</h3><div className="vault-choice-grid">{PROFILE_BACKGROUNDS.map((background) => <button key={background.id} type="button" disabled={background.proOnly && !isPro} className={profile.theme.backgroundId === background.id ? 'vault-profile-choice vault-profile-choice--active' : 'vault-profile-choice'} onClick={() => setProfile((current) => ({ ...current, theme: { ...current.theme, backgroundId: background.id } }))}><span style={{ background: background.preview }} /><strong>{background.label}</strong>{background.proOnly && <small>Pro</small>}</button>)}</div></div>
             <div className="vault-profile-section vault-profile-section--wide"><h3>Marcos</h3><div className="vault-choice-grid">{AVATAR_FRAMES.map((frame) => <button key={frame.id} type="button" disabled={frame.proOnly && !isPro} className={profile.theme.avatarFrameId === frame.id ? 'vault-profile-choice vault-profile-choice--active' : 'vault-profile-choice'} onClick={() => setProfile((current) => ({ ...current, theme: { ...current.theme, avatarFrameId: frame.id } }))}><strong>{frame.label}</strong>{frame.proOnly && <small>Pro</small>}</button>)}</div></div>
-            <article className="vault-pro-card vault-profile-section--wide"><div><span className="vault-page__eyebrow">Vertyx Vault Pro</span><h3>USD $2.00 <small>/ mes</small></h3><p>Insignia animada, marcos, banners, colores premium, acceso anticipado, sin anuncios y sincronización futura con Discord.</p></div><button type="button" disabled={busy} onClick={requestProCheckout}><StarSmallIcon className="h-4 w-4" />Activar Pro</button></article>
+            <article className="vault-pro-card vault-profile-section--wide"><div><span className="vault-page__eyebrow">Vertyx Vault Pro · {pro.status}</span><h3>USD $2.00 <small>/ mes</small></h3><p>{pro.message ?? 'Insignia animada, marcos, banners, colores premium, acceso anticipado, sin anuncios y sincronización futura con Discord.'}</p><div className="vault-profile-badges">{pro.benefits.slice(0, 4).map((benefit) => <span key={benefit.id} className={benefit.enabled ? 'vault-badge vault-badge--gold' : 'vault-badge vault-badge--graphite'}>{benefit.label}</span>)}</div></div><div className="vault-pro-card__actions"><button type="button" disabled={busy} onClick={pro.status === 'active' ? requestProPortal : requestProCheckout}><StarSmallIcon className="h-4 w-4" />{pro.status === 'active' ? 'Gestionar' : 'Activar Pro'}</button><button type="button" disabled={busy || pro.discordSync === 'unavailable'} onClick={requestDiscordProSync}>Discord</button></div></article>
           </div>}
 
           {activeTab === 'security' && <div className="vault-profile-grid" data-profile-reveal>
