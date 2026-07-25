@@ -31,7 +31,8 @@ function sanitize(body: Partial<ContentSubmissionInput>): ContentSubmissionInput
 export async function GET(request: Request) {
   const profile = readProfileFromRequest(request);
   if (!profile) return NextResponse.json({ items: [] });
-  return NextResponse.json({ items: readLocalSubmissions(request).filter((item) => item.submittedBy === profile.id) });
+  const items = readLocalSubmissions(request);
+  return NextResponse.json({ items: can(profile.role, 'submission:review') ? items : items.filter((item) => item.submittedBy === profile.id) });
 }
 
 export async function POST(request: Request) {

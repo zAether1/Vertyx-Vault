@@ -28,8 +28,13 @@ La UI no depende de un proveedor concreto. Si luego conectas servicios reales, c
 - `VERTYX_LIBRARY_API_KEY`: token server-side opcional para la biblioteca.
 - `VERTYX_AUTH_API_URL`: backend autorizado que expone `/session` para resolver el perfil activo.
 - `VERTYX_AUTH_API_KEY`: token server-side opcional para el proveedor de sesión.
+- `VERTYX_BLOB_UPLOAD_URL` o `BLOB_READ_WRITE_TOKEN`: almacenamiento para avatares, banners y portadas con Vercel Blob.
+- `VERTYX_PAYMENTS_API_URL` o `STRIPE_SECRET_KEY`: pasarela para Vertyx Vault Pro USD $2/mes.
+- `VERTYX_DISCORD_CLIENT_ID` o `DISCORD_CLIENT_ID`: vinculación y sincronización de rol Pro en Discord.
+- `VERTYX_MODERATION_API_URL`: cola compartida para aprobar, rechazar, editar, ocultar y publicar solicitudes.
+- `VERTYX_ACTIVITY_API_URL`: registro de actividad, auditoría y notificaciones.
 
-Sin esas variables, la app usa APIs internas y cookies HTTP-only.
+Sin esas variables, la app usa APIs internas, cookies HTTP-only y estado local temporal para mantener la experiencia funcional durante el desarrollo.
 
 ## Validación
 
