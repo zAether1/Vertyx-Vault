@@ -7,6 +7,7 @@ const NAV_ICONS: Record<NavIconName, (props: { className?: string }) => React.Re
   movies: MoviesIcon,
   tv: TvIcon,
   library: HomeIcon,
+  profile: HomeIcon,
 };
 
 const LABELS: Record<NavIconName, string> = {
@@ -15,6 +16,7 @@ const LABELS: Record<NavIconName, string> = {
   movies: 'Movies',
   tv: 'Series',
   library: 'Mi lista',
+  profile: 'Perfil',
 };
 
 /** Dock flotante de navegación móvil del template (esquina inferior derecha). */

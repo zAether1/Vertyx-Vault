@@ -10,6 +10,8 @@ La UI no depende de un proveedor concreto. Para conectar datos reales, configura
 - `VERTYX_CATALOG_API_KEY`: token server-side opcional para el catálogo. No se expone al cliente.
 - `VERTYX_LIBRARY_API_URL`: backend autenticado para sincronizar favoritos, historial y progreso.
 - `VERTYX_LIBRARY_API_KEY`: token server-side opcional para la biblioteca.
+- `VERTYX_AUTH_API_URL`: backend autorizado que expone `/session` para resolver el perfil activo.
+- `VERTYX_AUTH_API_KEY`: token server-side opcional para el proveedor de sesión.
 
 Sin esas variables, la app usa el catálogo local y mantiene la biblioteca en el dispositivo con `zustand`.
 
@@ -17,6 +19,7 @@ Sin esas variables, la app usa el catálogo local y mantiene la biblioteca en el
 
 ```bash
 npm run verify:catalog
+npm run verify:foundation
 npm run typecheck
 npm run build
 ```

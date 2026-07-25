@@ -13,6 +13,7 @@ const NAV_ICONS: Record<NavIconName, (props: { className?: string }) => React.Re
   movies: MoviesIcon,
   tv: TvIcon,
   library: HomeIcon,
+  profile: HomeIcon,
 };
 
 function DesktopNav() {
