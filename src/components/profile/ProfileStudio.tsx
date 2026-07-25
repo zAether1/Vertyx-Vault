@@ -51,22 +51,49 @@ export default function ProfileStudio() {
   const panelRef = useRef<HTMLDivElement>(null);
   const avatarRef = useRef<HTMLDivElement>(null);
   const bannerRef = useRef<HTMLDivElement>(null);
+  const hydratedRef = useRef(false);
+  const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     if (!ready) return;
     const base = profileFromSession(session.profile);
     const saved = window.localStorage.getItem(`vertyx-profile:${base.id}`);
-    if (!saved) {
-      setProfile(base);
-      return;
-    }
-    try {
-      const parsed = JSON.parse(saved) as Partial<AdvancedProfile>;
-      setProfile({ ...base, ...parsed, stats: { ...base.stats, ...parsed.stats } });
-    } catch {
-      window.localStorage.removeItem(`vertyx-profile:${base.id}`);
-      setProfile(base);
-    }
+    const hydrate = async () => {
+      try {
+        const response = await fetch('/api/profile');
+        if (response.ok) {
+          const data = await response.json() as { profile?: AdvancedProfile };
+          if (data.profile) {
+            let cached: Partial<AdvancedProfile> | undefined;
+            try {
+              cached = saved ? JSON.parse(saved) as Partial<AdvancedProfile> : undefined;
+            } catch {
+              window.localStorage.removeItem(`vertyx-profile:${base.id}`);
+            }
+            setProfile({ ...base, ...data.profile, ...cached, stats: { ...base.stats, ...data.profile.stats, ...cached?.stats }, theme: { ...base.theme, ...data.profile.theme, ...cached?.theme } });
+            hydratedRef.current = true;
+            return;
+          }
+        }
+      } catch {
+        // Local cache remains the development fallback when the profile API is unavailable.
+      }
+      if (!saved) {
+        setProfile(base);
+        hydratedRef.current = true;
+        return;
+      }
+      try {
+        const parsed = JSON.parse(saved) as Partial<AdvancedProfile>;
+        setProfile({ ...base, ...parsed, stats: { ...base.stats, ...parsed.stats } });
+      } catch {
+        window.localStorage.removeItem(`vertyx-profile:${base.id}`);
+        setProfile(base);
+      } finally {
+        hydratedRef.current = true;
+      }
+    };
+    void hydrate();
   }, [ready, session.profile]);
 
   useEffect(() => {
@@ -74,8 +101,15 @@ export default function ProfileStudio() {
   }, []);
 
   useEffect(() => {
-    if (!ready || !profile.id) return;
+    if (!ready || !profile.id || !hydratedRef.current) return;
     window.localStorage.setItem(`vertyx-profile:${profile.id}`, JSON.stringify(profile));
+    if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+    saveTimerRef.current = setTimeout(() => {
+      void fetch('/api/profile', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(profile) }).catch(() => undefined);
+    }, 650);
+    return () => {
+      if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+    };
   }, [profile, ready]);
 
   useGSAP(() => {

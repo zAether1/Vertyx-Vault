@@ -23,6 +23,7 @@ function findSavedProfile(username: string): AdvancedProfile | undefined {
 export default function PublicProfileView({ username }: { username: string }) {
   const { session, ready } = useSessionSnapshot();
   const [savedProfile, setSavedProfile] = useState<AdvancedProfile>();
+  const [publicNotice, setPublicNotice] = useState<string>();
   const sessionProfile = profileFromSession(session.profile);
   const profile = savedProfile ?? sessionProfile;
   const isOwnProfile = profile.username === username;
@@ -32,7 +33,25 @@ export default function PublicProfileView({ username }: { username: string }) {
 
   useEffect(() => {
     if (!ready) return;
-    setSavedProfile(findSavedProfile(username));
+    const loadPublicProfile = async () => {
+      try {
+        const response = await fetch(`/api/profile/public/${encodeURIComponent(username)}`);
+        if (response.ok) {
+          const data = await response.json() as { profile?: AdvancedProfile };
+          if (data.profile) {
+            setSavedProfile(data.profile);
+            setPublicNotice(undefined);
+            return;
+          }
+        }
+        setSavedProfile(findSavedProfile(username));
+        setPublicNotice('Mostrando vista pública local hasta conectar la base de datos de perfiles.');
+      } catch {
+        setSavedProfile(findSavedProfile(username));
+        setPublicNotice('Mostrando vista pública local hasta conectar la base de datos de perfiles.');
+      }
+    };
+    void loadPublicProfile();
   }, [ready, username]);
 
   return <section className="vault-public-profile vault-public-profile--refined" style={{ '--profile-accent': profile.theme.accent, '--profile-color': profile.theme.profileColor } as React.CSSProperties}>
@@ -51,6 +70,7 @@ export default function PublicProfileView({ username }: { username: string }) {
           <h1>{canShowPublicData ? profile.displayName : `@${username}`}</h1>
           <p className="vault-profile-handle">@{username} {canShowPublicData ? `· ${profile.id}` : ''}</p>
           <p className="vault-profile-card__status">{canShowPublicData ? profile.status : 'Perfil preparado para datos públicos persistentes.'}</p>
+          {publicNotice && <p className="vault-public-profile__notice" role="status">{publicNotice}</p>}
         </div>
         <Link href="/profile" className="vault-profile-button">Volver a mi perfil</Link>
       </div>
