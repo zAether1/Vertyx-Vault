@@ -6,6 +6,7 @@ export const NAV_ITEMS = [
   { id: 'movies-btn', path: '/explore?type=movie', label: 'Películas', icon: 'movies' },
   { id: 'tv-btn', path: '/explore?type=series', label: 'Series', icon: 'tv' },
   { id: 'library-btn', path: '/library', label: 'Mi Lista', icon: 'library' },
+  { id: 'profile-btn', path: '/profile', label: 'Perfil', icon: 'profile' },
 ] as const;
 
 export type NavIconName = (typeof NAV_ITEMS)[number]['icon'];
