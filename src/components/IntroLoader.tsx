@@ -9,8 +9,8 @@ export default function IntroLoader() {
   const [removed, setRemoved] = useState(false);
 
   useEffect(() => {
-    const exitTimer = window.setTimeout(() => setExiting(true), 950);
-    const removeTimer = window.setTimeout(() => setRemoved(true), 1280);
+    const exitTimer = window.setTimeout(() => setExiting(true), 1350);
+    const removeTimer = window.setTimeout(() => setRemoved(true), 1680);
     return () => {
       window.clearTimeout(exitTimer);
       window.clearTimeout(removeTimer);
@@ -32,7 +32,7 @@ export default function IntroLoader() {
           width={512}
           height={512}
           priority
-          sizes="(max-width: 640px) 15rem, 19rem"
+          sizes="(max-width: 640px) 19rem, 25rem"
           className="vault-loader__logo"
         />
       </div>
