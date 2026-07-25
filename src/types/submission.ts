@@ -1,4 +1,4 @@
-export const SUBMISSION_STATUSES = ['pending', 'reviewing', 'approved', 'rejected'] as const;
+export const SUBMISSION_STATUSES = ['pending', 'reviewing', 'approved', 'rejected', 'hidden', 'published'] as const;
 
 export type SubmissionStatus = (typeof SUBMISSION_STATUSES)[number];
 export type SubmissionKind = 'movie' | 'series';

@@ -36,6 +36,14 @@ La UI no depende de un proveedor concreto. Si luego conectas servicios reales, c
 
 Sin esas variables, la app usa APIs internas, cookies HTTP-only y estado local temporal para mantener la experiencia funcional durante el desarrollo.
 
+## Contratos preparados
+
+- `POST /api/profile/oauth/:provider`: devuelve intención de vinculación Google/Discord.
+- `POST /api/profile/assets`: devuelve intención de subida para avatar, banner o portada en Blob.
+- `POST /api/profile/pro/checkout`: devuelve intención de checkout Pro por USD $2/mes.
+- `GET /api/admin/overview`: métricas, usuarios, actividad y cola editorial para roles autorizados.
+- `PATCH /api/moderation/submissions/:id`: aprobar, rechazar, revisar, ocultar o publicar solicitudes.
+
 ## Validación
 
 ```bash
