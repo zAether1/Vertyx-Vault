@@ -2,9 +2,9 @@
 
 export const NAV_ITEMS = [
   { id: 'home-btn', path: '/', label: 'Inicio', icon: 'home' },
-  { id: 'trending-btn', path: '/trending', label: 'Tendencias', icon: 'trending' },
-  { id: 'movies-btn', path: '/movies', label: 'Películas', icon: 'movies' },
-  { id: 'tv-btn', path: '/series', label: 'Series', icon: 'tv' },
+  { id: 'trending-btn', path: '/explore', label: 'Tendencias', icon: 'trending' },
+  { id: 'movies-btn', path: '/explore?type=movie', label: 'Películas', icon: 'movies' },
+  { id: 'tv-btn', path: '/explore?type=series', label: 'Series', icon: 'tv' },
 ] as const;
 
 export type NavIconName = (typeof NAV_ITEMS)[number]['icon'];

@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { HeroSlide } from '@/types/content';
 import { PlaySolidIcon, StarSmallIcon } from '@/components/icons';
+import { contentHref, contentIdFromLegacyHref } from '@/lib/routes';
 
 interface HeroSliderProps {
   slides: HeroSlide[];
@@ -120,7 +121,7 @@ export default function HeroSlider({ slides }: HeroSliderProps) {
               <button
                 id="play-btn"
                 onClick={() => {
-                  window.location.href = movie.watchHref;
+                  window.location.href = contentHref({ id: contentIdFromLegacyHref(movie.watchHref, movie.title) });
                 }}
                 className="flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-full w-32 md:w-36 py-2 md:py-2.5 text-sm transition duration-300 shadow-lg shadow-blue-900/20"
               >

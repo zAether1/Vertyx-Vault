@@ -5,6 +5,7 @@ import heroData from '@/data/hero.json';
 import rowsData from '@/data/rows.json';
 import { SEARCH_SUGGESTIONS_TYPING } from '@/data/navigation';
 import type { ContentRowData, HeroSlide } from '@/types/content';
+import { contentHref } from '@/lib/routes';
 
 /** Resultado normalizado del índice local; el proveedor de catálogo se podrá intercambiar sin tocar la UI. */
 export interface TmdbSearchItem {
@@ -115,7 +116,7 @@ export function useTypingPlaceholder(enabled = true) {
 }
 
 export function searchItemLink(item: TmdbSearchItem): string {
-  return item.href ?? '#';
+  return item.href ? contentHref({ id: item.href.split('/').at(-1) ?? item.id.toString() }) : '#';
 }
 
 export function searchItemMediaType(item: TmdbSearchItem): string {

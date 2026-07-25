@@ -2,6 +2,7 @@
 
 import { useRef } from 'react';
 import type { ContentRowData, RowCard } from '@/types/content';
+import { contentHref, contentIdFromLegacyHref } from '@/lib/routes';
 import { ChevronLeftIcon, ChevronRightIcon } from '@/components/icons';
 
 function PosterCard({ card }: { card: RowCard }) {
@@ -11,7 +12,7 @@ function PosterCard({ card }: { card: RowCard }) {
       tabIndex={0}
     >
       <a
-        href={card.href}
+        href={contentHref({ id: contentIdFromLegacyHref(card.href, card.title) })}
         className="cursor-pointer relative group flex-shrink-0 text-left w-full h-full p-0 bg-transparent border-none"
       >
         <div className="relative w-[160px] md:w-[180px] overflow-hidden rounded-2xl transition-all duration-300 hover:shadow-[0_0_25px_rgba(59,130,246,0.5)] hover:scale-105 hover:z-10">
@@ -82,7 +83,7 @@ export default function ContentRow({ row }: { row: ContentRowData }) {
           <div className="flex items-center">
             <h2 className="text-2xl md:text-3xl font-bold text-white">{row.title}</h2>
             <div className="h-8 border-l border-gray-600 mx-4"></div>
-            <a href={row.seeAllHref} className="text-blue-500 text-sm hover:underline">
+            <a href="/explore" className="text-blue-500 text-sm hover:underline">
               Ver todo
             </a>
           </div>
