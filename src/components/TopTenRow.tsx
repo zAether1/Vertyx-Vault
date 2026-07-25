@@ -44,17 +44,17 @@ export default function TopTenRow({ variant, seeAllHref, items }: TopTenRowProps
       <div className="px-4 md:px-8 lg:px-12 mb-2">
         <h1 className="flex flex-col md:flex-row items-start md:items-center ml-2 md:ml-0">
           <div className="flex">
-            <span className="text-6xl md:text-8xl font-bold text-blue-500 leading-none">T</span>
-            <span className="text-6xl md:text-8xl font-bold text-blue-500 leading-none ml-1">O</span>
-            <span className="text-6xl md:text-8xl font-bold text-blue-500 leading-none ml-1">P</span>
+            <span className="text-6xl md:text-8xl font-bold text-violet-400 leading-none">T</span>
+            <span className="text-6xl md:text-8xl font-bold text-violet-400 leading-none ml-1">O</span>
+            <span className="text-6xl md:text-8xl font-bold text-violet-400 leading-none ml-1">P</span>
           </div>
-          <div className="text-white uppercase tracking-wider font-medium ml-1 md:ml-4 text-sm md:text-base">
+          <div className="text-[#e8dff2] uppercase tracking-wider font-medium ml-1 md:ml-4 text-sm md:text-base">
             <div>{variant}</div>
             <div>HOY</div>
           </div>
           <div className="ml-4 mt-2 md:mt-0 md:block">
             <a
-              className="flex items-center gap-1 text-blue-500 hover:text-blue-400 transition-colors p-1 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[#00040a] focus:ring-blue-500"
+              className="flex items-center gap-1 text-violet-400 hover:text-violet-300 transition-colors p-1 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[#00040a] focus:ring-violet-500"
               href="/explore"
             >
               <span className="text-sm">Ver todo</span>
@@ -80,14 +80,14 @@ export default function TopTenRow({ variant, seeAllHref, items }: TopTenRowProps
                   onClick={() => {
                     window.location.href = contentHref({ id: contentIdFromLegacyHref(item.href, item.title) });
                   }}
-                  className="cursor-pointer min-w-[140px] sm:min-w-[180px] md:min-w-[200px] relative group/item p-0 bg-transparent border-none text-left rounded-lg focus:outline-none focus:ring-4 focus:ring-blue-600 focus:ring-opacity-75 transition-all duration-200"
+                  className="cursor-pointer min-w-[140px] sm:min-w-[180px] md:min-w-[200px] relative group/item p-0 bg-transparent border-none text-left rounded-lg focus:outline-none focus:ring-4 focus:ring-violet-600 focus:ring-opacity-75 transition-all duration-200"
                 >
                   <div className="relative">
                     <div className="absolute -left-10 sm:-left-12 md:-left-14 top-2/3 -translate-y-1/2 z-30 transition-all duration-300 group-hover/item:scale-110 group-hover/item:-translate-x-1">
                       <span
-                        className="text-[80px] sm:text-[100px] md:text-[120px] font-bold text-transparent group-hover/item:text-blue-500 drop-shadow-lg select-none pointer-events-none transition-all duration-300"
+                        className="text-[80px] sm:text-[100px] md:text-[120px] font-bold text-transparent group-hover/item:text-violet-400 drop-shadow-lg select-none pointer-events-none transition-all duration-300"
                         style={{
-                          WebkitTextStroke: '2px rgb(59, 130, 246)',
+                          WebkitTextStroke: '2px rgb(167, 139, 250)',
                           fontFamily: 'sans-serif',
                         }}
                       >
@@ -102,7 +102,7 @@ export default function TopTenRow({ variant, seeAllHref, items }: TopTenRowProps
                         className="aspect-[2/3] object-cover w-full h-full transition-transform duration-300 group-hover/item:scale-105"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
-                      <div className="absolute inset-0 border-2 border-blue-500 rounded-lg opacity-0 group-hover/item:opacity-100 transition-opacity duration-300"></div>
+                      <div className="absolute inset-0 border-2 border-violet-500 rounded-lg opacity-0 group-hover/item:opacity-100 transition-opacity duration-300"></div>
                     </div>
                   </div>
                 </button>
