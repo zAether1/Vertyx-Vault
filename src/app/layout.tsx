@@ -8,8 +8,8 @@ export const metadata: Metadata = {
   title: 'Vertyx Vault — Tu espacio audiovisual',
   description: 'Una experiencia premium para descubrir y organizar contenido audiovisual.',
   icons: {
-    icon: [{ url: '/Vertyx-Vault-2.png', type: 'image/png' }],
-    apple: [{ url: '/Vertyx-Vault-2.png', type: 'image/png' }],
+    icon: [{ url: '/favicon/vertyx-vault-icon.png', type: 'image/png', sizes: '192x192' }],
+    apple: [{ url: '/favicon/vertyx-vault-icon.png', type: 'image/png', sizes: '192x192' }],
   },
 };
 

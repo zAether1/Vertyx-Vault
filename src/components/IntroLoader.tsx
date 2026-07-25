@@ -9,8 +9,8 @@ export default function IntroLoader() {
   const [removed, setRemoved] = useState(false);
 
   useEffect(() => {
-    const exitTimer = window.setTimeout(() => setExiting(true), 1350);
-    const removeTimer = window.setTimeout(() => setRemoved(true), 1680);
+    const exitTimer = window.setTimeout(() => setExiting(true), 2250);
+    const removeTimer = window.setTimeout(() => setRemoved(true), 2580);
     return () => {
       window.clearTimeout(exitTimer);
       window.clearTimeout(removeTimer);
@@ -27,7 +27,7 @@ export default function IntroLoader() {
     >
       <div className="vault-loader__core vault-loader__core--logo" aria-hidden="true">
         <Image
-          src="/Vertyx-Vault-2.png"
+          src="/vertyx-vault-logo.png"
           alt=""
           width={512}
           height={512}
