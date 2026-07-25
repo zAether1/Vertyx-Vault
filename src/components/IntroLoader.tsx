@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { useEffect, useState } from 'react';
 
 /** Breve apertura de marca, sin audio ni recursos de terceros. */
@@ -24,10 +25,16 @@ export default function IntroLoader() {
       role="status"
       aria-label="Cargando Vertyx Vault"
     >
-      <div className="vault-loader__core" aria-hidden="true">
-        <span className="vault-loader__wordmark vault-wordmark">
-          <strong>VERTYX</strong><span>+</span>
-        </span>
+      <div className="vault-loader__core vault-loader__core--logo" aria-hidden="true">
+        <Image
+          src="/Vertyx-Vault-2.png"
+          alt=""
+          width={512}
+          height={512}
+          priority
+          sizes="(max-width: 640px) 15rem, 19rem"
+          className="vault-loader__logo"
+        />
       </div>
     </div>
   );

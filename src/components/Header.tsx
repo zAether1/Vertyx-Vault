@@ -68,10 +68,9 @@ export default function Header({ onOpenMobileSearch }: { onOpenMobileSearch: () 
   return (
     <header className={`fixed top-0 z-50 flex w-full items-center justify-between px-4 py-3 lg:px-10 transition-all duration-300 ${scrolled ? 'vault-glass border-x-0 border-t-0 shadow-2xl shadow-black/20' : 'bg-transparent'}`}>
       <div className="flex items-center flex-1">
-        <a href="/" className="flex items-center gap-2.5 group" aria-label="Vertyx Vault, inicio">
+        <a href="/" className="flex items-center group" aria-label="Vertyx Vault, inicio">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/vertyx-mark.svg" alt="" className="h-8 w-8 transition-transform duration-300 group-hover:scale-110" />
-          <span className="vault-wordmark text-lg leading-none"><strong>VERTYX</strong><span> VAULT</span></span>
+          <img src="/Vertyx-Vault-2.png" alt="Vertyx Vault" className="h-11 w-auto max-w-36 object-contain origin-left transition-transform duration-300 group-hover:scale-[1.035]" />
         </a>
         <DesktopNav />
       </div>
