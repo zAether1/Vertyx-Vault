@@ -9,7 +9,7 @@ import { ChevronLeftIcon, ChevronRightIcon } from '@/components/icons';
 function PosterCard({ card }: { card: RowCard }) {
   return (
     <div
-      className="relative rounded-2xl focus:outline-none focus:ring-4 focus:ring-blue-600 focus:ring-opacity-75 transition-all duration-200"
+      className="relative rounded-2xl focus:outline-none focus:ring-4 focus:ring-violet-600 focus:ring-opacity-75 transition-all duration-200"
       tabIndex={0}
     >
       <a
@@ -36,7 +36,7 @@ function PosterCard({ card }: { card: RowCard }) {
                   cy="18"
                   r="15"
                   fill="none"
-                  stroke="#22c55e"
+                  stroke="#a78bfa"
                   strokeWidth="3"
                   strokeDasharray={`${card.progress} 100`}
                   strokeDashoffset="25"
@@ -46,14 +46,14 @@ function PosterCard({ card }: { card: RowCard }) {
                 />
               </svg>
               <div className="absolute inset-0 flex items-center justify-center">
-                <span className="text-white font-bold text-sm drop-shadow-md">
+                <span className="text-[#e8dff2] font-bold text-sm drop-shadow-md">
                   {card.rating}
                 </span>
               </div>
             </div>
           </div>
-          <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-all duration-500 bg-gradient-to-b from-transparent via-transparent to-blue-900/50 pointer-events-none"></div>
-          <div className="absolute inset-0 opacity-0 group-hover:opacity-100 rounded-2xl transition-opacity duration-300 border-2 border-blue-500/30 pointer-events-none"></div>
+          <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-all duration-500 bg-gradient-to-b from-transparent via-transparent to-violet-900/50 pointer-events-none"></div>
+          <div className="absolute inset-0 opacity-0 group-hover:opacity-100 rounded-2xl transition-opacity duration-300 border-2 border-violet-500/30 pointer-events-none"></div>
         </div>
       </a>
     </div>
@@ -77,21 +77,21 @@ export default function ContentRow({ row }: { row: ContentRowData }) {
       <div className="py-6 md:py-8">
         <div className="flex items-center justify-between px-4 md:px-8 mb-4">
           <div className="flex items-center">
-            <h2 className="text-2xl md:text-3xl font-bold text-white">{row.title}</h2>
+            <h2 className="text-2xl md:text-3xl font-bold text-[#e8dff2]">{row.title}</h2>
             <div className="h-8 border-l border-gray-600 mx-4"></div>
-            <a href="/explore" className="text-blue-500 text-sm hover:underline">
+            <a href="/explore" className="text-violet-400 text-sm hover:underline">
               Ver todo
             </a>
           </div>
           <div className="scroll-buttons flex space-x-2">
             <button
-              className="bg-transparent text-gray-400 hover:text-white p-1 rounded-full"
+              className="bg-transparent text-[#b8a8c8] hover:text-[#e8dff2] p-1 rounded-full"
               onClick={() => scrollBy(-scrollAmount)}
             >
               <ChevronLeftIcon className="h-6 w-6" />
             </button>
             <button
-              className="bg-transparent text-gray-400 hover:text-white p-1 rounded-full"
+              className="bg-transparent text-[#b8a8c8] hover:text-[#e8dff2] p-1 rounded-full"
               onClick={() => scrollBy(scrollAmount)}
             >
               <ChevronRightIcon className="h-6 w-6" />

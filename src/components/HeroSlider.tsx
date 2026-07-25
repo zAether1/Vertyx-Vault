@@ -44,21 +44,21 @@ export default function HeroSlider({ slides }: HeroSliderProps) {
     <div className="relative h-[70vh] md:h-screen w-full overflow-hidden">
       <div ref={backgroundRef} className="absolute -inset-3 will-change-transform">
         <Image src={movie.bg} alt="" fill priority sizes="100vw" className="object-cover object-center" />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#07070d] via-black/45 to-black/10" />
-        <div className="absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-[#07070d] to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#0b0814] via-black/45 to-black/10" />
+        <div className="absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-[#0b0814] to-transparent" />
       </div>
       <div className="absolute inset-0 flex flex-col justify-end z-10">
         <div className="pl-4 md:pl-7 lg:pl-10 pr-4 pb-8 md:pb-16 max-w-2xl">
           <div data-hero-reveal className="flex items-center space-x-2 mb-3">
-            <span className="bg-violet-500 text-white text-xs px-2 py-0.5 rounded-full">{movie.type}</span>
-            <span className="vault-glass text-white text-xs px-2 py-0.5 rounded-full flex items-center"><StarSmallIcon className="h-3 w-3 text-yellow-400 mr-1" />{movie.rating}</span>
-            <span className="vault-glass text-white text-xs px-2 py-0.5 rounded-full">{movie.release}</span>
+            <span className="bg-violet-500 text-[#e8dff2] text-xs px-2 py-0.5 rounded-full">{movie.type}</span>
+            <span className="vault-glass text-[#e8dff2] text-xs px-2 py-0.5 rounded-full flex items-center"><StarSmallIcon className="h-3 w-3 text-violet-300 mr-1" />{movie.rating}</span>
+            <span className="vault-glass text-[#e8dff2] text-xs px-2 py-0.5 rounded-full">{movie.release}</span>
           </div>
-          <h1 data-hero-reveal className="text-3xl md:text-5xl lg:text-7xl font-bold text-white max-w-3xl">
+          <h1 data-hero-reveal className="text-3xl md:text-5xl lg:text-7xl font-bold text-[#e8dff2] max-w-3xl">
             {movie.logo ? <span className="relative block h-20 md:h-28 lg:h-36"><Image src={movie.logo} alt={movie.title} fill sizes="(min-width: 1024px) 500px, 80vw" className="object-contain object-left" /></span> : movie.title}
           </h1>
-          <p data-hero-reveal className="text-white/80 text-sm max-w-xl leading-relaxed mt-3 line-clamp-3">{movie.desc}</p>
-          <div data-hero-reveal className="flex space-x-3 mt-5"><a href={detailHref} className="flex items-center justify-center bg-violet-500 hover:bg-violet-400 text-white font-medium rounded-full w-36 py-2.5 text-sm transition shadow-lg shadow-violet-950/30"><PlaySolidIcon className="h-3 w-3 mr-1.5" />Ver detalle</a></div>
+          <p data-hero-reveal className="text-[#e8dff2]/80 text-sm max-w-xl leading-relaxed mt-3 line-clamp-3">{movie.desc}</p>
+          <div data-hero-reveal className="flex space-x-3 mt-5"><a href={detailHref} className="flex items-center justify-center bg-violet-500 hover:bg-violet-400 text-[#e8dff2] font-medium rounded-full w-36 py-2.5 text-sm transition shadow-lg shadow-violet-950/30"><PlaySolidIcon className="h-3 w-3 mr-1.5" />Ver detalle</a></div>
         </div>
       </div>
       <div className="absolute bottom-8 right-8 z-30 hidden lg:flex items-center space-x-3">

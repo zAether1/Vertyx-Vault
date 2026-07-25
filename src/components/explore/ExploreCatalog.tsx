@@ -25,7 +25,7 @@ export default function ExploreCatalog({ items, initialKind = 'all' }: { items: 
     <div className="vault-filter-bar" role="group" aria-label="Filtrar catálogo">
       {FILTERS.map((filter) => <button key={filter.value} type="button" className={`vault-filter ${kind === filter.value ? 'vault-filter--active' : ''}`} aria-pressed={kind === filter.value} onClick={() => setKind(filter.value)}>{filter.label}</button>)}
     </div>
-    <p className="text-sm text-white/50 mt-5" aria-live="polite">{visibleItems.length} títulos disponibles</p>
-    {visibleItems.length ? <div className="vault-grid">{visibleItems.map((item) => <div key={item.id} data-catalog-card><CatalogCard item={item} /></div>)}</div> : <p className="text-white/60 mt-12">No encontramos títulos con ese filtro.</p>}
+    <p className="text-sm text-[#e8dff2]/50 mt-5" aria-live="polite">{visibleItems.length} títulos disponibles</p>
+    {visibleItems.length ? <div className="vault-grid">{visibleItems.map((item) => <div key={item.id} data-catalog-card><CatalogCard item={item} /></div>)}</div> : <p className="text-[#e8dff2]/60 mt-12">No encontramos títulos con ese filtro.</p>}
   </>;
 }

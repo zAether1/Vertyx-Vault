@@ -22,12 +22,12 @@ export default function SpotlightBanner({ data }: { data: SpotlightData }) {
           />
           <div className="absolute inset-0 bg-gradient-to-r from-black/95 via-transparent to-black/95"></div>
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/50"></div>
-          <div className="absolute left-0 top-0 bottom-0 w-[10%] bg-gradient-to-r from-[#00081a]/30 to-transparent"></div>
-          <div className="absolute right-0 top-0 bottom-0 w-[10%] bg-gradient-to-l from-[#00081a]/30 to-transparent"></div>
+          <div className="absolute left-0 top-0 bottom-0 w-[10%] bg-gradient-to-r from-[#120b1c]/30 to-transparent"></div>
+          <div className="absolute right-0 top-0 bottom-0 w-[10%] bg-gradient-to-l from-[#120b1c]/30 to-transparent"></div>
         </div>
         <div className="relative h-full flex flex-col md:flex-row items-center md:gap-12 px-5 md:px-10 py-6 md:py-0">
-          <div className="hidden md:block flex-shrink-0 w-[200px] h-[300px] relative rounded-lg overflow-hidden shadow-xl shadow-[#00081a]/40 border border-[#00081a]/30 transform hover:scale-105 transition-all duration-300">
-            <div className="absolute -inset-1 bg-[#00081a]/20 blur-md rounded-xl"></div>
+          <div className="hidden md:block flex-shrink-0 w-[200px] h-[300px] relative rounded-lg overflow-hidden shadow-xl shadow-[#120b1c]/40 border border-[#120b1c]/30 transform hover:scale-105 transition-all duration-300">
+            <div className="absolute -inset-1 bg-[#120b1c]/20 blur-md rounded-xl"></div>
             <div className="relative rounded-lg overflow-hidden h-full w-full">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
@@ -43,7 +43,7 @@ export default function SpotlightBanner({ data }: { data: SpotlightData }) {
                 }}
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-40"></div>
-              <div className="absolute top-3 left-3 w-10 h-10 bg-black/80 rounded-full flex items-center justify-center backdrop-blur-sm border border-[#00081a]/40">
+              <div className="absolute top-3 left-3 w-10 h-10 bg-black/80 rounded-full flex items-center justify-center backdrop-blur-sm border border-[#120b1c]/40">
                 <div className="relative w-full h-full flex items-center justify-center">
                   <svg className="absolute inset-0 w-full h-full" viewBox="0 0 36 36">
                     <circle
@@ -51,39 +51,39 @@ export default function SpotlightBanner({ data }: { data: SpotlightData }) {
                       cy="18"
                       r="15.9"
                       fill="none"
-                      stroke="#3b82f6"
+                      stroke="#a78bfa"
                       strokeWidth="1.2"
                       strokeDasharray={`${data.ratingDash}, 100`}
                       strokeLinecap="round"
                       transform="rotate(-90 18 18)"
                     />
                   </svg>
-                  <span className="text-white text-xs font-medium">{data.rating}</span>
+                  <span className="text-[#e8dff2] text-xs font-medium">{data.rating}</span>
                 </div>
               </div>
             </div>
           </div>
           <div className="flex-1 max-w-3xl space-y-3 md:space-y-4 md:ml-3 pt-2">
-            <h2 className="text-xl sm:text-3xl md:text-5xl font-bold text-white tracking-wide drop-shadow-md">
+            <h2 className="text-xl sm:text-3xl md:text-5xl font-bold text-[#e8dff2] tracking-wide drop-shadow-md">
               {data.title}
             </h2>
             <div className="flex items-center gap-3 text-xs md:text-sm">
-              <span className="bg-blue-600 text-white text-xs px-3 py-0.5 rounded-md font-medium">
+              <span className="bg-violet-700 text-[#e8dff2] text-xs px-3 py-0.5 rounded-md font-medium">
                 {data.type}
               </span>
-              <div className="flex items-center gap-1 text-yellow-400">
+              <div className="flex items-center gap-1 text-violet-300">
                 <StarLucideIcon className="lucide lucide-star w-3 h-3" />
                 <span>{data.rating}</span>
               </div>
-              <span className="text-white/70">{data.year}</span>
+              <span className="text-[#e8dff2]/70">{data.year}</span>
             </div>
-            <p className="text-white/80 text-sm md:text-base line-clamp-2 md:line-clamp-3 max-w-2xl leading-relaxed">
+            <p className="text-[#e8dff2]/80 text-sm md:text-base line-clamp-2 md:line-clamp-3 max-w-2xl leading-relaxed">
               {data.desc}
             </p>
             <div className="flex items-center gap-3 md:gap-4 pt-3 md:pt-4">
               <a
                 href={data.watchHref}
-                className="flex items-center gap-2 bg-blue-600 text-white px-4 md:px-6 py-2 rounded-md hover:bg-blue-700 transition-all duration-200 text-sm md:text-base font-medium"
+                className="flex items-center gap-2 bg-violet-700 text-[#e8dff2] px-4 md:px-6 py-2 rounded-md hover:bg-violet-800 transition-all duration-200 text-sm md:text-base font-medium"
               >
                 <CirclePlayIcon className="lucide lucide-circle-play w-4 h-4 md:w-5 md:h-5" />
                 Ver ahora
