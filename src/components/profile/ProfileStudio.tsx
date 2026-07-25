@@ -149,7 +149,25 @@ export default function ProfileStudio() {
       setBusy(false);
     }
   };
-  const requestAssetPersistence = (kind: ProfileAssetKind) => void runAction('/api/profile/assets', { kind });
+  const requestAssetPersistence = async (kind: ProfileAssetKind, file?: File) => {
+    if (!file) return void runAction('/api/profile/assets', { kind });
+    setBusy(true);
+    const form = new FormData();
+    form.set('kind', kind);
+    form.set('file', file);
+    try {
+      const response = await fetch('/api/profile/assets', { method: 'POST', body: form });
+      const result = await response.json().catch(() => ({ message: 'No se pudo guardar el archivo.' })) as Partial<ActionResult> & { url?: string };
+      setNotice(result.message ?? 'Archivo procesado.');
+      if (response.ok && result.url) {
+        setProfile((current) => ({ ...current, theme: { ...current.theme, ...(kind === 'avatar' ? { avatarUrl: result.url } : { bannerUrl: result.url }) } }));
+      }
+    } catch {
+      setNotice('No se pudo guardar el archivo.');
+    } finally {
+      setBusy(false);
+    }
+  };
   const requestOAuth = (provider: OAuthProvider) => void runAction(`/api/profile/oauth/${provider}`);
   const requestProCheckout = () => void runAction('/api/profile/pro/checkout');
   const publicUrl = profilePublicUrl(profile.username);
@@ -202,8 +220,8 @@ export default function ProfileStudio() {
         {notice && <p className="vault-profile-notice" role="status">{notice}</p>}
         <div ref={panelRef} className="vault-profile-panel">
           {activeTab === 'identity' && <div className="vault-profile-grid" data-profile-reveal>
-            <Field label="Foto de perfil"><input type="file" accept="image/*" onChange={(event) => event.target.files?.[0] && readImage(event.target.files[0], (avatarUrl) => { setProfile((current) => ({ ...current, theme: { ...current.theme, avatarUrl } })); requestAssetPersistence('avatar'); })} /></Field>
-            <Field label="Banner"><input type="file" accept="image/*" onChange={(event) => event.target.files?.[0] && readImage(event.target.files[0], (bannerUrl) => { setProfile((current) => ({ ...current, theme: { ...current.theme, bannerUrl } })); requestAssetPersistence('banner'); })} /></Field>
+            <Field label="Foto de perfil"><input type="file" accept="image/jpeg,image/png,image/webp" onChange={(event) => { const file = event.target.files?.[0]; if (file) readImage(file, (avatarUrl) => { setProfile((current) => ({ ...current, theme: { ...current.theme, avatarUrl } })); void requestAssetPersistence('avatar', file); }); }} /></Field>
+            <Field label="Banner"><input type="file" accept="image/jpeg,image/png,image/webp" onChange={(event) => { const file = event.target.files?.[0]; if (file) readImage(file, (bannerUrl) => { setProfile((current) => ({ ...current, theme: { ...current.theme, bannerUrl } })); void requestAssetPersistence('banner', file); }); }} /></Field>
             <Field label="Ajuste avatar"><input type="range" min="1" max="1.8" step="0.05" value={profile.theme.avatarFocus.zoom} onChange={(event) => setProfile((current) => ({ ...current, theme: { ...current.theme, avatarFocus: { ...current.theme.avatarFocus, zoom: Number(event.target.value) } } }))} /></Field>
             <Field label="Ajuste banner"><input type="range" min="1" max="1.8" step="0.05" value={profile.theme.bannerFocus.zoom} onChange={(event) => setProfile((current) => ({ ...current, theme: { ...current.theme, bannerFocus: { ...current.theme.bannerFocus, zoom: Number(event.target.value) } } }))} /></Field>
             <Field label="Nombre visible"><input value={profile.displayName} onChange={(event) => setProfile((current) => ({ ...current, displayName: event.target.value }))} /></Field>
