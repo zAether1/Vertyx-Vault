@@ -1,5 +1,6 @@
 import { cookieOptions, decodeJsonCookie, encodeJsonCookie, parseCookieHeader, readProfileFromRequest } from '@/server/session/cookies';
 import { profileFromSession, type AdvancedProfile } from '@/types/profile';
+import { findProfile, findPublicProfile, hasDatabase, saveProfile } from '@/server/database/repositories';
 
 export const PROFILE_COOKIE = 'vertyx_profile';
 
@@ -49,9 +50,18 @@ export function sanitizeProfileDraft(profile: Partial<AdvancedProfile>): Partial
   };
 }
 
-export async function getAdvancedProfile(request: Request): Promise<{ profile: AdvancedProfile; source: 'remote' | 'local' | 'session' }> {
+export async function getAdvancedProfile(request: Request): Promise<{ profile: AdvancedProfile; source: 'database' | 'remote' | 'local' | 'session' }> {
   const sessionProfile = readProfileFromRequest(request);
   const base = profileFromSession(sessionProfile);
+
+  if (hasDatabase() && sessionProfile) {
+    try {
+      const stored = await findProfile(sessionProfile.id);
+      if (stored) return { profile: { ...base, ...stored }, source: 'database' };
+    } catch (error) {
+      console.error('[profile-database]', error);
+    }
+  }
 
   if (profileApiUrl) {
     try {
@@ -74,6 +84,15 @@ export async function saveAdvancedProfile(request: Request, profile: Partial<Adv
   const draft = sanitizeProfileDraft(profile);
   const next = { ...current.profile, ...draft, stats: { ...current.profile.stats, ...draft.stats }, theme: { ...current.profile.theme, ...draft.theme }, preferences: { ...current.profile.preferences, ...draft.preferences } };
 
+  if (hasDatabase()) {
+    try {
+      await saveProfile(next);
+      return Response.json({ profile: next, source: 'database', persisted: true });
+    } catch (error) {
+      console.error('[profile-database:save]', error);
+    }
+  }
+
   if (profileApiUrl) {
     try {
       const response = await fetch(`${profileApiUrl}/profile`, { method: 'PUT', headers: requestHeaders(request), body: JSON.stringify(next), cache: 'no-store' });
@@ -87,6 +106,16 @@ export async function saveAdvancedProfile(request: Request, profile: Partial<Adv
 }
 
 export async function getPublicProfile(request: Request, username: string): Promise<Response> {
+  if (hasDatabase()) {
+    try {
+      const profile = await findPublicProfile(username);
+      if (profile) return Response.json({ profile, source: 'database' });
+      return Response.json({ error: 'Perfil no encontrado' }, { status: 404 });
+    } catch (error) {
+      console.error('[profile-database:public]', error);
+    }
+  }
+
   if (profileApiUrl) {
     try {
       const response = await fetch(`${profileApiUrl}/profiles/${encodeURIComponent(username)}`, { headers: requestHeaders(request), cache: 'no-store' });

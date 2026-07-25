@@ -3,6 +3,7 @@ import { cookieOptions, encodeJsonCookie, readProfileFromRequest, SUBMISSIONS_CO
 import { readLocalSubmissions } from '@/server/submissions/local-cookie';
 import type { AdminOverview, ModerationAction, ModerationResult, OAuthActionResult, OAuthProvider, ProCheckoutIntent, ProfileAssetIntent, ProfileAssetKind } from '@/types/infrastructure';
 import { statusFromModerationAction } from '@/types/infrastructure';
+import { hasDatabase, updateSubmission } from '@/server/database/repositories';
 
 const proBenefits = ['Insignia Pro animada', 'Marcos y banners exclusivos', 'Colores premium', 'Sin anuncios', 'Acceso anticipado', 'Sincronización futura con Discord'];
 
@@ -74,10 +75,19 @@ export function getAdminOverview(request: Request): AdminOverview | Response {
   };
 }
 
-export function moderateSubmission(request: Request, id: string, action: ModerationAction): Response {
+export async function moderateSubmission(request: Request, id: string, action: ModerationAction): Promise<Response> {
   const profile = readProfileFromRequest(request);
   if (!profile || !can(profile.role, 'submission:review')) return new Response(JSON.stringify({ ok: false, ready: true, message: 'No autorizado' } satisfies ModerationResult), { status: 403, headers: { 'Content-Type': 'application/json' } });
   const status = statusFromModerationAction(action);
+  if (hasDatabase()) {
+    try {
+      const item = await updateSubmission(id, status, profile.id);
+      if (!item) return new Response(JSON.stringify({ ok: false, ready: true, message: 'Solicitud no encontrada' } satisfies ModerationResult), { status: 404, headers: { 'Content-Type': 'application/json' } });
+      return Response.json({ ok: true, ready: true, item, status, message: `${item.title}: ${status}` } satisfies ModerationResult);
+    } catch (error) {
+      console.error('[moderation-database]', error);
+    }
+  }
   const items = readLocalSubmissions(request);
   const item = items.find((entry) => entry.id === id);
   if (!item) return new Response(JSON.stringify({ ok: false, ready: true, message: 'Solicitud no encontrada' } satisfies ModerationResult), { status: 404, headers: { 'Content-Type': 'application/json' } });

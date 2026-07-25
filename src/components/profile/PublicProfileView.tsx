@@ -20,9 +20,9 @@ function findSavedProfile(username: string): AdvancedProfile | undefined {
   return undefined;
 }
 
-export default function PublicProfileView({ username }: { username: string }) {
+export default function PublicProfileView({ username, initialProfile }: { username: string; initialProfile?: AdvancedProfile }) {
   const { session, ready } = useSessionSnapshot();
-  const [savedProfile, setSavedProfile] = useState<AdvancedProfile>();
+  const [savedProfile, setSavedProfile] = useState<AdvancedProfile | undefined>(initialProfile);
   const [publicNotice, setPublicNotice] = useState<string>();
   const sessionProfile = profileFromSession(session.profile);
   const profile = savedProfile ?? sessionProfile;
@@ -32,7 +32,7 @@ export default function PublicProfileView({ username }: { username: string }) {
   const background = PROFILE_BACKGROUNDS.find((item) => item.id === profile.theme.backgroundId)?.preview;
 
   useEffect(() => {
-    if (!ready) return;
+    if (!ready || initialProfile) return;
     const loadPublicProfile = async () => {
       try {
         const response = await fetch(`/api/profile/public/${encodeURIComponent(username)}`);
@@ -52,7 +52,7 @@ export default function PublicProfileView({ username }: { username: string }) {
       }
     };
     void loadPublicProfile();
-  }, [ready, username]);
+  }, [initialProfile, ready, username]);
 
   return <section className="vault-public-profile vault-public-profile--refined" style={{ '--profile-accent': profile.theme.accent, '--profile-color': profile.theme.profileColor } as React.CSSProperties}>
     <div className="vault-public-profile__shell">

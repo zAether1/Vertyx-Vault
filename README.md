@@ -18,6 +18,12 @@ La app ya incluye endpoints propios para funcionar sin servicios externos:
 - `POST /api/session/logout`: cierra sesión local.
 - `GET /api/library` / `PUT /api/library`: biblioteca, historial y progreso por cookie.
 
+## Persistencia Neon
+
+La integración Neon `vertyx-vault-db` queda conectada al proyecto en producción, preview y desarrollo. La aplicación usa `DATABASE_URL` con `@neondatabase/serverless` y crea de forma idempotente las tablas para perfiles, biblioteca, solicitudes, actividad y notificaciones en la primera operación persistente.
+
+Las credenciales son variables cifradas administradas por la integración; no se copian al repositorio. Consulta [Neon en Vercel Marketplace](https://vercel.com/marketplace/neon/neon) para administrar el recurso.
+
 ## Proveedores externos opcionales
 
 La UI no depende de un proveedor concreto. Si luego conectas servicios reales, configura estas variables en Vercel:
