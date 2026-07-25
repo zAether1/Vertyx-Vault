@@ -29,7 +29,7 @@ function baseSession(): Omit<SessionSnapshot, 'state' | 'profile'> {
 export async function getSessionSnapshot(request?: Request): Promise<SessionSnapshot> {
   const base = baseSession();
   const localProfile = readProfileFromRequest(request);
-  if (localProfile) return { ...base, state: 'authenticated', profile: localProfile };
+  if (localProfile) return { ...base, state: localProfile.role === 'guest' ? 'guest' : 'authenticated', profile: localProfile };
 
   if (!authUrl) return { ...base, state: 'guest' };
 

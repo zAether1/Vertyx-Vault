@@ -3,6 +3,7 @@ import type { UserProfile } from '@/types/session';
 
 export const SESSION_COOKIE = 'vertyx_session';
 export const LIBRARY_COOKIE = 'vertyx_library';
+export const SUBMISSIONS_COOKIE = 'vertyx_submissions';
 
 function toBase64Url(value: string) {
   return Buffer.from(value, 'utf8').toString('base64url');
@@ -59,9 +60,23 @@ export function sanitizeLibrarySnapshot(snapshot: Partial<LibrarySnapshot>): Lib
 export function createDemoProfile(name: string): UserProfile {
   const trimmed = name.trim().slice(0, 60) || 'Usuario Vertyx';
   return {
-    id: `local-${crypto.randomUUID()}`,
+    id: `user-${crypto.randomUUID()}`,
     name: trimmed,
-    plan: 'Local',
+    plan: 'free',
+    role: 'user',
+    provider: 'local',
+    createdAt: new Date().toISOString(),
+  };
+}
+
+export function createGuestProfile(): UserProfile {
+  const id = crypto.randomUUID();
+  return {
+    id: `guest-${id}`,
+    name: `Invitado ${id.slice(0, 6).toUpperCase()}`,
+    plan: 'free',
+    role: 'guest',
+    provider: 'guest',
     createdAt: new Date().toISOString(),
   };
 }
