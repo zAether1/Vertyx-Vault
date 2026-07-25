@@ -70,7 +70,7 @@ export default function Header({ onOpenMobileSearch }: { onOpenMobileSearch: () 
       <div className="flex items-center flex-1">
         <a href="/" className="flex items-center group" aria-label="Vertyx Vault, inicio">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/Vertyx-Vault-2.png" alt="Vertyx Vault" className="h-11 w-auto max-w-36 object-contain origin-left transition-transform duration-300 group-hover:scale-[1.035]" />
+          <img src="/Vertyx-Vault-2.png" alt="Vertyx Vault" className="h-16 md:h-[4.5rem] w-auto max-w-52 md:max-w-60 object-contain origin-left transition-transform duration-300 group-hover:scale-[1.035]" />
         </a>
         <DesktopNav />
       </div>
