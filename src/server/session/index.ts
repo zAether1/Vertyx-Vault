@@ -1,5 +1,6 @@
 import { hasRemoteCatalogProvider } from '@/server/catalog/remote';
 import { hasLibrarySyncProvider } from '@/server/library/sync';
+import { readProfileFromRequest } from '@/server/session/cookies';
 import type { SessionSnapshot, UserProfile } from '@/types/session';
 
 const authUrl = process.env.VERTYX_AUTH_API_URL?.replace(/\/$/, '');
@@ -17,11 +18,18 @@ export function hasAuthProvider() {
   return Boolean(authUrl);
 }
 
-export async function getSessionSnapshot(request?: Request): Promise<SessionSnapshot> {
-  const base: Omit<SessionSnapshot, 'state' | 'profile'> = {
+function baseSession(): Omit<SessionSnapshot, 'state' | 'profile'> {
+  return {
     librarySyncEnabled: hasLibrarySyncProvider(),
+    localLibraryEnabled: true,
     catalogProviderEnabled: hasRemoteCatalogProvider(),
   };
+}
+
+export async function getSessionSnapshot(request?: Request): Promise<SessionSnapshot> {
+  const base = baseSession();
+  const localProfile = readProfileFromRequest(request);
+  if (localProfile) return { ...base, state: 'authenticated', profile: localProfile };
 
   if (!authUrl) return { ...base, state: 'guest' };
 

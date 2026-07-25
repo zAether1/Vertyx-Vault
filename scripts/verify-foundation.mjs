@@ -2,11 +2,18 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 const requiredFiles = [
+  'src/app/api/catalog/route.ts',
   'src/app/api/catalog/search/route.ts',
+  'src/app/api/catalog/facets/route.ts',
+  'src/app/api/catalog/featured/route.ts',
+  'src/app/api/catalog/top/route.ts',
   'src/app/api/catalog/[id]/source/route.ts',
   'src/app/api/library/route.ts',
   'src/app/api/session/route.ts',
+  'src/app/api/session/login/route.ts',
+  'src/app/api/session/logout/route.ts',
   'src/app/profile/page.tsx',
+  'src/server/catalog/collections.ts',
   'src/server/catalog/remote.ts',
   'src/server/library/sync.ts',
   'src/server/session/index.ts',
@@ -49,4 +56,4 @@ if (missingAlt.length) {
   console.error(`Imágenes sin alt detectadas: ${missingAlt.join(', ')}`);
   process.exit(1);
 }
-console.log('Fundación verificada: rutas, observabilidad, navegación y alt básicos correctos.');
+console.log('Fundación verificada: APIs internas, observabilidad, navegación y alt básicos correctos.');

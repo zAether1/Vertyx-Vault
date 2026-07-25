@@ -12,7 +12,7 @@ export default function ProfilePage() {
     <ProfileSummary />
     <section className="mt-10 vault-glass rounded-3xl p-6 md:p-8">
       <h2 className="text-2xl font-bold">Siguiente conexión requerida</h2>
-      <p className="mt-3 text-[#eee9f4]/65">Configura `VERTYX_AUTH_API_URL` para resolver sesión/perfil reales y `VERTYX_LIBRARY_API_URL` para sincronizar favoritos, historial y progreso.</p>
+      <p className="mt-3 text-[#eee9f4]/65">La sesión local y la biblioteca ya funcionan con APIs internas. Configura `VERTYX_AUTH_API_URL` o `VERTYX_LIBRARY_API_URL` solo si quieres sustituirlas por servicios remotos persistentes.</p>
       <Link href="/library" className="vault-action mt-6 inline-block">Ver mi biblioteca</Link>
     </section>
   </main>;

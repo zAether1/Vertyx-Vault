@@ -13,7 +13,7 @@ export default function LibrarySync() {
 
   useEffect(() => {
     void fetch('/api/library')
-      .then((response) => response.status === 204 ? undefined : response.json())
+      .then((response) => response.ok ? response.json() : undefined)
       .then((snapshot) => {
         if (snapshot && Array.isArray(snapshot.favorites) && Array.isArray(snapshot.history) && Array.isArray(snapshot.progress)) replaceLibrary(snapshot);
         ready.current = true;

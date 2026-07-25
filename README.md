@@ -1,10 +1,26 @@
 # Vertyx Vault
 
-Plataforma Next.js para descubrir, organizar y reproducir contenido audiovisual desde proveedores autorizados.
+Plataforma Next.js para descubrir, organizar y reproducir contenido audiovisual.
 
-## Proveedores autorizados
+## APIs internas funcionales
 
-La UI no depende de un proveedor concreto. Para conectar datos reales, configura estas variables en Vercel:
+La app ya incluye endpoints propios para funcionar sin servicios externos:
+
+- `GET /api/catalog`: lista catálogo con filtros `q`, `kind`, `genre`, `year`, `limit`.
+- `GET /api/catalog/search`: búsqueda rápida para la UI.
+- `GET /api/catalog/facets`: géneros, años y tipos disponibles.
+- `GET /api/catalog/featured`: destacados del hero.
+- `GET /api/catalog/top`: top títulos, opcional `kind=movie|series`.
+- `GET /api/catalog/:id`: detalle y recomendaciones.
+- `GET /api/catalog/:id/source`: fuente normalizada; devuelve estado no disponible si no hay video autorizado.
+- `GET /api/session`: sesión actual.
+- `POST /api/session/login`: crea sesión local demo por cookie.
+- `POST /api/session/logout`: cierra sesión local.
+- `GET /api/library` / `PUT /api/library`: biblioteca, historial y progreso por cookie.
+
+## Proveedores externos opcionales
+
+La UI no depende de un proveedor concreto. Si luego conectas servicios reales, configura estas variables en Vercel:
 
 - `VERTYX_CATALOG_API_URL`: backend autorizado que expone `/catalog/search`, `/catalog/titles/:id`, `/catalog/titles/:id/recommendations` y `/catalog/titles/:id/source`.
 - `VERTYX_CATALOG_API_KEY`: token server-side opcional para el catálogo. No se expone al cliente.
@@ -13,7 +29,7 @@ La UI no depende de un proveedor concreto. Para conectar datos reales, configura
 - `VERTYX_AUTH_API_URL`: backend autorizado que expone `/session` para resolver el perfil activo.
 - `VERTYX_AUTH_API_KEY`: token server-side opcional para el proveedor de sesión.
 
-Sin esas variables, la app usa el catálogo local y mantiene la biblioteca en el dispositivo con `zustand`.
+Sin esas variables, la app usa APIs internas y cookies HTTP-only.
 
 ## Validación
 

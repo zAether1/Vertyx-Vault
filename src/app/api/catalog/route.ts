@@ -1,15 +1,19 @@
 import { NextResponse } from 'next/server';
 import { searchCatalog } from '@/server/catalog';
+import { getCatalogFacets } from '@/server/catalog/facets';
 import type { CatalogKind } from '@/types/catalog';
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
-  const kind = searchParams.get('kind') ?? undefined;
+  const kind = searchParams.get('kind') ?? searchParams.get('type') ?? undefined;
   const items = await searchCatalog({
     query: searchParams.get('q') ?? undefined,
     kind: kind === 'movie' || kind === 'series' || kind === 'tv' || kind === 'all' ? kind as CatalogKind | 'tv' | 'all' : undefined,
     genre: searchParams.get('genre') ?? undefined,
     year: searchParams.get('year') ?? undefined,
   });
-  return NextResponse.json({ items, total: items.length });
+  const limit = Number(searchParams.get('limit') ?? 0);
+  const safeLimit = Number.isFinite(limit) && limit > 0 ? Math.min(limit, 100) : undefined;
+  const limitedItems = safeLimit ? items.slice(0, safeLimit) : items;
+  return NextResponse.json({ items: limitedItems, total: items.length, facets: await getCatalogFacets(items) });
 }
