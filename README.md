@@ -18,6 +18,17 @@ La app ya incluye endpoints propios para funcionar sin servicios externos:
 - `POST /api/session/logout`: cierra sesión local.
 - `GET /api/library` / `PUT /api/library`: biblioteca, historial y progreso por cookie.
 
+## Fuentes de vídeo por URL
+
+No necesitas una API externa para reproducir contenido. Añade cada URL autorizada en [`src/data/media-sources.ts`](src/data/media-sources.ts):
+
+- Película: usa como clave el ID de la ruta, por ejemplo `/title/12345` usa `'12345'`.
+- Episodio: usa `'12345:12345-s1e1'`; esta entrada tiene prioridad sobre la fuente general de la serie.
+- Formatos: `mp4`, `hls` (`.m3u8`), `embed` y `dash` (`.mpd`). MP4, HLS y embed ya se reproducen. DASH queda registrado, pero requiere instalar y conectar un adaptador DASH cuando vayas a usar una fuente de ese formato.
+- No añadas tokens ni URLs firmadas con secretos al repositorio; entrégalos desde un backend autorizado si el proveedor los exige.
+
+El reproductor seguirá mostrando el estado de contenido no disponible hasta que exista una entrada para el título o episodio.
+
 ## Proveedores externos opcionales
 
 La UI no depende de un proveedor concreto. Si luego conectas servicios reales, configura estas variables en Vercel:
