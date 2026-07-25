@@ -5,7 +5,8 @@ export default function Footer() {
       <div className="border-t border-[#b9a9ca]/12 max-w-5xl mx-auto pt-6 md:pt-10 text-center px-4">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/vertyx-vault-logo.png" alt="Vertyx Vault" className="mx-auto h-16 w-auto max-w-44 object-contain opacity-90" />
-        <p className="text-[#eee9f4]/45 text-xs mt-2">Descubre, organiza y vuelve a tus historias favoritas.</p>
+        <p className="mx-auto mt-3 max-w-xl text-xs leading-relaxed text-[#eee9f4]/50">Esta página no almacena ningún archivo en sus servidores. Todo el contenido es proporcionado por terceros independientes no afiliados a Vertyx Vault.</p>
+        <p className="mt-4 text-[.68rem] font-medium uppercase tracking-[.16em] text-[#b9a9ca]/60">© 2026 Vertyx Vault. Todos los derechos reservados.</p>
       </div>
     </footer>
   );
