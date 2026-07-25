@@ -1,3 +1,4 @@
+import { getLocalMediaSource } from '@/data/media-sources';
 import { catalog, findContent, filterCatalog } from '@/lib/catalog';
 import type { CatalogProvider, CatalogSearchFilters, CatalogTitle, PlaybackRequest } from '@/types/catalog';
 import type { MediaSource } from '@/types/media';
@@ -54,7 +55,7 @@ export const localCatalogProvider: CatalogProvider = {
     const fallback = catalog.filter((item) => item.id !== id).slice(0, 8);
     return (sameCollection.length ? sameCollection : fallback).map(withMetadata);
   },
-  async playbackSource(_request: PlaybackRequest): Promise<MediaSource | undefined> {
-    return undefined;
+  async playbackSource(request: PlaybackRequest): Promise<MediaSource | undefined> {
+    return getLocalMediaSource(request.titleId, request.episodeId);
   },
 };

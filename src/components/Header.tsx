@@ -5,15 +5,15 @@ import { usePathname } from 'next/navigation';
 import { NAV_ITEMS, type NavIconName } from '@/data/navigation';
 import { useLiveSearch, useTypingPlaceholder } from '@/hooks/useLiveSearch';
 import SearchResults from '@/components/SearchResults';
-import { CloseIcon, HomeIcon, MoviesIcon, SearchIcon, TrendingIcon, TvIcon } from '@/components/icons';
+import { BookmarkIcon, CloseIcon, HomeIcon, MoviesIcon, ProfileIcon, SearchIcon, TrendingIcon, TvIcon } from '@/components/icons';
 
 const NAV_ICONS: Record<NavIconName, (props: { className?: string }) => React.ReactNode> = {
   home: HomeIcon,
   trending: TrendingIcon,
   movies: MoviesIcon,
   tv: TvIcon,
-  library: HomeIcon,
-  profile: HomeIcon,
+  library: BookmarkIcon,
+  profile: ProfileIcon,
 };
 
 function DesktopNav() {

@@ -26,6 +26,8 @@ export function getRecommendations(id: string) {
   return withFallback(() => provider.recommendations(id), () => localCatalogProvider.recommendations(id));
 }
 
-export function getPlaybackSource(request: PlaybackRequest) {
+export async function getPlaybackSource(request: PlaybackRequest) {
+  const localSource = await localCatalogProvider.playbackSource(request);
+  if (localSource) return localSource;
   return withFallback(() => provider.playbackSource(request), () => localCatalogProvider.playbackSource(request));
 }

@@ -109,33 +109,17 @@ export default function TopTenRow({ variant, seeAllHref, items }: TopTenRowProps
               ))}
             </div>
 
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={1.5}
-              stroke="currentColor"
-              aria-hidden="true"
-              data-slot="icon"
-              onClick={() => scrollBy(-scrollAmount)}
-              className={`absolute top-0 bottom-0 left-2 z-40 m-auto h-6 w-6 md:h-9 md:w-9 cursor-pointer opacity-0 transition hover:scale-125 group-hover/row:opacity-100 ${showLeft ? '' : 'hidden'}`}
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
-            </svg>
+            <button type="button" aria-label="Desplazar títulos anteriores" onClick={() => scrollBy(-scrollAmount)} className={`absolute top-0 bottom-0 left-2 z-40 m-auto grid h-9 w-9 place-items-center rounded-full text-[#eee9f4] opacity-0 transition hover:scale-125 focus-visible:opacity-100 group-hover/row:opacity-100 ${showLeft ? '' : 'hidden'}`}>
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" aria-hidden="true" className="h-6 w-6">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
+              </svg>
+            </button>
 
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={1.5}
-              stroke="currentColor"
-              aria-hidden="true"
-              data-slot="icon"
-              onClick={() => scrollBy(scrollAmount)}
-              className={`absolute top-0 bottom-0 right-2 z-40 m-auto h-6 w-6 md:h-9 md:w-9 cursor-pointer opacity-0 transition hover:scale-125 group-hover/row:opacity-100 ${showRight ? '' : 'hidden'}`}
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
-            </svg>
+            <button type="button" aria-label="Desplazar títulos siguientes" onClick={() => scrollBy(scrollAmount)} className={`absolute top-0 bottom-0 right-2 z-40 m-auto grid h-9 w-9 place-items-center rounded-full text-[#eee9f4] opacity-0 transition hover:scale-125 focus-visible:opacity-100 group-hover/row:opacity-100 ${showRight ? '' : 'hidden'}`}>
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" aria-hidden="true" className="h-6 w-6">
+                <path strokeLinecap="round" strokeLinejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
+              </svg>
+            </button>
           </div>
         </div>
       </div>
