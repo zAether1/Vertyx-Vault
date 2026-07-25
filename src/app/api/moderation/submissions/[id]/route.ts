@@ -8,5 +8,5 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   const body = await request.json().catch(() => ({})) as { action?: ModerationAction };
   if (!body.action || !actions.includes(body.action)) return NextResponse.json({ ok: false, ready: true, message: 'Acción de moderación inválida.' }, { status: 400 });
   const { id } = await params;
-  return moderateSubmission(request, id, body.action);
+  return await moderateSubmission(request, id, body.action);
 }

@@ -1,0 +1,87 @@
+import { database, ensureVaultSchema, hasDatabase } from '@/server/database/client';
+import type { LibrarySnapshot } from '@/types/library';
+import type { AdvancedProfile } from '@/types/profile';
+import type { ContentSubmission, SubmissionStatus } from '@/types/submission';
+
+export { hasDatabase };
+
+type ProfileRow = { profile: AdvancedProfile };
+type LibraryRow = { snapshot: LibrarySnapshot };
+type SubmissionRow = { submission: ContentSubmission };
+
+export async function findProfile(userId: string) {
+  if (!hasDatabase()) return undefined;
+  await ensureVaultSchema();
+  const sql = database();
+  const [row] = await sql`SELECT profile FROM vertyx_profiles WHERE user_id = ${userId} LIMIT 1` as unknown as ProfileRow[];
+  return row?.profile;
+}
+
+export async function findPublicProfile(username: string) {
+  if (!hasDatabase()) return undefined;
+  await ensureVaultSchema();
+  const sql = database();
+  const [row] = await sql`SELECT profile FROM vertyx_profiles WHERE username = ${username.toLowerCase()} AND visibility = 'public' LIMIT 1` as unknown as ProfileRow[];
+  return row?.profile;
+}
+
+export async function saveProfile(profile: AdvancedProfile) {
+  if (!hasDatabase()) return false;
+  await ensureVaultSchema();
+  const sql = database();
+  await sql`INSERT INTO vertyx_profiles (user_id, username, visibility, profile)
+    VALUES (${profile.id}, ${profile.username.toLowerCase()}, ${profile.preferences.privacy.visibility}, ${JSON.stringify(profile)}::jsonb)
+    ON CONFLICT (user_id) DO UPDATE SET
+      username = EXCLUDED.username,
+      visibility = EXCLUDED.visibility,
+      profile = EXCLUDED.profile,
+      updated_at = NOW()`;
+  return true;
+}
+
+export async function readLibrary(userId: string) {
+  if (!hasDatabase()) return undefined;
+  await ensureVaultSchema();
+  const sql = database();
+  const [row] = await sql`SELECT snapshot FROM vertyx_libraries WHERE user_id = ${userId} LIMIT 1` as unknown as LibraryRow[];
+  return row?.snapshot;
+}
+
+export async function saveLibrary(userId: string, snapshot: LibrarySnapshot) {
+  if (!hasDatabase()) return false;
+  await ensureVaultSchema();
+  const sql = database();
+  await sql`INSERT INTO vertyx_libraries (user_id, snapshot) VALUES (${userId}, ${JSON.stringify(snapshot)}::jsonb)
+    ON CONFLICT (user_id) DO UPDATE SET snapshot = EXCLUDED.snapshot, updated_at = NOW()`;
+  return true;
+}
+
+export async function listSubmissions(userId: string, canReview: boolean) {
+  if (!hasDatabase()) return undefined;
+  await ensureVaultSchema();
+  const sql = database();
+  const rows = canReview
+    ? await sql`SELECT submission FROM vertyx_submissions ORDER BY submitted_at DESC LIMIT 200` as unknown as SubmissionRow[]
+    : await sql`SELECT submission FROM vertyx_submissions WHERE submitted_by = ${userId} ORDER BY submitted_at DESC LIMIT 200` as unknown as SubmissionRow[];
+  return rows.map((row) => row.submission);
+}
+
+export async function createSubmission(item: ContentSubmission) {
+  if (!hasDatabase()) return false;
+  await ensureVaultSchema();
+  const sql = database();
+  await sql`INSERT INTO vertyx_submissions (id, submitted_by, status, submission, submitted_at)
+    VALUES (${item.id}, ${item.submittedBy}, ${item.status}, ${JSON.stringify(item)}::jsonb, ${item.submittedAt}::timestamptz)`;
+  return true;
+}
+
+export async function updateSubmission(id: string, status: SubmissionStatus, reviewer: string) {
+  if (!hasDatabase()) return undefined;
+  await ensureVaultSchema();
+  const sql = database();
+  const [existing] = await sql`SELECT submission FROM vertyx_submissions WHERE id = ${id} LIMIT 1` as unknown as SubmissionRow[];
+  if (!existing) return undefined;
+  const item: ContentSubmission = { ...existing.submission, status, reviewedBy: reviewer, reviewedAt: new Date().toISOString() };
+  await sql`UPDATE vertyx_submissions SET status = ${status}, submission = ${JSON.stringify(item)}::jsonb, reviewed_by = ${reviewer}, reviewed_at = NOW() WHERE id = ${id}`;
+  return item;
+}
