@@ -11,6 +11,7 @@ const NAV_ICONS: Record<NavIconName, (props: { className?: string }) => React.Re
   trending: TrendingIcon,
   movies: MoviesIcon,
   tv: TvIcon,
+  library: HomeIcon,
 };
 
 function DesktopNav() {

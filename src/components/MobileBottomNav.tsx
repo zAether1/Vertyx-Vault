@@ -6,13 +6,15 @@ const NAV_ICONS: Record<NavIconName, (props: { className?: string }) => React.Re
   trending: TrendingIcon,
   movies: MoviesIcon,
   tv: TvIcon,
+  library: HomeIcon,
 };
 
 const LABELS: Record<NavIconName, string> = {
   home: 'Home',
   trending: 'Trending',
   movies: 'Movies',
-  tv: 'TV Shows',
+  tv: 'Series',
+  library: 'Mi lista',
 };
 
 /** Dock flotante de navegación móvil del template (esquina inferior derecha). */
