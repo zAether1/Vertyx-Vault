@@ -13,7 +13,7 @@ export default async function TitlePage({ params }: { params: Promise<{ id: stri
     <main className="vault-detail"><HistoryTracker id={item.id} />
       {item.backdrop && <div className="vault-detail__backdrop" style={{ backgroundImage: `url(${item.backdrop})` }} />}
       <Reveal className="vault-detail__content">
-        <Link href="/explore" className="text-sm text-[#e8dff2]/65 hover:text-[#e8dff2]">← Volver a explorar</Link>
+        <Link href="/explore" className="text-sm text-[#eee9f4]/65 hover:text-[#eee9f4]">← Volver a explorar</Link>
         <p className="vault-page__eyebrow mt-10">{item.kind === 'series' ? 'Serie' : 'Película'}{item.collection ? ` · ${item.collection}` : ''}</p>
         <h1 className="mt-3 text-4xl md:text-7xl font-bold tracking-tight">{item.title}</h1>
         <div className="vault-detail__meta">
@@ -21,7 +21,7 @@ export default async function TitlePage({ params }: { params: Promise<{ id: stri
           {item.rating && <span>Valoración {item.rating}</span>}
           <span>{item.kind === 'series' ? 'Serie' : 'Película'}</span>
         </div>
-        <p className="text-[#e8dff2]/75 max-w-2xl leading-relaxed">{item.description ?? 'Información ampliada disponible cuando se conecte el catálogo autorizado.'}</p>
+        <p className="text-[#eee9f4]/75 max-w-2xl leading-relaxed">{item.description ?? 'Información ampliada disponible cuando se conecte el catálogo autorizado.'}</p>
       <div className="mt-7"><FavoriteButton id={item.id} /></div></Reveal>
       <section className="vault-player" aria-label={`Reproductor de ${item.title}`}>
         <PlaybackProgress id={item.id} title={item.title} />

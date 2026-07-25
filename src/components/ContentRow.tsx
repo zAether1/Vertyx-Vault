@@ -9,14 +9,14 @@ import { ChevronLeftIcon, ChevronRightIcon } from '@/components/icons';
 function PosterCard({ card }: { card: RowCard }) {
   return (
     <div
-      className="relative rounded-2xl focus:outline-none focus:ring-4 focus:ring-violet-600 focus:ring-opacity-75 transition-all duration-200"
+      className="relative rounded-2xl focus:outline-none focus:ring-4 focus:ring-[#8f5bd7] focus:ring-opacity-75 transition-all duration-200"
       tabIndex={0}
     >
       <a
         href={contentHref({ id: contentIdFromLegacyHref(card.href, card.title) })}
         className="cursor-pointer relative group flex-shrink-0 text-left w-full h-full p-0 bg-transparent border-none"
       >
-        <div className="relative w-[160px] md:w-[180px] overflow-hidden rounded-2xl transition-all duration-300 hover:shadow-[0_0_25px_rgba(59,130,246,0.5)] hover:scale-105 hover:z-10">
+        <div className="relative w-[160px] md:w-[180px] overflow-hidden rounded-2xl transition-all duration-300 hover:shadow-[0_0_28px_rgba(143,91,215,0.34)] hover:scale-105 hover:z-10">
           <Image src={card.poster} alt={`Póster de ${card.title}`} width={360} height={540} sizes="(max-width: 768px) 160px, 180px" className="aspect-[2/3] object-cover w-full" />
           <div className="absolute top-2 left-2 z-20">
             <div className="relative w-12 h-12 group-hover:scale-110 transition-transform duration-300 group-hover:rotate-12">
@@ -27,7 +27,7 @@ function PosterCard({ card }: { card: RowCard }) {
                   cy="18"
                   r="15"
                   fill="none"
-                  stroke="#333"
+                  stroke="#14121b"
                   strokeWidth="3"
                   strokeOpacity="0.5"
                 />
@@ -36,7 +36,7 @@ function PosterCard({ card }: { card: RowCard }) {
                   cy="18"
                   r="15"
                   fill="none"
-                  stroke="#a78bfa"
+                  stroke="#8f5bd7"
                   strokeWidth="3"
                   strokeDasharray={`${card.progress} 100`}
                   strokeDashoffset="25"
@@ -46,14 +46,14 @@ function PosterCard({ card }: { card: RowCard }) {
                 />
               </svg>
               <div className="absolute inset-0 flex items-center justify-center">
-                <span className="text-[#e8dff2] font-bold text-sm drop-shadow-md">
+                <span className="text-[#eee9f4] font-bold text-sm drop-shadow-md">
                   {card.rating}
                 </span>
               </div>
             </div>
           </div>
-          <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-all duration-500 bg-gradient-to-b from-transparent via-transparent to-violet-900/50 pointer-events-none"></div>
-          <div className="absolute inset-0 opacity-0 group-hover:opacity-100 rounded-2xl transition-opacity duration-300 border-2 border-violet-500/30 pointer-events-none"></div>
+          <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-all duration-500 bg-gradient-to-b from-transparent via-transparent to-[#5f318f]/45 pointer-events-none"></div>
+          <div className="absolute inset-0 opacity-0 group-hover:opacity-100 rounded-2xl transition-opacity duration-300 border-2 border-[#8f5bd7]/30 pointer-events-none"></div>
         </div>
       </a>
     </div>
@@ -77,21 +77,21 @@ export default function ContentRow({ row }: { row: ContentRowData }) {
       <div className="py-6 md:py-8">
         <div className="flex items-center justify-between px-4 md:px-8 mb-4">
           <div className="flex items-center">
-            <h2 className="text-2xl md:text-3xl font-bold text-[#e8dff2]">{row.title}</h2>
-            <div className="h-8 border-l border-gray-600 mx-4"></div>
-            <a href="/explore" className="text-violet-400 text-sm hover:underline">
+            <h2 className="text-2xl md:text-3xl font-bold text-[#eee9f4]">{row.title}</h2>
+            <div className="h-8 border-l border-[#b9a9ca]/18 mx-4"></div>
+            <a href="/explore" className="text-[#c9a8f0] text-sm hover:text-[#eee9f4] transition-colors">
               Ver todo
             </a>
           </div>
           <div className="scroll-buttons flex space-x-2">
             <button
-              className="bg-transparent text-[#b8a8c8] hover:text-[#e8dff2] p-1 rounded-full"
+              className="bg-transparent text-[#b8a8c8] hover:text-[#eee9f4] p-1 rounded-full"
               onClick={() => scrollBy(-scrollAmount)}
             >
               <ChevronLeftIcon className="h-6 w-6" />
             </button>
             <button
-              className="bg-transparent text-[#b8a8c8] hover:text-[#e8dff2] p-1 rounded-full"
+              className="bg-transparent text-[#b8a8c8] hover:text-[#eee9f4] p-1 rounded-full"
               onClick={() => scrollBy(scrollAmount)}
             >
               <ChevronRightIcon className="h-6 w-6" />

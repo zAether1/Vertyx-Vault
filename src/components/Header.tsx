@@ -43,10 +43,10 @@ function DesktopSearch() {
   const placeholder = useTypingPlaceholder();
   return (
     <div className="relative w-96 hidden md:block">
-      <SearchIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-[#e8dff2]/70 z-10" />
+      <SearchIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-[#eee9f4]/70 z-10" />
       <form role="search" className="w-full relative" autoComplete="off" onSubmit={(event) => event.preventDefault()}>
-        <input type="search" name="q" placeholder={placeholder} value={query} onChange={(event) => onInput(event.target.value)} className="w-full bg-violet-200/[0.04] text-[#e8dff2] text-sm placeholder-violet-200/45 pl-11 pr-10 py-2.5 rounded-full border border-violet-200/10 outline-none focus:border-violet-300/60 transition-colors" autoComplete="off" />
-        {query && <button type="button" onClick={clear} aria-label="Limpiar búsqueda" className="absolute right-3 top-1/2 -translate-y-1/2 text-[#e8dff2]/70 hover:text-[#e8dff2]"><CloseIcon className="w-4 h-4" /></button>}
+        <input type="search" name="q" placeholder={placeholder} value={query} onChange={(event) => onInput(event.target.value)} className="w-full bg-[#5f318f]/[0.07] text-[#eee9f4] text-sm placeholder-[#b9a9ca]/55 pl-11 pr-10 py-2.5 rounded-full border border-[#b9a9ca]/15 outline-none focus:border-[#c9a8f0]/60 transition-colors" autoComplete="off" />
+        {query && <button type="button" onClick={clear} aria-label="Limpiar búsqueda" className="absolute right-3 top-1/2 -translate-y-1/2 text-[#eee9f4]/70 hover:text-[#eee9f4]"><CloseIcon className="w-4 h-4" /></button>}
         <SearchResults id="vault-search-results" state={state} />
       </form>
     </div>
@@ -75,7 +75,7 @@ export default function Header({ onOpenMobileSearch }: { onOpenMobileSearch: () 
         <DesktopNav />
       </div>
       <DesktopSearch />
-      <button type="button" aria-label="Buscar en Vertyx Vault" className="md:hidden p-2 text-[#e8dff2]/85 hover:text-[#e8dff2]" onClick={onOpenMobileSearch}>
+      <button type="button" aria-label="Buscar en Vertyx Vault" className="md:hidden p-2 text-[#eee9f4]/85 hover:text-[#eee9f4]" onClick={onOpenMobileSearch}>
         <SearchIcon className="h-5 w-5" />
       </button>
     </header>
