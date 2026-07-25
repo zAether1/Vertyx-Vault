@@ -41,7 +41,7 @@ Sin esas variables, la app usa APIs internas, cookies HTTP-only y estado local t
 ## Contratos preparados
 
 - `POST /api/profile/oauth/:provider`: devuelve intención de vinculación Google/Discord.
-- `POST /api/profile/assets`: devuelve intención de subida para avatar, banner o portada en Blob.
+- `POST /api/profile/assets`: con JSON devuelve intención de subida; con `multipart/form-data` valida y sube avatar, banner o portada a Vercel Blob.
 - `POST /api/profile/pro/checkout`: devuelve intención de checkout Pro por USD $2/mes.
 - `GET /api/profile` / `PUT /api/profile`: lectura y guardado de perfil avanzado con adaptador remoto y fallback local.
 - `GET /api/profile/public/:username`: lectura de perfil público respetando el proveedor configurado.
