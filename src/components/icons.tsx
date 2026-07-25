@@ -248,6 +248,23 @@ export function CirclePlayIcon({ className }: IconProps) {
   );
 }
 
+export function BookmarkIcon({ className }: IconProps) {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M6 4.75A1.75 1.75 0 0 1 7.75 3h8.5A1.75 1.75 0 0 1 18 4.75V21l-6-3.5L6 21V4.75Z" />
+    </svg>
+  );
+}
+
+export function ProfileIcon({ className }: IconProps) {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+      <circle cx="12" cy="8" r="3.25" />
+      <path strokeLinecap="round" d="M5.5 21c.7-4 3.05-6 6.5-6s5.8 2 6.5 6" />
+    </svg>
+  );
+}
+
 export function BoltIcon({ className }: IconProps) {
   return (
     <svg

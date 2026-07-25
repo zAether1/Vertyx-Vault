@@ -1,13 +1,13 @@
 import { NAV_ITEMS, type NavIconName } from '@/data/navigation';
-import { HomeIcon, MoviesIcon, TrendingIcon, TvIcon } from '@/components/icons';
+import { BookmarkIcon, HomeIcon, MoviesIcon, ProfileIcon, TrendingIcon, TvIcon } from '@/components/icons';
 
 const NAV_ICONS: Record<NavIconName, (props: { className?: string }) => React.ReactNode> = {
   home: HomeIcon,
   trending: TrendingIcon,
   movies: MoviesIcon,
   tv: TvIcon,
-  library: HomeIcon,
-  profile: HomeIcon,
+  library: BookmarkIcon,
+  profile: ProfileIcon,
 };
 
 const LABELS: Record<NavIconName, string> = {

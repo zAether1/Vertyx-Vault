@@ -67,15 +67,16 @@ export default function MobileSearchOverlay({ open, onClose }: MobileSearchOverl
             >
               <div className="mt-1 space-y-2">
                 {MOBILE_SUGGESTIONS.map((s) => (
-                  <div
+                  <button
                     key={s.title}
-                    className="px-4 py-2 bg-[#5f318f]/16 rounded-full cursor-pointer hover:bg-[#5f318f]/28 transition-colors"
+                    type="button"
+                    className="px-4 py-2 bg-[#5f318f]/16 rounded-full text-left hover:bg-[#5f318f]/28 transition-colors"
                     onClick={() => onInput(s.title)}
                   >
-                    <p className="text-sm text-[#eee9f4]" data-title={s.title}>
+                    <span className="text-sm text-[#eee9f4]" data-title={s.title}>
                       {s.text}
-                    </p>
-                  </div>
+                    </span>
+                  </button>
                 ))}
               </div>
             </div>
