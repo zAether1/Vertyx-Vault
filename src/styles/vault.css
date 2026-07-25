@@ -1,6 +1,6 @@
 :root {
-  --vault-ink: #07070d;
-  --vault-surface: #0e0d18;
+  --vault-ink: #0b0814;
+  --vault-surface: #151022;
   --vault-surface-raised: rgba(20, 18, 35, 0.72);
   --vault-line: rgba(221, 218, 255, 0.12);
   --vault-text: #f5f3ff;
@@ -17,8 +17,9 @@ body {
   margin: 0;
   color: var(--vault-text);
   background:
-    radial-gradient(circle at 80% -10%, rgba(79, 124, 255, 0.14), transparent 32rem),
-    radial-gradient(circle at 12% 10%, rgba(139, 92, 246, 0.12), transparent 28rem),
+    radial-gradient(circle at 82% -8%, rgba(76, 112, 255, 0.20), transparent 34rem),
+    radial-gradient(circle at 10% 8%, rgba(139, 92, 246, 0.18), transparent 30rem),
+    radial-gradient(circle at 50% 110%, rgba(44, 25, 80, 0.22), transparent 38rem),
     var(--vault-ink);
   font-synthesis: none;
 }
@@ -110,3 +111,11 @@ a:focus-visible, button:focus-visible, input:focus-visible {
 .vault-filter { border: 1px solid var(--vault-line); border-radius: 999px; padding: .55rem .9rem; color: var(--vault-muted); background: rgba(255,255,255,.02); transition: color .2s ease, border-color .2s ease, background .2s ease; }
 .vault-filter:hover { color: var(--vault-text); border-color: rgba(184,165,255,.42); }
 .vault-filter--active { color: white; background: rgba(139,92,246,.24); border-color: rgba(184,165,255,.55); }
+
+.vault-nav-link { color: #c9c1dc; letter-spacing: .01em; }
+.vault-nav-link:hover { color: #f8f6ff; }
+.vault-nav-link--active { color: #c4b5fd; text-shadow: 0 0 18px rgba(196,181,253,.36); }
+.vault-progress-card { overflow: hidden; border-radius: 1rem; background: var(--vault-surface); }
+.vault-progress-card .vault-title-card { border-bottom-left-radius: 0; border-bottom-right-radius: 0; }
+.vault-progress-card__track { height: 3px; background: rgba(255,255,255,.12); }
+.vault-progress-card__value { height: 100%; background: linear-gradient(90deg, var(--vault-violet), var(--vault-blue)); }

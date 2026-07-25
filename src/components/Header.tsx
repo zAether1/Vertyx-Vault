@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { usePathname } from 'next/navigation';
 import { NAV_ITEMS, type NavIconName } from '@/data/navigation';
 import { useLiveSearch, useTypingPlaceholder } from '@/hooks/useLiveSearch';
 import SearchResults from '@/components/SearchResults';
@@ -15,14 +16,18 @@ const NAV_ICONS: Record<NavIconName, (props: { className?: string }) => React.Re
 };
 
 function DesktopNav() {
+  const pathname = usePathname();
+  const [search, setSearch] = useState('');
+  useEffect(() => setSearch(window.location.search.slice(1)), []);
   return (
     <nav className="hidden md:flex items-center ml-8" aria-label="Navegación principal">
       <div className="flex items-center space-x-6">
         {NAV_ITEMS.map((item) => {
           const Icon = NAV_ICONS[item.icon];
-          const active = item.path === '/';
+          const [itemPath, itemQuery] = item.path.split('?');
+          const active = pathname === itemPath && (itemQuery ? search === itemQuery : pathname !== '/explore' || search === '');
           return (
-            <a key={item.id} href={item.path} aria-current={active ? 'page' : undefined} className={`flex items-center text-sm font-medium transition-colors ${active ? 'text-violet-300' : 'text-white/70 hover:text-white'}`}>
+            <a key={item.id} href={item.path} aria-current={active ? 'page' : undefined} className={`vault-nav-link flex items-center text-sm font-medium transition-colors ${active ? 'vault-nav-link--active' : ''}`}>
               <Icon className="h-5 w-5 stroke-[1.5]" />
               <span className="ml-2">{item.label}</span>
             </a>

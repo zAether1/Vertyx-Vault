@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import MediaPlayer from '@/components/player/MediaPlayer';
+import PlaybackProgress from '@/components/player/PlaybackProgress';
 import { findContent } from '@/lib/catalog';
 import { FavoriteButton, HistoryTracker } from '@/components/LibraryActions';
 import Reveal from '@/components/motion/Reveal';
@@ -24,7 +24,7 @@ export default async function TitlePage({ params }: { params: Promise<{ id: stri
         <p className="text-white/75 max-w-2xl leading-relaxed">{item.description ?? 'Información ampliada disponible cuando se conecte el catálogo autorizado.'}</p>
       <div className="mt-7"><FavoriteButton id={item.id} /></div></Reveal>
       <section className="vault-player" aria-label={`Reproductor de ${item.title}`}>
-        <MediaPlayer title={item.title} />
+        <PlaybackProgress id={item.id} title={item.title} />
       </section>
     </main>
   );
