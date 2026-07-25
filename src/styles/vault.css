@@ -103,3 +103,6 @@ a:focus-visible, button:focus-visible, input:focus-visible {
 .vault-player__frame { display: block; width: 100%; aspect-ratio: 16 / 9; border: 0; background: #040407; }
 .vault-player__empty { aspect-ratio: 16 / 9; display: grid; place-content: center; gap: .6rem; text-align: center; color: var(--vault-text); background: radial-gradient(circle at center, rgba(139,92,246,.17), transparent 38%), #040407; }
 .vault-player__empty small { color: var(--vault-muted); }
+
+.vault-action { border: 1px solid var(--vault-line); border-radius: 999px; padding: .7rem 1rem; background: rgba(139,92,246,.16); color: var(--vault-text); transition: background .2s ease, transform .2s ease; }
+.vault-action:hover { background: rgba(139,92,246,.3); transform: translateY(-1px); }
