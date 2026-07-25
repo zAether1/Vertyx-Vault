@@ -33,7 +33,8 @@ La UI no depende de un proveedor concreto. Si luego conectas servicios reales, c
 - `VERTYX_ACCOUNT_API_URL`: backend de seguridad de cuenta para correo, contraseña, 2FA, sesiones, historial y eliminación.
 - `VERTYX_ACCOUNT_API_KEY`: token server-side opcional para operaciones de cuenta.
 - `VERTYX_BLOB_UPLOAD_URL` o `BLOB_READ_WRITE_TOKEN`: almacenamiento para avatares, banners y portadas con Vercel Blob.
-- `VERTYX_PAYMENTS_API_URL` o `STRIPE_SECRET_KEY`: pasarela para Vertyx Vault Pro USD $2/mes.
+- `VERTYX_PRO_API_URL` o `VERTYX_PAYMENTS_API_URL`: backend de suscripción Pro para checkout, portal, webhooks y beneficios.
+- `VERTYX_PRO_API_KEY` o `STRIPE_SECRET_KEY`: credencial server-side del proveedor Pro/pagos.
 - `VERTYX_DISCORD_CLIENT_ID` o `DISCORD_CLIENT_ID`: vinculación y sincronización de rol Pro en Discord.
 - `VERTYX_MODERATION_API_URL`: cola compartida para aprobar, rechazar, editar, ocultar y publicar solicitudes.
 - `VERTYX_ACTIVITY_API_URL`: registro de actividad, auditoría y notificaciones.
@@ -44,7 +45,11 @@ Sin esas variables, la app usa APIs internas, cookies HTTP-only y estado local t
 
 - `POST /api/profile/oauth/:provider`: devuelve intención de vinculación Google/Discord.
 - `POST /api/profile/assets`: con JSON devuelve intención de subida; con `multipart/form-data` valida y sube avatar, banner o portada a Vercel Blob.
-- `POST /api/profile/pro/checkout`: devuelve intención de checkout Pro por USD $2/mes.
+- `GET /api/profile/pro/subscription`: estado de suscripción, beneficios y sincronización Discord.
+- `POST /api/profile/pro/checkout`: crea checkout Pro por USD $2/mes o devuelve fallback si no hay proveedor.
+- `POST /api/profile/pro/portal`: abre portal de gestión Pro cuando exista proveedor.
+- `POST /api/profile/pro/discord`: prepara sincronización del rol Pro en Discord.
+- `POST /api/profile/pro/webhook`: entrada para eventos de pago/cancelación.
 - `GET /api/profile` / `PUT /api/profile`: lectura y guardado de perfil avanzado con adaptador remoto y fallback local.
 - `GET /api/profile/public/:username`: lectura de perfil público respetando el proveedor configurado.
 - `GET /api/admin/overview`: métricas, usuarios, actividad y cola editorial para roles autorizados.

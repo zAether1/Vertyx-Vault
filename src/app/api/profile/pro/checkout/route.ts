@@ -1,6 +1,5 @@
-import { NextResponse } from 'next/server';
-import { createProCheckoutIntent } from '@/server/infrastructure/actions';
+import { createProCheckout } from '@/server/pro/subscription';
 
-export function POST() {
-  return NextResponse.json(createProCheckoutIntent());
+export function POST(request: Request) {
+  return createProCheckout(request);
 }
