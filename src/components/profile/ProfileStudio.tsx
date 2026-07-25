@@ -10,6 +10,7 @@ import { useSessionSnapshot } from '@/hooks/useSessionSnapshot';
 import { AVATAR_FRAMES, PROFILE_ACCENTS, PROFILE_BACKGROUNDS, profilePublicUrl } from '@/lib/profile';
 import { profileFromSession, type AdvancedProfile, type ProfileIntegrationStatus } from '@/types/profile';
 import type { ActionResult, OAuthProvider, ProfileAssetKind } from '@/types/infrastructure';
+import type { AccountSecurityOverview } from '@/types/account';
 
 const TABS = [
   { id: 'identity', label: 'Identidad' },
@@ -22,6 +23,7 @@ const TABS = [
 type TabId = (typeof TABS)[number]['id'];
 
 const emptyStatus: ProfileIntegrationStatus = { auth: false, blob: false, payments: false, discord: false, moderation: false, activity: false };
+const emptySecurity: AccountSecurityOverview = { ready: false, sessions: [], loginHistory: [], twoFactorEnabled: false, providers: { google: false, discord: false } };
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return <label className="vault-profile-field"><span>{label}</span>{children}</label>;
@@ -47,6 +49,7 @@ export default function ProfileStudio() {
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState<string>();
   const [integrations, setIntegrations] = useState<ProfileIntegrationStatus>(emptyStatus);
+  const [security, setSecurity] = useState<AccountSecurityOverview>(emptySecurity);
   const [profile, setProfile] = useState<AdvancedProfile>(() => profileFromSession());
   const panelRef = useRef<HTMLDivElement>(null);
   const avatarRef = useRef<HTMLDivElement>(null);
@@ -98,6 +101,10 @@ export default function ProfileStudio() {
 
   useEffect(() => {
     void fetch('/api/profile/status').then((response) => response.ok ? response.json() as Promise<ProfileIntegrationStatus> : emptyStatus).then(setIntegrations).catch(() => setIntegrations(emptyStatus));
+    void fetch('/api/account/security').then((response) => response.ok ? response.json() as Promise<AccountSecurityOverview> : emptySecurity).then((overview) => {
+      setSecurity(overview);
+      setProfile((current) => ({ ...current, security: { ...current.security, sessions: overview.sessions, loginHistory: overview.loginHistory, twoFactorEnabled: overview.twoFactorEnabled, providers: overview.providers } }));
+    }).catch(() => setSecurity(emptySecurity));
   }, []);
 
   useEffect(() => {
@@ -170,6 +177,14 @@ export default function ProfileStudio() {
   };
   const requestOAuth = (provider: OAuthProvider) => void runAction(`/api/profile/oauth/${provider}`);
   const requestProCheckout = () => void runAction('/api/profile/pro/checkout');
+  const requestEmailChange = () => void runAction('/api/account/email', { email: profile.security.email });
+  const requestPasswordChange = () => void runAction('/api/account/password');
+  const requestTwoFactor = (enabled: boolean) => {
+    setProfile((current) => ({ ...current, security: { ...current.security, twoFactorEnabled: enabled } }));
+    void runAction('/api/account/two-factor', { enabled });
+  };
+  const requestCloseOtherSessions = () => void runAction('/api/account/sessions/logout-others');
+  const requestDeleteAccount = () => window.confirm('¿Eliminar esta cuenta de Vertyx Vault? Escribe ELIMINAR en el proveedor real para completar la acción.') && void runAction('/api/account/delete', { confirmation: 'ELIMINAR' });
   const publicUrl = profilePublicUrl(profile.username);
   const isPro = profile.plan === 'pro';
   const stats = useMemo(() => ({ ...profile.stats, favorites, saved: favorites + history, hoursPlayed: Math.max(profile.stats.hoursPlayed, Math.round(progress * 1.6)) }), [favorites, history, profile.stats, progress]);
@@ -242,14 +257,14 @@ export default function ProfileStudio() {
 
           {activeTab === 'security' && <div className="vault-profile-grid" data-profile-reveal>
             <Field label="Correo electrónico"><input type="email" value={profile.security.email} onChange={(event) => setProfile((current) => ({ ...current, security: { ...current.security, email: event.target.value } }))} /></Field>
-            <button type="button" className="vault-profile-command" onClick={() => setNotice(integrations.auth ? 'Flujo de cambio de contraseña listo para el proveedor de autenticación.' : 'Conecta VERTYX_AUTH_API_URL para cambiar contraseña de forma real.')}><BoltIcon className="h-5 w-5" />Cambiar contraseña</button>
-            <button type="button" className="vault-profile-command" onClick={() => setNotice(integrations.auth ? 'Flujo de cambio de correo listo.' : 'Conecta autenticación real para confirmar cambios de correo.')}><BellIcon className="h-5 w-5" />Cambiar correo</button>
+            <button type="button" className="vault-profile-command" onClick={requestPasswordChange}><BoltIcon className="h-5 w-5" />Cambiar contraseña</button>
+            <button type="button" className="vault-profile-command" onClick={requestEmailChange}><BellIcon className="h-5 w-5" />Cambiar correo</button>
             <Toggle label="Google vinculado" checked={profile.security.providers.google} onChange={(value) => { setProfile((current) => ({ ...current, security: { ...current.security, providers: { ...current.security.providers, google: value } } })); requestOAuth('google'); }} />
             <Toggle label="Discord vinculado" checked={profile.security.providers.discord} onChange={(value) => { setProfile((current) => ({ ...current, security: { ...current.security, providers: { ...current.security.providers, discord: value } } })); requestOAuth('discord'); }} />
-            <Toggle label="Autenticación en dos pasos" checked={profile.security.twoFactorEnabled} onChange={(value) => setProfile((current) => ({ ...current, security: { ...current.security, twoFactorEnabled: value } }))} />
-            <div className="vault-profile-section"><h3>Sesiones activas</h3>{profile.security.sessions.map((item) => <p key={item.id}>{item.device} · {item.location} {item.current ? '· actual' : ''}</p>)}<button type="button" onClick={() => setNotice('Las demás sesiones se cerrarán cuando exista proveedor de sesión persistente.')}>Cerrar otros dispositivos</button></div>
-            <div className="vault-profile-section"><h3>Historial de accesos</h3>{profile.security.loginHistory.map((item) => <p key={item.id}>{item.provider} · {item.device} · {new Date(item.at).toLocaleString('es')}</p>)}</div>
-            <button type="button" className="vault-profile-danger" onClick={() => window.confirm('¿Eliminar esta cuenta de Vertyx Vault? Esta acción requerirá backend real para completarse.') && setNotice('Eliminación preparada; falta conectar backend de cuentas.')}>Eliminar cuenta</button>
+            <Toggle label="Autenticación en dos pasos" checked={profile.security.twoFactorEnabled} onChange={requestTwoFactor} />
+            <div className="vault-profile-section"><h3>Sesiones activas</h3>{profile.security.sessions.map((item) => <p key={item.id}>{item.device} · {item.location} {item.current ? '· actual' : ''}</p>)}<button type="button" onClick={requestCloseOtherSessions}>Cerrar otros dispositivos</button></div>
+            <div className="vault-profile-section"><h3>Historial de accesos</h3>{profile.security.loginHistory.map((item) => <p key={item.id}>{item.provider} · {item.device} · {new Date(item.at).toLocaleString('es')}</p>)}{security.message && <p>{security.message}</p>}</div>
+            <button type="button" className="vault-profile-danger" onClick={requestDeleteAccount}>Eliminar cuenta</button>
           </div>}
 
           {activeTab === 'preferences' && <div className="vault-profile-grid" data-profile-reveal>

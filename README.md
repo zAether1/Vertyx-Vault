@@ -30,6 +30,8 @@ La UI no depende de un proveedor concreto. Si luego conectas servicios reales, c
 - `VERTYX_AUTH_API_KEY`: token server-side opcional para el proveedor de sesión.
 - `VERTYX_PROFILE_API_URL`: backend de perfiles que expone `/profile` y `/profiles/:username` para persistencia real.
 - `VERTYX_PROFILE_API_KEY`: token server-side opcional para el proveedor de perfiles.
+- `VERTYX_ACCOUNT_API_URL`: backend de seguridad de cuenta para correo, contraseña, 2FA, sesiones, historial y eliminación.
+- `VERTYX_ACCOUNT_API_KEY`: token server-side opcional para operaciones de cuenta.
 - `VERTYX_BLOB_UPLOAD_URL` o `BLOB_READ_WRITE_TOKEN`: almacenamiento para avatares, banners y portadas con Vercel Blob.
 - `VERTYX_PAYMENTS_API_URL` o `STRIPE_SECRET_KEY`: pasarela para Vertyx Vault Pro USD $2/mes.
 - `VERTYX_DISCORD_CLIENT_ID` o `DISCORD_CLIENT_ID`: vinculación y sincronización de rol Pro en Discord.
@@ -46,6 +48,12 @@ Sin esas variables, la app usa APIs internas, cookies HTTP-only y estado local t
 - `GET /api/profile` / `PUT /api/profile`: lectura y guardado de perfil avanzado con adaptador remoto y fallback local.
 - `GET /api/profile/public/:username`: lectura de perfil público respetando el proveedor configurado.
 - `GET /api/admin/overview`: métricas, usuarios, actividad y cola editorial para roles autorizados.
+- `GET /api/account/security`: sesiones, historial, proveedores conectados y estado 2FA.
+- `POST /api/account/email`: solicitud de cambio de correo.
+- `POST /api/account/password`: solicitud de cambio de contraseña.
+- `POST /api/account/two-factor`: activar o desactivar 2FA.
+- `POST /api/account/sessions/logout-others`: cerrar otras sesiones.
+- `POST /api/account/delete`: eliminación de cuenta con confirmación.
 - `PATCH /api/moderation/submissions/:id`: aprobar, rechazar, revisar, ocultar o publicar solicitudes.
 
 ## Validación
