@@ -9,6 +9,7 @@ import { useLibraryStore } from '@/store/library';
 import { useSessionSnapshot } from '@/hooks/useSessionSnapshot';
 import { AVATAR_FRAMES, PROFILE_ACCENTS, PROFILE_BACKGROUNDS, profilePublicUrl } from '@/lib/profile';
 import { profileFromSession, type AdvancedProfile, type ProfileIntegrationStatus } from '@/types/profile';
+import type { ActionResult, OAuthProvider, ProfileAssetKind } from '@/types/infrastructure';
 
 const TABS = [
   { id: 'identity', label: 'Identidad' },
@@ -102,6 +103,23 @@ export default function ProfileStudio() {
   };
 
   const logout = async () => { setBusy(true); await fetch('/api/session/logout', { method: 'POST' }); window.localStorage.removeItem(`vertyx-profile:${profile.id}`); await refresh(); setBusy(false); };
+  const runAction = async (url: string, body?: Record<string, unknown>) => {
+    setBusy(true);
+    try {
+      const response = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body ?? {}) });
+      const result = await response.json().catch(() => ({ message: 'No se pudo completar la acción.' })) as Partial<ActionResult>;
+      setNotice(result.message ?? 'Acción registrada.');
+      return result;
+    } catch {
+      setNotice('No se pudo completar la acción.');
+      return { ok: false, ready: false };
+    } finally {
+      setBusy(false);
+    }
+  };
+  const requestAssetPersistence = (kind: ProfileAssetKind) => void runAction('/api/profile/assets', { kind });
+  const requestOAuth = (provider: OAuthProvider) => void runAction(`/api/profile/oauth/${provider}`);
+  const requestProCheckout = () => void runAction('/api/profile/pro/checkout');
   const publicUrl = profilePublicUrl(profile.username);
   const isPro = profile.plan === 'pro';
   const stats = useMemo(() => ({ ...profile.stats, favorites, saved: favorites + history, hoursPlayed: Math.max(profile.stats.hoursPlayed, Math.round(progress * 1.6)) }), [favorites, history, profile.stats, progress]);
@@ -138,8 +156,8 @@ export default function ProfileStudio() {
       {notice && <p className="vault-profile-notice" role="status">{notice}</p>}
       <div ref={panelRef} className="vault-profile-panel">
         {activeTab === 'identity' && <div className="vault-profile-grid" data-profile-reveal>
-          <Field label="Foto de perfil"><input type="file" accept="image/*" onChange={(event) => event.target.files?.[0] && readImage(event.target.files[0], (avatarUrl) => setProfile((current) => ({ ...current, theme: { ...current.theme, avatarUrl } })))} /></Field>
-          <Field label="Banner"><input type="file" accept="image/*" onChange={(event) => event.target.files?.[0] && readImage(event.target.files[0], (bannerUrl) => setProfile((current) => ({ ...current, theme: { ...current.theme, bannerUrl } })))} /></Field>
+          <Field label="Foto de perfil"><input type="file" accept="image/*" onChange={(event) => event.target.files?.[0] && readImage(event.target.files[0], (avatarUrl) => { setProfile((current) => ({ ...current, theme: { ...current.theme, avatarUrl } })); requestAssetPersistence('avatar'); })} /></Field>
+          <Field label="Banner"><input type="file" accept="image/*" onChange={(event) => event.target.files?.[0] && readImage(event.target.files[0], (bannerUrl) => { setProfile((current) => ({ ...current, theme: { ...current.theme, bannerUrl } })); requestAssetPersistence('banner'); })} /></Field>
           <Field label="Ajuste avatar"><input type="range" min="1" max="1.8" step="0.05" value={profile.theme.avatarFocus.zoom} onChange={(event) => setProfile((current) => ({ ...current, theme: { ...current.theme, avatarFocus: { ...current.theme.avatarFocus, zoom: Number(event.target.value) } } }))} /></Field>
           <Field label="Ajuste banner"><input type="range" min="1" max="1.8" step="0.05" value={profile.theme.bannerFocus.zoom} onChange={(event) => setProfile((current) => ({ ...current, theme: { ...current.theme, bannerFocus: { ...current.theme.bannerFocus, zoom: Number(event.target.value) } } }))} /></Field>
           <Field label="Nombre visible"><input value={profile.displayName} onChange={(event) => setProfile((current) => ({ ...current, displayName: event.target.value }))} /></Field>
@@ -155,15 +173,15 @@ export default function ProfileStudio() {
           <Field label="Color del perfil"><input type="color" value={profile.theme.profileColor} onChange={(event) => setProfile((current) => ({ ...current, theme: { ...current.theme, profileColor: event.target.value } }))} /></Field>
           <div className="vault-profile-section vault-profile-section--wide"><h3>Fondos exclusivos</h3><div className="vault-choice-grid">{PROFILE_BACKGROUNDS.map((background) => <button key={background.id} type="button" disabled={background.proOnly && !isPro} className={profile.theme.backgroundId === background.id ? 'vault-profile-choice vault-profile-choice--active' : 'vault-profile-choice'} onClick={() => setProfile((current) => ({ ...current, theme: { ...current.theme, backgroundId: background.id } }))}><span style={{ background: background.preview }} /><strong>{background.label}</strong>{background.proOnly && <small>Pro</small>}</button>)}</div></div>
           <div className="vault-profile-section vault-profile-section--wide"><h3>Marcos</h3><div className="vault-choice-grid">{AVATAR_FRAMES.map((frame) => <button key={frame.id} type="button" disabled={frame.proOnly && !isPro} className={profile.theme.avatarFrameId === frame.id ? 'vault-profile-choice vault-profile-choice--active' : 'vault-profile-choice'} onClick={() => setProfile((current) => ({ ...current, theme: { ...current.theme, avatarFrameId: frame.id } }))}><strong>{frame.label}</strong>{frame.proOnly && <small>Pro</small>}</button>)}</div></div>
-          <article className="vault-pro-card vault-profile-section--wide"><div><span className="vault-page__eyebrow">Vertyx Vault Pro</span><h3>USD $2.00 <small>/ mes</small></h3><p>Insignia animada, marcos, banners, colores premium, acceso anticipado, sin anuncios y sincronización futura con Discord.</p></div><button type="button" onClick={() => setNotice(integrations.payments ? 'El checkout se abrirá desde el proveedor de pagos conectado.' : 'Falta conectar la pasarela de pagos para activar Pro real.')}><StarSmallIcon className="h-4 w-4" />Activar Pro</button></article>
+          <article className="vault-pro-card vault-profile-section--wide"><div><span className="vault-page__eyebrow">Vertyx Vault Pro</span><h3>USD $2.00 <small>/ mes</small></h3><p>Insignia animada, marcos, banners, colores premium, acceso anticipado, sin anuncios y sincronización futura con Discord.</p></div><button type="button" disabled={busy} onClick={requestProCheckout}><StarSmallIcon className="h-4 w-4" />Activar Pro</button></article>
         </div>}
 
         {activeTab === 'security' && <div className="vault-profile-grid" data-profile-reveal>
           <Field label="Correo electrónico"><input type="email" value={profile.security.email} onChange={(event) => setProfile((current) => ({ ...current, security: { ...current.security, email: event.target.value } }))} /></Field>
           <button type="button" className="vault-profile-command" onClick={() => setNotice(integrations.auth ? 'Flujo de cambio de contraseña listo para el proveedor de autenticación.' : 'Conecta VERTYX_AUTH_API_URL para cambiar contraseña de forma real.')}><BoltIcon className="h-5 w-5" />Cambiar contraseña</button>
           <button type="button" className="vault-profile-command" onClick={() => setNotice(integrations.auth ? 'Flujo de cambio de correo listo.' : 'Conecta autenticación real para confirmar cambios de correo.')}><BellIcon className="h-5 w-5" />Cambiar correo</button>
-          <Toggle label="Google vinculado" checked={profile.security.providers.google} onChange={(value) => setProfile((current) => ({ ...current, security: { ...current.security, providers: { ...current.security.providers, google: value } } }))} />
-          <Toggle label="Discord vinculado" checked={profile.security.providers.discord} onChange={(value) => setProfile((current) => ({ ...current, security: { ...current.security, providers: { ...current.security.providers, discord: value } } }))} />
+          <Toggle label="Google vinculado" checked={profile.security.providers.google} onChange={(value) => { setProfile((current) => ({ ...current, security: { ...current.security, providers: { ...current.security.providers, google: value } } })); requestOAuth('google'); }} />
+          <Toggle label="Discord vinculado" checked={profile.security.providers.discord} onChange={(value) => { setProfile((current) => ({ ...current, security: { ...current.security, providers: { ...current.security.providers, discord: value } } })); requestOAuth('discord'); }} />
           <Toggle label="Autenticación en dos pasos" checked={profile.security.twoFactorEnabled} onChange={(value) => setProfile((current) => ({ ...current, security: { ...current.security, twoFactorEnabled: value } }))} />
           <div className="vault-profile-section"><h3>Sesiones activas</h3>{profile.security.sessions.map((item) => <p key={item.id}>{item.device} · {item.location} {item.current ? '· actual' : ''}</p>)}<button type="button" onClick={() => setNotice('Las demás sesiones se cerrarán cuando exista proveedor de sesión persistente.')}>Cerrar otros dispositivos</button></div>
           <div className="vault-profile-section"><h3>Historial de accesos</h3>{profile.security.loginHistory.map((item) => <p key={item.id}>{item.provider} · {item.device} · {new Date(item.at).toLocaleString('es')}</p>)}</div>
