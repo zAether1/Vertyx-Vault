@@ -19,11 +19,11 @@ export default function MobileSearchOverlay({ open, onClose }: MobileSearchOverl
     <div id="mobileSearchTemplate" className={`${open ? '' : 'hidden'} md:hidden`}>
       <div
         id="tmdb-search-overlay"
-        className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex flex-col pt-16 px-4"
+        className="fixed inset-0 z-50 bg-[#08070d]/88 backdrop-blur-md flex flex-col pt-16 px-4"
         style={{ opacity: 1, transform: 'none' }}
       >
         <div className="relative flex items-center mb-4">
-          <SearchIcon className="absolute left-3.5 h-5 w-5 text-[#e8dff2] z-10" />
+          <SearchIcon className="absolute left-3.5 h-5 w-5 text-[#eee9f4] z-10" />
           <div className="relative w-full">
             <form
               role="search"
@@ -40,14 +40,14 @@ export default function MobileSearchOverlay({ open, onClose }: MobileSearchOverl
                 placeholder={placeholder}
                 value={query}
                 onChange={(e) => onInput(e.target.value)}
-                className="w-full bg-transparent text-[#e8dff2] text-sm placeholder-violet-200/70 pl-11 pr-10 py-2.5 rounded-full border border-violet-200/30 outline-none focus:border-violet-200/50"
+                className="w-full bg-transparent text-[#eee9f4] text-sm placeholder-[#b9a9ca]/70 pl-11 pr-10 py-2.5 rounded-full border border-[#b9a9ca]/28 outline-none focus:border-[#c9a8f0]/55"
                 autoComplete="off"
               />
               <SearchResults id="tmdb-search-results-mobile" state={state} />
             </form>
           </div>
           <CloseIcon
-            className="absolute right-3.5 h-5 w-5 text-[#e8dff2] cursor-pointer hover:opacity-80 transition-opacity"
+            className="absolute right-3.5 h-5 w-5 text-[#eee9f4] cursor-pointer hover:opacity-80 transition-opacity"
           />
           <button
             type="button"
@@ -62,17 +62,17 @@ export default function MobileSearchOverlay({ open, onClose }: MobileSearchOverl
           {query.trim().length < 2 && (
             <div
               id="tmdb-search-suggestions"
-              className="flex flex-col items-center justify-center h-40 text-[#e8dff2]/70"
+              className="flex flex-col items-center justify-center h-40 text-[#eee9f4]/70"
               style={{ marginTop: 10 }}
             >
               <div className="mt-1 space-y-2">
                 {MOBILE_SUGGESTIONS.map((s) => (
                   <div
                     key={s.title}
-                    className="px-4 py-2 bg-violet-200/10 rounded-full cursor-pointer hover:bg-violet-200/20 transition-colors"
+                    className="px-4 py-2 bg-[#5f318f]/16 rounded-full cursor-pointer hover:bg-[#5f318f]/28 transition-colors"
                     onClick={() => onInput(s.title)}
                   >
-                    <p className="text-sm text-[#e8dff2]" data-title={s.title}>
+                    <p className="text-sm text-[#eee9f4]" data-title={s.title}>
                       {s.text}
                     </p>
                   </div>

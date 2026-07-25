@@ -5,7 +5,7 @@ import { CirclePlayIcon, StarLucideIcon } from '@/components/icons';
 export default function SpotlightBanner({ data }: { data: SpotlightData }) {
   return (
     <div className="px-4 md:px-8">
-      <div className="relative w-full h-[280px] sm:h-[320px] md:h-[420px] bg-black/30 rounded-xl overflow-hidden border border-gray-800/30 shadow-lg shadow-black/10 mb-8 mt-2">
+      <div className="relative w-full h-[280px] sm:h-[320px] md:h-[420px] bg-black/30 rounded-xl overflow-hidden border border-[#b9a9ca]/12 shadow-lg shadow-[#08070d]/24 mb-8 mt-2">
         <div className="absolute inset-0">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
@@ -51,39 +51,39 @@ export default function SpotlightBanner({ data }: { data: SpotlightData }) {
                       cy="18"
                       r="15.9"
                       fill="none"
-                      stroke="#a78bfa"
+                      stroke="#8f5bd7"
                       strokeWidth="1.2"
                       strokeDasharray={`${data.ratingDash}, 100`}
                       strokeLinecap="round"
                       transform="rotate(-90 18 18)"
                     />
                   </svg>
-                  <span className="text-[#e8dff2] text-xs font-medium">{data.rating}</span>
+                  <span className="text-[#eee9f4] text-xs font-medium">{data.rating}</span>
                 </div>
               </div>
             </div>
           </div>
           <div className="flex-1 max-w-3xl space-y-3 md:space-y-4 md:ml-3 pt-2">
-            <h2 className="text-xl sm:text-3xl md:text-5xl font-bold text-[#e8dff2] tracking-wide drop-shadow-md">
+            <h2 className="text-xl sm:text-3xl md:text-5xl font-bold text-[#eee9f4] tracking-wide drop-shadow-md">
               {data.title}
             </h2>
             <div className="flex items-center gap-3 text-xs md:text-sm">
-              <span className="bg-violet-700 text-[#e8dff2] text-xs px-3 py-0.5 rounded-md font-medium">
+              <span className="bg-[#5f318f] text-[#eee9f4] text-xs px-3 py-0.5 rounded-md font-medium">
                 {data.type}
               </span>
-              <div className="flex items-center gap-1 text-violet-300">
+              <div className="flex items-center gap-1 text-[#c9a8f0]">
                 <StarLucideIcon className="lucide lucide-star w-3 h-3" />
                 <span>{data.rating}</span>
               </div>
-              <span className="text-[#e8dff2]/70">{data.year}</span>
+              <span className="text-[#eee9f4]/70">{data.year}</span>
             </div>
-            <p className="text-[#e8dff2]/80 text-sm md:text-base line-clamp-2 md:line-clamp-3 max-w-2xl leading-relaxed">
+            <p className="text-[#eee9f4]/80 text-sm md:text-base line-clamp-2 md:line-clamp-3 max-w-2xl leading-relaxed">
               {data.desc}
             </p>
             <div className="flex items-center gap-3 md:gap-4 pt-3 md:pt-4">
               <a
                 href={data.watchHref}
-                className="flex items-center gap-2 bg-violet-700 text-[#e8dff2] px-4 md:px-6 py-2 rounded-md hover:bg-violet-800 transition-all duration-200 text-sm md:text-base font-medium"
+                className="flex items-center gap-2 bg-[#5f318f] text-[#eee9f4] px-4 md:px-6 py-2 rounded-md hover:bg-[#4b2774] transition-all duration-200 text-sm md:text-base font-medium"
               >
                 <CirclePlayIcon className="lucide lucide-circle-play w-4 h-4 md:w-5 md:h-5" />
                 Ver ahora
