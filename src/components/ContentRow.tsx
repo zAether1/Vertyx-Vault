@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { useRef } from 'react';
 import type { ContentRowData, RowCard } from '@/types/content';
 import { contentHref, contentIdFromLegacyHref } from '@/lib/routes';
@@ -16,12 +17,7 @@ function PosterCard({ card }: { card: RowCard }) {
         className="cursor-pointer relative group flex-shrink-0 text-left w-full h-full p-0 bg-transparent border-none"
       >
         <div className="relative w-[160px] md:w-[180px] overflow-hidden rounded-2xl transition-all duration-300 hover:shadow-[0_0_25px_rgba(59,130,246,0.5)] hover:scale-105 hover:z-10">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={card.poster}
-            alt={card.title}
-            className="aspect-[2/3] object-cover w-full"
-          />
+          <Image src={card.poster} alt={`Póster de ${card.title}`} width={360} height={540} sizes="(max-width: 768px) 160px, 180px" className="aspect-[2/3] object-cover w-full" />
           <div className="absolute top-2 left-2 z-20">
             <div className="relative w-12 h-12 group-hover:scale-110 transition-transform duration-300 group-hover:rotate-12">
               <div className="absolute inset-0 rounded-full bg-black/50 shadow-lg"></div>
