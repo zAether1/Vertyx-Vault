@@ -1,15 +1,16 @@
 'use client';
 
 import Link from 'next/link';
+import { BellIcon, CirclePlayIcon, StarSmallIcon } from '@/components/icons';
 import { useSessionSnapshot } from '@/hooks/useSessionSnapshot';
 import { hasPermission } from '@/types/access';
 
-const METRICS = ['Usuarios registrados', 'Usuarios invitados', 'Contenido publicado', 'Solicitudes pendientes', 'Moderadores', 'Administradores', 'Suscriptores Pro'];
+const METRICS = [['Usuarios registrados', '—'], ['Invitados activos', '—'], ['Solicitudes pendientes', '—'], ['Contenido publicado', '—'], ['Suscriptores Pro', '—'], ['Moderación', '—']];
 
 export default function AdminPanel() {
   const { session, ready } = useSessionSnapshot();
   if (!ready) return null;
   const role = session.profile?.role ?? 'guest';
-  if (!hasPermission(role, 'activity:read')) return <section className="mt-10 vault-glass rounded-3xl p-6 md:p-8"><p className="vault-page__eyebrow">Acceso restringido</p><h2 className="mt-2 text-2xl font-bold">Panel de administración</h2><p className="mt-3 max-w-xl text-[#eee9f4]/65">Este espacio está reservado para moderadores, administradores y propietarios. Los permisos se validan fuera de los componentes y se ampliarán al conectar el proveedor de identidad.</p><Link href="/profile" className="vault-action mt-6 inline-block">Volver a mi perfil</Link></section>;
-  return <section className="mt-10"><div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">{METRICS.map((metric) => <article key={metric} className="vault-glass rounded-3xl p-6"><p className="text-sm text-[#eee9f4]/60">{metric}</p><strong className="mt-4 block text-3xl text-[#c9a8f0]">—</strong><span className="mt-2 block text-xs text-[#eee9f4]/45">Conecta la persistencia para ver datos reales.</span></article>)}</div><section className="mt-6 vault-glass rounded-3xl p-6 md:p-8"><p className="vault-page__eyebrow">Registro de actividad</p><h2 className="mt-2 text-2xl font-bold">Preparado para auditoría</h2><p className="mt-3 text-[#eee9f4]/65">Los filtros por usuario, fecha y acción aparecerán al conectar el repositorio de actividad. Las acciones de aprobación, publicación y gestión de roles se mantienen bloqueadas hasta entonces.</p></section></section>;
+  if (!hasPermission(role, 'activity:read')) return <section className="vault-admin-lock"><div className="vault-admin-lock__mark"><BellIcon className="h-7 w-7" /></div><div><span className="vault-page__eyebrow">Área interna</span><h2>Sala de control restringida</h2><p>La moderación, la publicación y los registros operativos están disponibles solo para roles autorizados.</p><Link href="/profile" className="vault-action">Ver mi perfil</Link></div></section>;
+  return <section className="vault-admin"><div className="vault-admin__metrics">{METRICS.map(([label, value], index) => <article key={label}><span>{label}</span><strong>{value}</strong><small>{index === 2 ? 'Revisión editorial' : 'Persistencia pendiente'}</small></article>)}</div><div className="vault-admin__grid"><section className="vault-admin__feed"><header><div><span className="vault-page__eyebrow">Actividad reciente</span><h2>Ritmo operativo</h2></div><BellIcon className="h-5 w-5 text-[#c9a8f0]" /></header><div className="vault-admin__empty"><CirclePlayIcon className="h-7 w-7" /><p>Aquí aparecerán inicios de sesión, revisiones, cambios de roles y publicaciones cuando se conecte el registro de actividad.</p></div></section><aside className="vault-admin__review"><span className="vault-page__eyebrow">Revisión editorial</span><h3>Solicitudes</h3><p>Las propuestas aprobadas conservan sus fuentes, metadatos y responsables de revisión.</p><button type="button"><StarSmallIcon className="h-4 w-4" />Sin solicitudes compartidas</button></aside></div></section>;
 }
