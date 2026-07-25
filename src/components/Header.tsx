@@ -57,7 +57,6 @@ function DesktopSearch() {
 /** Barra de navegación adaptativa de Vertyx Vault. */
 export default function Header({ onOpenMobileSearch }: { onOpenMobileSearch: () => void }) {
   const [scrolled, setScrolled] = useState(false);
-  const [brandReady, setBrandReady] = useState(false);
 
   useEffect(() => {
     const update = () => setScrolled(window.scrollY > 20);
@@ -66,18 +65,12 @@ export default function Header({ onOpenMobileSearch }: { onOpenMobileSearch: () 
     return () => window.removeEventListener('scroll', update);
   }, []);
 
-  useEffect(() => {
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    const timer = window.setTimeout(() => setBrandReady(true), 2600);
-    return () => window.clearTimeout(timer);
-  }, []);
-
   return (
-    <header className={`fixed top-0 z-50 flex w-full items-center justify-between px-4 py-3 lg:px-10 transition-all duration-300 ${scrolled ? 'vault-glass border-x-0 border-t-0 shadow-2xl shadow-black/20' : 'bg-transparent'}`}>
+    <header className={`fixed top-0 z-[101] flex w-full items-center justify-between px-4 py-3 lg:px-10 transition-all duration-300 ${scrolled ? 'vault-glass border-x-0 border-t-0 shadow-2xl shadow-black/20' : 'bg-transparent'}`}>
       <div className="flex items-center flex-1">
         <a href="/" className="flex items-center group" aria-label="Vertyx Vault, inicio">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/vertyx-vault-logo.png" alt="Vertyx Vault" className={`vault-brand-logo ${brandReady ? 'vault-brand-logo--intro' : ''}`} />
+          <img src="/vertyx-vault-logo.png" alt="Vertyx Vault" className="vault-brand-logo vault-brand-logo--intro" />
         </a>
         <DesktopNav />
       </div>
