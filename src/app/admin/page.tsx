@@ -1,7 +1,8 @@
-import Link from 'next/link';
 import AdminPanel from '@/components/admin/AdminPanel';
 import Reveal from '@/components/motion/Reveal';
+import VaultPageHero from '@/components/VaultPageHero';
+import VaultShell from '@/components/VaultShell';
 
 export default function AdminPage() {
-  return <main className="vault-page"><Reveal><Link href="/" className="vault-filter inline-block">← Volver al inicio</Link><p className="vault-page__eyebrow mt-10">Operaciones</p><h1 className="mt-2 text-4xl font-bold md:text-6xl">Administración</h1><p className="mt-4 max-w-2xl text-[#eee9f4]/68">Gestión de comunidad, revisión editorial y actividad operativa de Vertyx Vault.</p></Reveal><AdminPanel /></main>;
+  return <VaultShell><main className="vault-route"><VaultPageHero eyebrow="Operaciones" title="Sala de control" description="Moderación editorial, comunidad y actividad de Vertyx Vault en un solo lugar." badge="INTERNO" /><Reveal className="vault-route__content"><AdminPanel /></Reveal></main></VaultShell>;
 }
