@@ -1,0 +1,86 @@
+[
+  {
+    "bg": "https://image.tmdb.org/t/p/original/tYuC9kUwqhpDQ3pv1kLMqyMF1Jw.jpg",
+    "logo": "https://image.tmdb.org/t/p/original/pS3AiGMahNlJ6ss71RQ9DBuo8UL.png",
+    "title": "La Odisea",
+    "desc": "Odiseo, el legendario rey de Ítaca, emprende un largo y peligroso viaje de regreso a casa tras la guerra de Troya. A lo largo de su travesía, se ve obligado a enfrentarse a los caprichos de los dioses, a monstruos mitológicos y a pruebas que ponen a prueba su astucia y su humanidad hasta el límite.",
+    "type": "PELÍCULA",
+    "rating": 7.9,
+    "release": "2026",
+    "thumbnail": "https://image.tmdb.org/t/p/w500/tcYM55YaRob9UrPf9vW2lrBpIY8.jpg",
+    "watchHref": "/watch/?type=movie&id=1368337",
+    "detailHref": "/movie/1368337"
+  },
+  {
+    "bg": "https://image.tmdb.org/t/p/original/flxau5Iu7bChQHsESqvGZ3FQRaI.jpg",
+    "logo": "https://image.tmdb.org/t/p/original/4LrAI6KiktRwVXbt0s3wxThYroN.png",
+    "title": "El día de la revelación",
+    "desc": "Si descubrieras que no estamos solos, si alguien te abriera los ojos y te lo demostrase, ¿te asustarías?",
+    "type": "PELÍCULA",
+    "rating": 6.7,
+    "release": "2026",
+    "thumbnail": "https://image.tmdb.org/t/p/w500/w9iop1djT3NuP6ABSdNm05wMApx.jpg",
+    "watchHref": "/watch/?type=movie&id=1275779",
+    "detailHref": "/movie/1275779"
+  },
+  {
+    "bg": "https://image.tmdb.org/t/p/original/2aA8iPlMCks3k131ymFBAY6FL0b.jpg",
+    "logo": "https://image.tmdb.org/t/p/original/c7HrVvIzUk82zhhV1VawfOqk5IH.png",
+    "title": "Backrooms: Sin salida",
+    "desc": "Una extraña puerta aparece en el sótano de una exposición de muebles. Cuando el paciente de una terapeuta desaparece en una dimensión más allá de la realidad, ella deberá adentrarse en lo desconocido para salvarlo.",
+    "type": "PELÍCULA",
+    "rating": 7.1,
+    "release": "2026",
+    "thumbnail": "https://image.tmdb.org/t/p/w500/3YTb97zytlWRWZb7HrOiEhk4e6f.jpg",
+    "watchHref": "/watch/?type=movie&id=1083381",
+    "detailHref": "/movie/1083381"
+  },
+  {
+    "bg": "https://image.tmdb.org/t/p/original/r013C8Me2bZ0pUi0OWJRh0h7MzT.jpg",
+    "logo": "",
+    "title": "Obsesión",
+    "desc": "Tras romper el misterioso \"Sauce de un Deseo\" para conquistar el corazón de la chica que le gusta, un romántico empedernido consigue exactamente lo que pedía, pero pronto descubre que algunos deseos tienen un precio oscuro y siniestro.",
+    "type": "PELÍCULA",
+    "rating": 8.2,
+    "release": "2026",
+    "thumbnail": "https://image.tmdb.org/t/p/w500/rmCkNtzYR2xTOO3ZXmIqB5zgYdE.jpg",
+    "watchHref": "/watch/?type=movie&id=1339713",
+    "detailHref": "/movie/1339713"
+  },
+  {
+    "bg": "https://image.tmdb.org/t/p/original/xWBiXclrRmTggQHMRsIn84YHavs.jpg",
+    "logo": "https://image.tmdb.org/t/p/original/dc4eVKjO1t5P2RqeH0D9WAM2Gt4.png",
+    "title": "Scary Movie: Terroríficamente incorrecta",
+    "desc": "Veintiséis años después de conseguir escapar de un asesino enmascarado sospechosamente familiar, el Core Four están de vuelta en el punto de mira del asesino y ninguna película de terror está a salvo.",
+    "type": "PELÍCULA",
+    "rating": 6.3,
+    "release": "2026",
+    "thumbnail": "https://image.tmdb.org/t/p/w500/cAvdDPtiuVCauhjCwqK4EX2woHL.jpg",
+    "watchHref": "/watch/?type=movie&id=1273221",
+    "detailHref": "/movie/1273221"
+  },
+  {
+    "bg": "https://image.tmdb.org/t/p/original/MJcERawyqGqJdPsOBc0C449hQ9.jpg",
+    "logo": "https://image.tmdb.org/t/p/original/eKidr499bFyOOB5Z3dQcsXzaCnE.png",
+    "title": "Star Wars: The Mandalorian and Grogu",
+    "desc": "Continuación de la serie \"The Mandalorian\" en forma de película. El malvado Imperio ha caído y los señores de la guerra imperiales siguen dispersos por toda la galaxia. Mientras la incipiente Nueva República trabaja para proteger todo por lo que luchó la Rebelión, ha reclutado la ayuda del legendario cazarrecompensas mandaloriano Din Djarin (Pedro Pascal) y su joven aprendiz Grogu.",
+    "type": "PELÍCULA",
+    "rating": 6.7,
+    "release": "2026",
+    "thumbnail": "https://image.tmdb.org/t/p/w500/sWitU9IjgFwf6y1OrI0zUaL3GNa.jpg",
+    "watchHref": "/watch/?type=movie&id=1228710",
+    "detailHref": "/movie/1228710"
+  },
+  {
+    "bg": "https://image.tmdb.org/t/p/original/577eXC8wFQT0eUrJcgznSiFPRmk.jpg",
+    "logo": "https://image.tmdb.org/t/p/original/rc7xLuJavZxGpkd5E38S1TRdEXM.png",
+    "title": "La casa del dragón",
+    "desc": "Basada en el libro 'Fuego y Sangre' de George R.R. Martin. La serie se centra en la casa Targaryen, trescientos años antes de los eventos vistos en 'Juego de Tronos'.",
+    "type": "SERIE",
+    "rating": 8.4,
+    "release": "2022",
+    "thumbnail": "https://image.tmdb.org/t/p/w500/szyVpg9K3LL5s8VFAGkXzlxgZUk.jpg",
+    "watchHref": "/watch/?type=tv&id=94997&season=1&episode=1",
+    "detailHref": "/tv/94997"
+  }
+]

@@ -1,8 +1,0 @@
-import type { Metadata } from "next";
-import { FavoritesView } from "@/components/views/FavoritesView";
-
-export const metadata: Metadata = { title: "Favorites" };
-
-export default function FavoritesPage() {
-  return <FavoritesView />;
-}

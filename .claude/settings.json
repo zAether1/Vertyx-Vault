@@ -1,0 +1,43 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install *)",
+      "Bash(tasklist)",
+      "Bash(node -e \"JSON.parse\\(require\\('fs'\\).readFileSync\\('package.json','utf8'\\)\\); console.log\\('package.json VALIDO'\\)\")",
+      "Bash(npm --version)",
+      "Bash(npm config *)",
+      "Bash(npm ping *)",
+      "Bash(ls -t \"$\\(npm config get cache\\)/_logs\")",
+      "Bash(tail -30 \"C:\\\\Users\\\\contr\\\\AppData\\\\Local\\\\npm-cache\\\\_logs\\\\2026-07-21T03_18_21_399Z-debug-0.log\")",
+      "Read(//c/Users/contr/AppData/Local/npm-cache/_logs/**)",
+      "Bash(netstat -ano)",
+      "Bash(git init *)",
+      "Bash(npm run *)",
+      "Bash(sed -i 's/kind: \"documentary\"/kind: \"film\"/' src/data/catalog.ts)",
+      "Read(//tmp/**)",
+      "Bash(curl -s -o /dev/null -w \"HOME: %{http_code} in %{time_total}s\\\\n\" http://localhost:3000/ --max-time 90)",
+      "Bash(npm uninstall *)",
+      "Bash(node -e \"console.log\\(require\\('typescript/package.json'\\).version\\)\")",
+      "Bash(powershell -Command \"Stop-Process -Id 18656 -Force -ErrorAction SilentlyContinue\")",
+      "Bash(curl -s -o /tmp/vv-home.html -w \"HOME: %{http_code} in %{time_total}s\\\\n\" http://localhost:3000/ --max-time 180)",
+      "Bash(curl -s -o /dev/null -w \"HOME cached: %{http_code} in %{time_total}s\\\\n\" http://localhost:3000/ --max-time 30)",
+      "Bash(git add *)",
+      "Bash(git -c 'user.name=Vertyx Dev' -c user.email=dev@vertyx.local commit -m 'feat: Vertyx Vault — cinematic content discovery platform *)",
+      "Bash(git config *)",
+      "Bash(git rm *)",
+      "Bash(git -c 'user.name=Vertyx Dev' -c user.email=dev@vertyx.local -c core.safecrlf=false commit -q -m 'feat: Vertyx Vault — cinematic content discovery platform *)",
+      "Bash(rm -f \"E:/VertyxDashboard/.git/index.lock\")",
+      "Bash(git -c 'user.name=Vertyx Dev' -c user.email=dev@vertyx.local commit -q -m 'feat: Vertyx Vault — cinematic content discovery platform *)",
+      "Bash(git -c 'user.name=Vertyx Dev' -c user.email=dev@vertyx.local commit -q -m 'chore: exclude local .claude settings from version control *)",
+      "Bash(powershell -Command 'Get-NetTCPConnection -LocalPort 3000 -State Listen -ErrorAction SilentlyContinue | Select-Object -ExpandProperty OwningProcess | ForEach-Object { Stop-Process -Id $_ -Force -ErrorAction SilentlyContinue }')",
+      "Bash(echo \"EXIT: $?\")",
+      "WebFetch(domain:cinehax.com)",
+      "WebFetch(domain:net27.cc)",
+      "WebFetch(domain:www.net27.cc)",
+      "Bash(curl -s http://localhost:3000/ -o /tmp/vv-home2.html -w \"HOME: %{http_code} \\(%{time_total}s\\)\\\\n\" --max-time 30)",
+      "Bash(powershell -Command \"Stop-Process -Id 12092 -Force -ErrorAction SilentlyContinue\")",
+      "Bash(curl -s http://localhost:3000/ -o /tmp/vv-home3.html -w \"HOME: %{http_code} \\(%{time_total}s\\)\\\\n\" --max-time 30)",
+      "Bash(git -c 'user.name=Vertyx Dev' -c user.email=dev@vertyx.local commit -q -m 'feat: streaming-reference layout with GSAP-driven hero slider *)"
+    ]
+  }
+}

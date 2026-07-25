@@ -1,0 +1,24 @@
+[
+  {
+    "title": "El día de la revelación",
+    "bg": "/t/p/original/flxau5Iu7bChQHsESqvGZ3FQRaI.jpg",
+    "poster": "/t/p/w500/w9iop1djT3NuP6ABSdNm05wMApx.jpg",
+    "ratingDash": 73,
+    "rating": 6.7,
+    "type": "PELÍCULA",
+    "year": "2026",
+    "desc": "Si descubrieras que no estamos solos, si alguien te abriera los ojos y te lo demostrase, ¿te asustarías?",
+    "watchHref": "/watch/?type=movie&id=1275779"
+  },
+  {
+    "title": "La casa del dragón",
+    "bg": "/t/p/original/577eXC8wFQT0eUrJcgznSiFPRmk.jpg",
+    "poster": "/t/p/w500/szyVpg9K3LL5s8VFAGkXzlxgZUk.jpg",
+    "ratingDash": 73,
+    "rating": 8.4,
+    "type": "SERIE",
+    "year": "2022",
+    "desc": "Basada en el libro 'Fuego y Sangre' de George R.R. Martin. La serie se centra en la casa Targaryen, trescientos años antes de los eventos vistos en 'Juego de Tronos'.",
+    "watchHref": "/watch/?type=tv&id=94997&season=1&episode=1"
+  }
+]
