@@ -28,6 +28,8 @@ La UI no depende de un proveedor concreto. Si luego conectas servicios reales, c
 - `VERTYX_LIBRARY_API_KEY`: token server-side opcional para la biblioteca.
 - `VERTYX_AUTH_API_URL`: backend autorizado que expone `/session` para resolver el perfil activo.
 - `VERTYX_AUTH_API_KEY`: token server-side opcional para el proveedor de sesión.
+- `VERTYX_PROFILE_API_URL`: backend de perfiles que expone `/profile` y `/profiles/:username` para persistencia real.
+- `VERTYX_PROFILE_API_KEY`: token server-side opcional para el proveedor de perfiles.
 - `VERTYX_BLOB_UPLOAD_URL` o `BLOB_READ_WRITE_TOKEN`: almacenamiento para avatares, banners y portadas con Vercel Blob.
 - `VERTYX_PAYMENTS_API_URL` o `STRIPE_SECRET_KEY`: pasarela para Vertyx Vault Pro USD $2/mes.
 - `VERTYX_DISCORD_CLIENT_ID` o `DISCORD_CLIENT_ID`: vinculación y sincronización de rol Pro en Discord.
@@ -41,6 +43,8 @@ Sin esas variables, la app usa APIs internas, cookies HTTP-only y estado local t
 - `POST /api/profile/oauth/:provider`: devuelve intención de vinculación Google/Discord.
 - `POST /api/profile/assets`: devuelve intención de subida para avatar, banner o portada en Blob.
 - `POST /api/profile/pro/checkout`: devuelve intención de checkout Pro por USD $2/mes.
+- `GET /api/profile` / `PUT /api/profile`: lectura y guardado de perfil avanzado con adaptador remoto y fallback local.
+- `GET /api/profile/public/:username`: lectura de perfil público respetando el proveedor configurado.
 - `GET /api/admin/overview`: métricas, usuarios, actividad y cola editorial para roles autorizados.
 - `PATCH /api/moderation/submissions/:id`: aprobar, rechazar, revisar, ocultar o publicar solicitudes.
 
