@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import type { TopItem } from '@/types/content';
 import { ChevronRightIcon } from '@/components/icons';
+import { contentHref, contentIdFromLegacyHref } from '@/lib/routes';
 
 interface TopTenRowProps {
   variant: 'PELÍCULAS' | 'SERIES';
@@ -54,7 +55,7 @@ export default function TopTenRow({ variant, seeAllHref, items }: TopTenRowProps
           <div className="ml-4 mt-2 md:mt-0 md:block">
             <a
               className="flex items-center gap-1 text-blue-500 hover:text-blue-400 transition-colors p-1 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[#00040a] focus:ring-blue-500"
-              href={seeAllHref}
+              href="/explore"
             >
               <span className="text-sm">Ver todo</span>
               <ChevronRightIcon className="h-4 w-4" />
@@ -77,7 +78,7 @@ export default function TopTenRow({ variant, seeAllHref, items }: TopTenRowProps
                 <button
                   key={item.rank}
                   onClick={() => {
-                    window.location.href = item.href;
+                    window.location.href = contentHref({ id: contentIdFromLegacyHref(item.href, item.title) });
                   }}
                   className="cursor-pointer min-w-[140px] sm:min-w-[180px] md:min-w-[200px] relative group/item p-0 bg-transparent border-none text-left rounded-lg focus:outline-none focus:ring-4 focus:ring-blue-600 focus:ring-opacity-75 transition-all duration-200"
                 >
