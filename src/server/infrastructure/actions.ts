@@ -63,11 +63,7 @@ export async function getAdminOverview(request: Request): Promise<AdminOverview 
       { label: 'Suscriptores Pro', value: profile.plan === 'pro' ? '1' : '0', detail: 'Pagos pendiente' },
       { label: 'Moderación', value: submissions.length ? 'Activa' : 'Lista', detail: 'Permisos verificados' },
     ],
-    users: [
-      { id: profile.id, name: profile.name, role: profile.role, plan: profile.plan ?? 'free', status: 'active', lastSeenAt: now },
-      { id: 'u-uploaders', name: 'Uploaders', role: 'uploader', plan: 'free', status: 'pending', lastSeenAt: now },
-      { id: 'u-pro', name: 'Pro', role: 'user', plan: 'pro', status: 'pending', lastSeenAt: now },
-    ],
+    users: persistedUsers.map((user) => ({ id: user.id, name: user.displayName, role: user.role, plan: user.plan, status: 'active' as const, lastSeenAt: user.lastSeenAt })),
     activity: [
       { id: 'activity-session', label: `${profile.name} abrió la sala de control`, at: now, tone: 'violet' },
       { id: 'activity-roles', label: 'Contratos de roles y permisos activos', at: now, tone: 'blue' },
