@@ -39,6 +39,21 @@ export async function saveProfile(profile: AdvancedProfile) {
   return true;
 }
 
+export async function listProfiles() {
+  if (!hasDatabase()) return [];
+  await ensureVaultSchema();
+  const rows = await database()`SELECT profile FROM vertyx_profiles ORDER BY updated_at DESC LIMIT 500` as unknown as ProfileRow[];
+  return rows.map((row) => row.profile);
+}
+
+export async function updateProfileRole(userId: string, role: AdvancedProfile['role']) {
+  const profile = await findProfile(userId);
+  if (!profile) return undefined;
+  const next = { ...profile, role };
+  await saveProfile(next);
+  return next;
+}
+
 export async function readLibrary(userId: string) {
   if (!hasDatabase()) return undefined;
   await ensureVaultSchema();

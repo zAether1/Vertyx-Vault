@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getAdminOverview } from '@/server/infrastructure/actions';
 
-export function GET(request: Request) {
-  const overview = getAdminOverview(request);
+export async function GET(request: Request) {
+  const overview = await getAdminOverview(request);
   return overview instanceof Response ? overview : NextResponse.json(overview);
 }
