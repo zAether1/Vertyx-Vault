@@ -38,7 +38,7 @@ export function createProCheckoutIntent(): ProCheckoutIntent {
   return {
     ok: true,
     ready,
-    priceUsd: 2,
+    priceUsd: 5,
     interval: 'month',
     checkoutUrl: ready ? '/api/profile/pro/checkout/session' : undefined,
     benefits: proBenefits,

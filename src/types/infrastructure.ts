@@ -26,7 +26,7 @@ export interface ProfileAssetIntent extends ActionResult {
 }
 
 export interface ProCheckoutIntent extends ActionResult {
-  priceUsd: 2;
+  priceUsd: 5;
   interval: 'month';
   checkoutUrl?: string;
   benefits: string[];

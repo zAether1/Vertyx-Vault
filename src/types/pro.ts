@@ -9,7 +9,7 @@ export interface ProBenefit {
 export interface ProSubscriptionState {
   ready: boolean;
   status: ProStatus;
-  priceUsd: 2;
+  priceUsd: 5;
   interval: 'month';
   checkoutUrl?: string;
   portalUrl?: string;
