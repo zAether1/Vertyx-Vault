@@ -1,7 +1,7 @@
 import { database, ensureVaultSchema, hasDatabase } from '@/server/database/client';
 import type { LibrarySnapshot } from '@/types/library';
 import type { AdvancedProfile } from '@/types/profile';
-import type { ContentSubmission, SubmissionStatus } from '@/types/submission';
+import type { ContentSubmission, PlaybackKind, SubmissionStatus } from '@/types/submission';
 
 export { hasDatabase };
 
@@ -125,5 +125,16 @@ export async function updateSubmission(id: string, status: SubmissionStatus, rev
   if (!existing) return undefined;
   const item: ContentSubmission = { ...existing.submission, status, reviewedBy: reviewer, reviewedAt: new Date().toISOString() };
   await sql`UPDATE vertyx_submissions SET status = ${status}, submission = ${JSON.stringify(item)}::jsonb, reviewed_by = ${reviewer}, reviewed_at = NOW() WHERE id = ${id}`;
+  return item;
+}
+
+export async function updateSubmissionSource(id: string, playbackUrl: string, playbackKind: PlaybackKind) {
+  if (!hasDatabase()) return undefined;
+  await ensureVaultSchema();
+  const sql = database();
+  const [existing] = await sql`SELECT submission FROM vertyx_submissions WHERE id = ${id} LIMIT 1` as unknown as SubmissionRow[];
+  if (!existing) return undefined;
+  const item: ContentSubmission = { ...existing.submission, playbackUrl, playbackKind };
+  await sql`UPDATE vertyx_submissions SET submission = ${JSON.stringify(item)}::jsonb WHERE id = ${id}`;
   return item;
 }

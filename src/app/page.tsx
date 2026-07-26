@@ -16,12 +16,10 @@ import Header from '@/components/Header';
 import MobileSearchOverlay from '@/components/MobileSearchOverlay';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import HeroSlider from '@/components/HeroSlider';
-import SearchCta from '@/components/SearchCta';
 import ContentRow from '@/components/ContentRow';
 import TopTenRow from '@/components/TopTenRow';
 import SpotlightBanner from '@/components/SpotlightBanner';
 import Footer from '@/components/Footer';
-import PlatformRow from '@/components/PlatformRow';
 
 const hero = heroData as HeroSlide[];
 const rows = rowsData as ContentRowData[];
@@ -53,10 +51,6 @@ export default function Home() {
 
       <main style={{ marginTop: -50 }}>
         <HeroSlider slides={hero} />
-        <div className="px-4 md:px-8 lg:px-12">
-          <SearchCta />
-          <PlatformRow />
-        </div>
 
         <div className="relative">
           <section className="mt-0 md:mt-0 space-y-2 md:space-y-4 pb-12 md:pb-24 md:space-y-12">

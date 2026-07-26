@@ -3,7 +3,8 @@ import { cookieOptions, encodeJsonCookie, readProfileFromRequest, SUBMISSIONS_CO
 import { readLocalSubmissions } from '@/server/submissions/local-cookie';
 import type { AdminOverview, ModerationAction, ModerationResult, OAuthActionResult, OAuthProvider, ProCheckoutIntent, ProfileAssetIntent, ProfileAssetKind } from '@/types/infrastructure';
 import { statusFromModerationAction } from '@/types/infrastructure';
-import { hasDatabase, listAllSubmissions, listProfiles, updateSubmission } from '@/server/database/repositories';
+import { hasDatabase, listAllSubmissions, listProfiles, updateSubmission, updateSubmissionSource } from '@/server/database/repositories';
+import type { PlaybackKind } from '@/types/submission';
 
 const proBenefits = ['Insignia Pro animada', 'Marcos y banners exclusivos', 'Colores premium', 'Sin anuncios', 'Acceso anticipado', 'Sincronización futura con Discord'];
 
@@ -92,4 +93,26 @@ export async function moderateSubmission(request: Request, id: string, action: M
   const updated = { ...item, status, reviewedBy: profile.id, reviewedAt: new Date().toISOString() };
   const snapshot = items.map((entry) => entry.id === id ? updated : entry);
   return new Response(JSON.stringify({ ok: true, ready: true, item: updated, status, message: `${item.title}: ${status}` } satisfies ModerationResult), { status: 200, headers: { 'Content-Type': 'application/json', 'Set-Cookie': `${SUBMISSIONS_COOKIE}=${encodeJsonCookie(snapshot)}; ${cookieOptions(60 * 60 * 24 * 14)}` } });
+}
+
+export async function updateSubmissionPlayback(request: Request, id: string, playbackUrl: string, playbackKind: PlaybackKind): Promise<Response> {
+  const profile = readProfileFromRequest(request);
+  if (!profile || !can(profile.role, 'submission:review')) return new Response(JSON.stringify({ ok: false, ready: true, message: 'No autorizado' } satisfies ModerationResult), { status: 403, headers: { 'Content-Type': 'application/json' } });
+  const source = playbackUrl.trim();
+  if (!source || !URL.canParse(source)) return new Response(JSON.stringify({ ok: false, ready: true, message: 'La URL del reproductor no es válida.' } satisfies ModerationResult), { status: 400, headers: { 'Content-Type': 'application/json' } });
+  if (hasDatabase()) {
+    try {
+      const item = await updateSubmissionSource(id, source, playbackKind);
+      if (!item) return new Response(JSON.stringify({ ok: false, ready: true, message: 'Solicitud no encontrada' } satisfies ModerationResult), { status: 404, headers: { 'Content-Type': 'application/json' } });
+      return Response.json({ ok: true, ready: true, item, message: `${item.title}: fuente actualizada` } satisfies ModerationResult);
+    } catch (error) {
+      console.error('[submission-source-database]', error);
+    }
+  }
+  const items = readLocalSubmissions(request);
+  const item = items.find((entry) => entry.id === id);
+  if (!item) return new Response(JSON.stringify({ ok: false, ready: true, message: 'Solicitud no encontrada' } satisfies ModerationResult), { status: 404, headers: { 'Content-Type': 'application/json' } });
+  const updated = { ...item, playbackUrl: source, playbackKind, reviewedBy: profile.id, reviewedAt: new Date().toISOString() };
+  const snapshot = items.map((entry) => entry.id === id ? updated : entry);
+  return new Response(JSON.stringify({ ok: true, ready: true, item: updated, message: `${item.title}: fuente actualizada` } satisfies ModerationResult), { status: 200, headers: { 'Content-Type': 'application/json', 'Set-Cookie': `${SUBMISSIONS_COOKIE}=${encodeJsonCookie(snapshot)}; ${cookieOptions(60 * 60 * 24 * 14)}` } });
 }

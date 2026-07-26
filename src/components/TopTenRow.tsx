@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import type { TopItem } from '@/types/content';
-import { ChevronLeftIcon, ChevronRightIcon } from '@/components/icons';
+import { ChevronRightIcon } from '@/components/icons';
 import { contentHref, contentIdFromLegacyHref } from '@/lib/routes';
 
 interface TopTenRowProps {
@@ -18,7 +18,6 @@ interface TopTenRowProps {
  */
 export default function TopTenRow({ variant, seeAllHref, items }: TopTenRowProps) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const timeoutRef = useRef<number | null>(null);
   const [showLeft, setShowLeft] = useState(false);
   const [showRight, setShowRight] = useState(true);
   const scrollAmount = 300;
@@ -27,20 +26,17 @@ export default function TopTenRow({ variant, seeAllHref, items }: TopTenRowProps
     const el = containerRef.current;
     if (!el) return;
     setShowLeft(el.scrollLeft > 0);
-    setShowRight(el.scrollLeft < el.scrollWidth - el.clientWidth - 4);
+    const maxScrollLeft = el.scrollWidth - el.clientWidth;
+    setShowRight(el.scrollLeft < maxScrollLeft - 5);
   };
 
   useEffect(() => {
     updateArrowVisibility();
-    return () => {
-      if (timeoutRef.current) window.clearTimeout(timeoutRef.current);
-    };
   }, []);
 
   const scrollBy = (left: number) => {
     containerRef.current?.scrollBy({ left, behavior: 'smooth' });
-    if (timeoutRef.current) window.clearTimeout(timeoutRef.current);
-    timeoutRef.current = window.setTimeout(updateArrowVisibility, 220);
+    setTimeout(updateArrowVisibility, 500);
   };
 
   return (
@@ -59,7 +55,7 @@ export default function TopTenRow({ variant, seeAllHref, items }: TopTenRowProps
           <div className="ml-4 mt-2 md:mt-0 md:block">
             <a
               className="flex items-center gap-1 text-[#8f5bd7] hover:text-[#c9a8f0] transition-colors p-1 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[#08070d] focus:ring-[#8f5bd7]"
-              href={seeAllHref}
+              href="/explore"
             >
               <span className="text-sm">Ver todo</span>
               <ChevronRightIcon className="h-4 w-4" />
@@ -71,17 +67,7 @@ export default function TopTenRow({ variant, seeAllHref, items }: TopTenRowProps
       {/* top slider start */}
       <div className="pt-0 pb-3">
         <div className="space-y-0 pl-1 sm:pl-2 md:pl-4 mb-2">
-          <div className="vault-rail-wrap relative mt-1 overflow-visible">
-            <button
-              type="button"
-              aria-label="Desplazar top a la izquierda"
-              className={`vault-rail-arrow vault-rail-arrow--left ${showLeft ? '' : 'vault-rail-arrow--hidden'}`}
-              onClick={() => scrollBy(-scrollAmount)}
-            >
-              <span className="vault-rail-arrow-btn">
-                <ChevronLeftIcon className="h-5 w-5" />
-              </span>
-            </button>
+          <div className="group/row relative mt-1 overflow-visible">
             <div
               ref={containerRef}
               onScroll={updateArrowVisibility}
@@ -123,27 +109,33 @@ export default function TopTenRow({ variant, seeAllHref, items }: TopTenRowProps
               ))}
             </div>
 
-            <button
-              type="button"
-              aria-label="Desplazar top a la izquierda"
-              className={`vault-rail-arrow vault-rail-arrow--left ${showLeft ? '' : 'vault-rail-arrow--hidden'}`}
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={1.5}
+              stroke="currentColor"
+              aria-hidden="true"
+              data-slot="icon"
               onClick={() => scrollBy(-scrollAmount)}
+              className={`absolute top-0 bottom-0 left-2 z-40 m-auto h-6 w-6 md:h-9 md:w-9 cursor-pointer opacity-0 transition hover:scale-125 group-hover/row:opacity-100 ${showLeft ? '' : 'hidden'}`}
             >
-              <span className="vault-rail-arrow-btn">
-                <ChevronLeftIcon className="h-5 w-5" />
-              </span>
-            </button>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
+            </svg>
 
-            <button
-              type="button"
-              aria-label="Desplazar top a la derecha"
-              className={`vault-rail-arrow vault-rail-arrow--right ${showRight ? '' : 'vault-rail-arrow--hidden'}`}
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={1.5}
+              stroke="currentColor"
+              aria-hidden="true"
+              data-slot="icon"
               onClick={() => scrollBy(scrollAmount)}
+              className={`absolute top-0 bottom-0 right-2 z-40 m-auto h-6 w-6 md:h-9 md:w-9 cursor-pointer opacity-0 transition hover:scale-125 group-hover/row:opacity-100 ${showRight ? '' : 'hidden'}`}
             >
-              <span className="vault-rail-arrow-btn">
-                <ChevronRightIcon className="h-5 w-5" />
-              </span>
-            </button>
+              <path strokeLinecap="round" strokeLinejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
+            </svg>
           </div>
         </div>
       </div>
