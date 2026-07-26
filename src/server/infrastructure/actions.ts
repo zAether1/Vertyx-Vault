@@ -3,7 +3,7 @@ import { cookieOptions, encodeJsonCookie, readProfileFromRequest, SUBMISSIONS_CO
 import { readLocalSubmissions } from '@/server/submissions/local-cookie';
 import type { AdminOverview, ModerationAction, ModerationResult, OAuthActionResult, OAuthProvider, ProCheckoutIntent, ProfileAssetIntent, ProfileAssetKind } from '@/types/infrastructure';
 import { statusFromModerationAction } from '@/types/infrastructure';
-import { hasDatabase, listProfiles, updateSubmission } from '@/server/database/repositories';
+import { hasDatabase, listAllSubmissions, listProfiles, updateSubmission } from '@/server/database/repositories';
 
 const proBenefits = ['Insignia Pro animada', 'Marcos y banners exclusivos', 'Colores premium', 'Sin anuncios', 'Acceso anticipado', 'Sincronización futura con Discord'];
 
@@ -50,7 +50,8 @@ export function createProCheckoutIntent(): ProCheckoutIntent {
 export async function getAdminOverview(request: Request): Promise<AdminOverview | Response> {
   const profile = readProfileFromRequest(request);
   if (!profile || !can(profile.role, 'activity:read')) return new Response(JSON.stringify({ error: 'No autorizado' }), { status: 403, headers: { 'Content-Type': 'application/json' } });
-  const submissions = readLocalSubmissions(request);
+  const localSubmissions = readLocalSubmissions(request);
+  const submissions = hasDatabase() ? await listAllSubmissions().catch(() => localSubmissions) : localSubmissions;
   const persistedUsers = hasDatabase() ? await listProfiles().catch(() => []) : [];
   const now = new Date().toISOString();
   return {

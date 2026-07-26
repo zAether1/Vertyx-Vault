@@ -90,6 +90,13 @@ export async function createSubmission(item: ContentSubmission) {
   return true;
 }
 
+export async function listAllSubmissions() {
+  if (!hasDatabase()) return [];
+  await ensureVaultSchema();
+  const rows = await database()`SELECT submission FROM vertyx_submissions ORDER BY submitted_at DESC LIMIT 200` as unknown as SubmissionRow[];
+  return rows.map((row) => row.submission);
+}
+
 export async function updateSubmission(id: string, status: SubmissionStatus, reviewer: string) {
   if (!hasDatabase()) return undefined;
   await ensureVaultSchema();

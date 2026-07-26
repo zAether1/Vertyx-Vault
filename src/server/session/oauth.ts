@@ -11,8 +11,13 @@ function callbackUrl(request: Request, provider: OAuthProvider) { return new URL
 function ready(provider: OAuthProvider) { const item = configuration[provider]; return Boolean(item.clientId && item.clientSecret && hasDatabase()); }
 type Identity = { id: string; email?: string; name?: string; global_name?: string; username?: string; picture?: string; avatar?: string | null };
 type DiscordGuildMember = { roles?: string[] };
-const DISCORD_SUBMISSION_ROLE_ID = process.env.DISCORD_SUBMISSION_ROLE_ID ?? '1513325445196546118';
-const DISCORD_ADMIN_ROLE_ID = process.env.DISCORD_ADMIN_ROLE_ID ?? '1530764542378901616';
+const DISCORD_ROLE_IDS = {
+  owner: process.env.DISCORD_OWNER_ROLE_ID ?? '1508489173823258624',
+  manager: process.env.DISCORD_MANAGER_ROLE_ID ?? '1508499255466135624',
+  admin: process.env.DISCORD_ADMIN_ROLE_ID ?? '1508489173806616786',
+  moderator: process.env.DISCORD_MOD_ROLE_ID ?? '1508489173806616784',
+  uploader: process.env.DISCORD_MEMBER_ROLE_ID ?? '1508489173806616781',
+};
 
 async function discordRole(discordUserId: string): Promise<Role> {
   const guildId = process.env.DISCORD_GUILD_ID;
@@ -21,8 +26,11 @@ async function discordRole(discordUserId: string): Promise<Role> {
   const response = await fetch(`https://discord.com/api/v10/guilds/${guildId}/members/${discordUserId}`, { headers: { Authorization: `Bot ${botToken}`, Accept: 'application/json' }, cache: 'no-store' });
   const member = await response.json().catch(() => ({})) as DiscordGuildMember;
   if (!response.ok) return 'user';
-  if (member.roles?.includes(DISCORD_ADMIN_ROLE_ID)) return 'admin';
-  if (member.roles?.includes(DISCORD_SUBMISSION_ROLE_ID)) return 'uploader';
+  if (member.roles?.includes(DISCORD_ROLE_IDS.owner)) return 'owner';
+  if (member.roles?.includes(DISCORD_ROLE_IDS.manager)) return 'manager';
+  if (member.roles?.includes(DISCORD_ROLE_IDS.admin)) return 'admin';
+  if (member.roles?.includes(DISCORD_ROLE_IDS.moderator)) return 'moderator';
+  if (member.roles?.includes(DISCORD_ROLE_IDS.uploader)) return 'uploader';
   return 'user';
 }
 

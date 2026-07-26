@@ -145,9 +145,7 @@ export function profileFromSession(profile?: UserProfile): AdvancedProfile {
     },
     stats: { moviesWatched: 0, seriesWatched: 0, hoursPlayed: 0, favorites: 0, saved: 0, submitted: 0, approved: 0, memberDays: Math.max(1, Math.ceil((Date.now() - Date.parse(createdAt)) / 86400000)), streakDays: 1 },
     badges: [
-      { id: 'founder', label: 'Miembro Fundador', tone: 'violet' },
       ...(plan === 'pro' ? [{ id: 'pro', label: 'Pro', tone: 'gold' as const, animated: true }] : []),
-      ...(role !== 'guest' && role !== 'user' ? [{ id: role, label: role[0].toUpperCase() + role.slice(1), tone: 'blue' as const }] : []),
     ],
   };
 }

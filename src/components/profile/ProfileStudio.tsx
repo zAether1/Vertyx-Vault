@@ -12,7 +12,7 @@ import { profileFromSession, type AdvancedProfile } from '@/types/profile';
 import type { ActionResult, OAuthProvider, ProfileAssetKind } from '@/types/infrastructure';
 import type { AccountSecurityOverview } from '@/types/account';
 import type { ProSubscriptionState } from '@/types/pro';
-import { hasPermission } from '@/types/access';
+import { hasPermission, ROLE_LABELS } from '@/types/access';
 
 const TABS = [
   { id: 'identity', label: 'Identidad' },
@@ -191,7 +191,6 @@ export default function ProfileStudio() {
     if (result.checkoutUrl) window.location.href = result.checkoutUrl;
   };
   const requestProPortal = () => void runAction('/api/profile/pro/portal');
-  const requestDiscordProSync = () => void runAction('/api/profile/pro/discord');
   const requestEmailChange = () => void runAction('/api/account/email', { email: profile.security.email });
   const requestPasswordChange = () => void runAction('/api/account/password');
   const requestTwoFactor = (enabled: boolean) => {
@@ -204,7 +203,7 @@ export default function ProfileStudio() {
   const isPro = profile.plan === 'pro';
   const canSubmit = hasPermission(profile.role, 'submission:create');
   const canAccessAdmin = hasPermission(profile.role, 'activity:read');
-  const showRole = profile.role !== 'user' && profile.role !== 'guest';
+  const showRole = profile.role !== 'guest';
   const stats = useMemo(() => ({ ...profile.stats, favorites, saved: favorites + history, hoursPlayed: Math.max(profile.stats.hoursPlayed, Math.round(progress * 1.6)) }), [favorites, history, profile.stats, progress]);
   const activeTabIndex = Math.max(0, TABS.findIndex((tab) => tab.id === activeTab));
   const bannerBackground = PROFILE_BACKGROUNDS.find((item) => item.id === profile.theme.backgroundId)?.preview;
@@ -223,10 +222,10 @@ export default function ProfileStudio() {
         <div ref={avatarRef} className={`vault-profile-avatar-refined vault-profile-card__avatar--${profile.theme.avatarFrameId}`}>
           {profile.theme.avatarUrl ? <img src={profile.theme.avatarUrl} alt="" style={{ objectPosition: `${profile.theme.avatarFocus.x}% ${profile.theme.avatarFocus.y}%`, transform: `scale(${profile.theme.avatarFocus.zoom})` }} /> : profile.displayName.slice(0, 1).toUpperCase()}
           <span className="vault-profile-avatar-refined__status" aria-label="Estado en línea" />
-          {showRole && <span className="vault-profile-avatar-refined__role">{profile.role.slice(0, 1).toUpperCase()}</span>}
+          {showRole && <span className="vault-profile-avatar-refined__role">{ROLE_LABELS[profile.role].slice(0, 1)}</span>}
         </div>
         <div className="vault-profile-identity-block">
-          <div className="vault-profile-name-row"><h2>{profile.displayName}</h2>{showRole && <span className="vault-profile-role">{profile.role.toUpperCase()}</span>}</div>
+          <div className="vault-profile-name-row"><h2>{profile.displayName}</h2>{showRole && <span className="vault-profile-role">{ROLE_LABELS[profile.role]}</span>}</div>
           <p className="vault-profile-handle">@{profile.username}</p>
           <p className="vault-profile-card__status">{profile.status}</p>
           <p className="vault-profile-bio">{profile.bio}</p>
@@ -273,15 +272,14 @@ export default function ProfileStudio() {
             <Field label="Color del perfil"><input type="color" value={profile.theme.profileColor} onChange={(event) => setProfile((current) => ({ ...current, theme: { ...current.theme, profileColor: event.target.value } }))} /></Field>
             <div className="vault-profile-section vault-profile-section--wide"><h3>Fondos exclusivos</h3><div className="vault-choice-grid">{PROFILE_BACKGROUNDS.map((background) => <button key={background.id} type="button" disabled={background.proOnly && !isPro} className={profile.theme.backgroundId === background.id ? 'vault-profile-choice vault-profile-choice--active' : 'vault-profile-choice'} onClick={() => setProfile((current) => ({ ...current, theme: { ...current.theme, backgroundId: background.id } }))}><span style={{ background: background.preview }} /><strong>{background.label}</strong>{background.proOnly && <small>Pro</small>}</button>)}</div></div>
             <div className="vault-profile-section vault-profile-section--wide"><h3>Marcos</h3><div className="vault-choice-grid">{AVATAR_FRAMES.map((frame) => <button key={frame.id} type="button" disabled={frame.proOnly && !isPro} className={profile.theme.avatarFrameId === frame.id ? 'vault-profile-choice vault-profile-choice--active' : 'vault-profile-choice'} onClick={() => setProfile((current) => ({ ...current, theme: { ...current.theme, avatarFrameId: frame.id } }))}><strong>{frame.label}</strong>{frame.proOnly && <small>Pro</small>}</button>)}</div></div>
-            <article className="vault-pro-card vault-profile-section--wide"><div><span className="vault-page__eyebrow">Vertyx Vault Pro · {pro.status}</span><h3>USD $2.00 <small>/ mes</small></h3><p>{pro.message ?? 'Insignia animada, marcos, banners, colores premium, acceso anticipado, sin anuncios y sincronización futura con Discord.'}</p><div className="vault-profile-badges">{pro.benefits.slice(0, 4).map((benefit) => <span key={benefit.id} className={benefit.enabled ? 'vault-badge vault-badge--gold' : 'vault-badge vault-badge--graphite'}>{benefit.label}</span>)}</div></div><div className="vault-pro-card__actions"><button type="button" disabled={busy} onClick={pro.status === 'active' ? requestProPortal : requestProCheckout}><StarSmallIcon className="h-4 w-4" />{pro.status === 'active' ? 'Gestionar' : 'Activar Pro'}</button><button type="button" disabled={busy || pro.discordSync === 'unavailable'} onClick={requestDiscordProSync}>Discord</button></div></article>
+            <article className="vault-pro-card vault-profile-section--wide"><div><span className="vault-page__eyebrow">Vertyx Vault Pro · {pro.status}</span><h3>USD $2.00 <small>/ mes</small></h3><p>{pro.message ?? 'Insignia animada, marcos, banners, colores premium, acceso anticipado, sin anuncios y sincronización futura con Discord.'}</p><div className="vault-profile-badges">{pro.benefits.slice(0, 4).map((benefit) => <span key={benefit.id} className={benefit.enabled ? 'vault-badge vault-badge--gold' : 'vault-badge vault-badge--graphite'}>{benefit.label}</span>)}</div></div><div className="vault-pro-card__actions"><button type="button" disabled={busy} onClick={pro.status === 'active' ? requestProPortal : requestProCheckout}><StarSmallIcon className="h-4 w-4" />{pro.status === 'active' ? 'Gestionar' : 'Activar Pro'}</button></div></article>
           </div>}
 
           {activeTab === 'security' && <div className="vault-profile-grid" data-profile-reveal>
             <Field label="Correo electrónico"><input type="email" value={profile.security.email} onChange={(event) => setProfile((current) => ({ ...current, security: { ...current.security, email: event.target.value } }))} /></Field>
             <button type="button" className="vault-profile-command" onClick={requestPasswordChange}><BoltIcon className="h-5 w-5" />Cambiar contraseña</button>
             <button type="button" className="vault-profile-command" onClick={requestEmailChange}><BellIcon className="h-5 w-5" />Cambiar correo</button>
-            <Toggle label="Google vinculado" checked={profile.security.providers.google} onChange={(value) => { setProfile((current) => ({ ...current, security: { ...current.security, providers: { ...current.security.providers, google: value } } })); requestOAuth('google'); }} />
-            <Toggle label="Discord vinculado" checked={profile.security.providers.discord} onChange={(value) => { setProfile((current) => ({ ...current, security: { ...current.security, providers: { ...current.security.providers, discord: value } } })); requestOAuth('discord'); }} />
+            <div className="vault-profile-section vault-profile-section--wide"><h3>Acceso de la cuenta</h3><p>Conectado con {profile.provider === 'discord' ? 'Discord' : profile.provider === 'google' ? 'Google' : profile.provider === 'guest' ? 'modo invitado' : 'cuenta local'}.</p><p className="vault-profile-security-note">La vinculación se gestiona al iniciar sesión; no necesitas volver a configurarla aquí.</p></div>
             <Toggle label="Autenticación en dos pasos" checked={profile.security.twoFactorEnabled} onChange={requestTwoFactor} />
             <div className="vault-profile-section"><h3>Sesiones activas</h3>{profile.security.sessions.map((item) => <p key={item.id}>{item.device} · {item.location} {item.current ? '· actual' : ''}</p>)}<button type="button" onClick={requestCloseOtherSessions}>Cerrar otros dispositivos</button></div>
             <div className="vault-profile-section"><h3>Historial de accesos</h3>{profile.security.loginHistory.map((item) => <p key={item.id}>{item.provider} · {item.device} · {new Date(item.at).toLocaleString('es')}</p>)}{security.message && <p>{security.message}</p>}</div>
