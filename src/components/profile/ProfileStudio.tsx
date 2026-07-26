@@ -8,10 +8,11 @@ import { BellIcon, BoltIcon, CirclePlayIcon, StarSmallIcon } from '@/components/
 import { useLibraryStore } from '@/store/library';
 import { useSessionSnapshot } from '@/hooks/useSessionSnapshot';
 import { AVATAR_FRAMES, PROFILE_ACCENTS, PROFILE_BACKGROUNDS, profilePublicUrl } from '@/lib/profile';
-import { profileFromSession, type AdvancedProfile, type ProfileIntegrationStatus } from '@/types/profile';
+import { profileFromSession, type AdvancedProfile } from '@/types/profile';
 import type { ActionResult, OAuthProvider, ProfileAssetKind } from '@/types/infrastructure';
 import type { AccountSecurityOverview } from '@/types/account';
 import type { ProSubscriptionState } from '@/types/pro';
+import { hasPermission } from '@/types/access';
 
 const TABS = [
   { id: 'identity', label: 'Identidad' },
@@ -23,7 +24,6 @@ const TABS = [
 
 type TabId = (typeof TABS)[number]['id'];
 
-const emptyStatus: ProfileIntegrationStatus = { auth: false, blob: false, payments: false, discord: false, moderation: false, activity: false };
 const emptySecurity: AccountSecurityOverview = { ready: false, sessions: [], loginHistory: [], twoFactorEnabled: false, providers: { google: false, discord: false } };
 const emptyPro: ProSubscriptionState = { ready: false, status: 'inactive', priceUsd: 2, interval: 'month', discordSync: 'unavailable', benefits: [] };
 
@@ -50,7 +50,6 @@ export default function ProfileStudio() {
   const [name, setName] = useState('Usuario Vertyx');
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState<string>();
-  const [integrations, setIntegrations] = useState<ProfileIntegrationStatus>(emptyStatus);
   const [security, setSecurity] = useState<AccountSecurityOverview>(emptySecurity);
   const [pro, setPro] = useState<ProSubscriptionState>(emptyPro);
   const [profile, setProfile] = useState<AdvancedProfile>(() => profileFromSession());
@@ -103,7 +102,6 @@ export default function ProfileStudio() {
   }, [ready, session.profile]);
 
   useEffect(() => {
-    void fetch('/api/profile/status').then((response) => response.ok ? response.json() as Promise<ProfileIntegrationStatus> : emptyStatus).then(setIntegrations).catch(() => setIntegrations(emptyStatus));
     void fetch('/api/account/security').then((response) => response.ok ? response.json() as Promise<AccountSecurityOverview> : emptySecurity).then((overview) => {
       setSecurity(overview);
       setProfile((current) => ({ ...current, security: { ...current.security, sessions: overview.sessions, loginHistory: overview.loginHistory, twoFactorEnabled: overview.twoFactorEnabled, providers: overview.providers } }));
@@ -204,6 +202,8 @@ export default function ProfileStudio() {
   const requestDeleteAccount = () => window.confirm('¿Eliminar esta cuenta de Vertyx Vault? Escribe ELIMINAR en el proveedor real para completar la acción.') && void runAction('/api/account/delete', { confirmation: 'ELIMINAR' });
   const publicUrl = profilePublicUrl(profile.username);
   const isPro = profile.plan === 'pro';
+  const canAccessAdmin = hasPermission(profile.role, 'activity:read');
+  const showRole = profile.role !== 'user' && profile.role !== 'guest';
   const stats = useMemo(() => ({ ...profile.stats, favorites, saved: favorites + history, hoursPlayed: Math.max(profile.stats.hoursPlayed, Math.round(progress * 1.6)) }), [favorites, history, profile.stats, progress]);
   const activeTabIndex = Math.max(0, TABS.findIndex((tab) => tab.id === activeTab));
   const bannerBackground = PROFILE_BACKGROUNDS.find((item) => item.id === profile.theme.backgroundId)?.preview;
@@ -222,18 +222,19 @@ export default function ProfileStudio() {
         <div ref={avatarRef} className={`vault-profile-avatar-refined vault-profile-card__avatar--${profile.theme.avatarFrameId}`}>
           {profile.theme.avatarUrl ? <img src={profile.theme.avatarUrl} alt="" style={{ objectPosition: `${profile.theme.avatarFocus.x}% ${profile.theme.avatarFocus.y}%`, transform: `scale(${profile.theme.avatarFocus.zoom})` }} /> : profile.displayName.slice(0, 1).toUpperCase()}
           <span className="vault-profile-avatar-refined__status" aria-label="Estado en línea" />
-          <span className="vault-profile-avatar-refined__role">{profile.role.slice(0, 1).toUpperCase()}</span>
+          {showRole && <span className="vault-profile-avatar-refined__role">{profile.role.slice(0, 1).toUpperCase()}</span>}
         </div>
         <div className="vault-profile-identity-block">
-          <div className="vault-profile-name-row"><h2>{profile.displayName}</h2><span className="vault-profile-role">{profile.role.toUpperCase()}</span></div>
-          <p className="vault-profile-handle">@{profile.username} · {profile.id}</p>
+          <div className="vault-profile-name-row"><h2>{profile.displayName}</h2>{showRole && <span className="vault-profile-role">{profile.role.toUpperCase()}</span>}</div>
+          <p className="vault-profile-handle">@{profile.username}</p>
           <p className="vault-profile-card__status">{profile.status}</p>
           <p className="vault-profile-bio">{profile.bio}</p>
           <div className="vault-profile-badges" aria-label="Insignias visibles">{profile.badges.map((badge) => <span key={badge.id} className={`vault-badge vault-badge--${badge.tone} ${badge.animated ? 'vault-badge--animated' : ''}`}>{badge.label}</span>)}</div>
         </div>
         <div className="vault-profile-quick-actions">
-          <Link className="vault-profile-button vault-profile-button--primary" href={publicUrl}>Perfil público</Link>
-          <button type="button" className="vault-profile-button" onClick={logout} disabled={busy}>Salir</button>
+          <Link className="vault-profile-button vault-profile-button--primary" href={publicUrl}>Ver perfil público</Link>
+          {canAccessAdmin && <Link className="vault-profile-button vault-profile-button--admin" href="/admin">Panel de administración</Link>}
+          <button type="button" className="vault-profile-button vault-profile-button--quiet" onClick={logout} disabled={busy}>Cerrar sesión</button>
         </div>
       </div>
       <div className="vault-profile-stat-strip" aria-label="Estadísticas del perfil">
@@ -242,13 +243,13 @@ export default function ProfileStudio() {
     </section>
 
     <div className="vault-profile-main">
-      <aside className="vault-profile-rail" aria-label="Resumen del perfil">
-        <dl className="vault-profile-rail__meta"><div><dt>Registro</dt><dd>{new Date(profile.createdAt).toLocaleDateString('es')}</dd></div><div><dt>Última conexión</dt><dd>{new Date(profile.lastSeenAt).toLocaleDateString('es')}</dd></div><div><dt>Cuenta</dt><dd>{profile.plan}</dd></div><div><dt>País</dt><dd>{profile.country || 'Opcional'}</dd></div></dl>
-        <div className="vault-profile-integrations vault-profile-integrations--rail"><h3>Infraestructura</h3>{Object.entries(integrations).map(([key, value]) => <span key={key} className={value ? 'vault-integration vault-integration--on' : 'vault-integration'}>{key}: {value ? 'conectado' : 'pendiente'}</span>)}</div>
+      <aside className="vault-profile-rail" aria-label="Resumen de la cuenta">
+        <h3>Resumen de cuenta</h3>
+        <dl className="vault-profile-rail__meta"><div><dt>Miembro desde</dt><dd>{new Date(profile.createdAt).toLocaleDateString('es')}</dd></div><div><dt>Última conexión</dt><dd>{new Date(profile.lastSeenAt).toLocaleDateString('es')}</dd></div><div><dt>Plan</dt><dd>{profile.plan === 'pro' ? 'Pro' : 'Gratis'}</dd></div><div><dt>Ubicación</dt><dd>{profile.country || 'Sin configurar'}</dd></div></dl>
       </aside>
 
       <section className="vault-profile-workspace vault-profile-workspace--refined">
-        <header className="vault-profile-workspace__top"><div><span className="vault-page__eyebrow">Perfil avanzado</span><h2>{TABS.find((tab) => tab.id === activeTab)?.label}</h2></div></header>
+        <header className="vault-profile-workspace__top"><div><span className="vault-page__eyebrow">Configuración</span><h2>{TABS.find((tab) => tab.id === activeTab)?.label}</h2></div></header>
         <nav className="vault-profile-tabs vault-profile-tabs--refined" style={{ '--tab-index': activeTabIndex } as React.CSSProperties} aria-label="Secciones de perfil"><span className="vault-profile-tabs__indicator" aria-hidden="true" />{TABS.map((tab) => <button key={tab.id} type="button" className={activeTab === tab.id ? 'vault-profile-tabs__tab vault-profile-tabs__tab--active' : 'vault-profile-tabs__tab'} onClick={() => setActiveTab(tab.id)}>{tab.label}</button>)}</nav>
         {notice && <p className="vault-profile-notice" role="status">{notice}</p>}
         <div ref={panelRef} className="vault-profile-panel">
