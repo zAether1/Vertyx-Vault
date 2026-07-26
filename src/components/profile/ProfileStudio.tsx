@@ -202,6 +202,7 @@ export default function ProfileStudio() {
   const requestDeleteAccount = () => window.confirm('¿Eliminar esta cuenta de Vertyx Vault? Escribe ELIMINAR en el proveedor real para completar la acción.') && void runAction('/api/account/delete', { confirmation: 'ELIMINAR' });
   const publicUrl = profilePublicUrl(profile.username);
   const isPro = profile.plan === 'pro';
+  const canSubmit = hasPermission(profile.role, 'submission:create');
   const canAccessAdmin = hasPermission(profile.role, 'activity:read');
   const showRole = profile.role !== 'user' && profile.role !== 'guest';
   const stats = useMemo(() => ({ ...profile.stats, favorites, saved: favorites + history, hoursPlayed: Math.max(profile.stats.hoursPlayed, Math.round(progress * 1.6)) }), [favorites, history, profile.stats, progress]);
@@ -233,6 +234,7 @@ export default function ProfileStudio() {
         </div>
         <div className="vault-profile-quick-actions">
           <Link className="vault-profile-button vault-profile-button--primary" href={publicUrl}>Ver perfil público</Link>
+          {canSubmit && <Link className="vault-profile-button vault-profile-button--submit" href="/submit"><CirclePlayIcon className="h-4 w-4" />Enviar película o serie</Link>}
           {canAccessAdmin && <Link className="vault-profile-button vault-profile-button--admin" href="/admin">Panel de administración</Link>}
           <button type="button" className="vault-profile-button vault-profile-button--quiet" onClick={logout} disabled={busy}>Cerrar sesión</button>
         </div>

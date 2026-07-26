@@ -18,7 +18,7 @@ export type Permission = (typeof PERMISSIONS)[number];
 
 export const ROLE_PERMISSIONS: Record<Role, readonly Permission[]> = {
   guest: ['profile:read'],
-  user: ['profile:read', 'profile:update', 'library:manage', 'submission:create'],
+  user: ['profile:read', 'profile:update', 'library:manage'],
   uploader: ['profile:read', 'profile:update', 'library:manage', 'submission:create'],
   moderator: ['profile:read', 'profile:update', 'library:manage', 'submission:create', 'submission:review', 'activity:read'],
   admin: ['profile:read', 'profile:update', 'library:manage', 'submission:create', 'submission:review', 'content:publish', 'user:manage', 'activity:read'],

@@ -22,3 +22,5 @@
 .vault-profile-tabs--refined .vault-profile-tabs__tab:hover{color:#eee9f4;transform:translateY(-1px)}
 .vault-profile-tabs--refined .vault-profile-tabs__tab:focus-visible{outline:2px solid #c9a8f0;outline-offset:-2px}
 @media(prefers-reduced-motion:reduce){.vault-profile-button,.vault-profile-tabs--refined .vault-profile-tabs__tab{transition:none}.vault-profile-button:hover:not(:disabled),.vault-profile-tabs--refined .vault-profile-tabs__tab:hover{transform:none}}
+
+.vault-profile-button--submit{background:linear-gradient(135deg,rgba(38,106,84,.6),rgba(23,70,64,.42));border-color:rgba(99,240,165,.28)}
