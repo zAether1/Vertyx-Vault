@@ -11,6 +11,7 @@ import { AVATAR_FRAMES, PROFILE_ACCENTS, PROFILE_BACKGROUNDS, profilePublicUrl }
 import { profileFromSession, type AdvancedProfile } from '@/types/profile';
 import type { ProfileAssetKind } from '@/types/infrastructure';
 import { hasPermission, ROLE_LABELS } from '@/types/access';
+import { ProProfileSection } from '@/components/ProExperience';
 
 const TABS = [
   { id: 'identity', label: 'Perfil' },
@@ -193,6 +194,8 @@ export default function ProfileStudio() {
         {[['Favoritos', stats.favorites], ['Guardados', stats.saved], ['Horas', stats.hoursPlayed], ['Racha', stats.streakDays]].map(([label, value]) => <div key={label}><strong>{value}</strong><span>{label}</span></div>)}
       </div>
     </section>
+
+    <ProProfileSection />
 
     <div className="vault-profile-main">
       <aside className="vault-profile-rail" aria-label="Resumen de la cuenta">
