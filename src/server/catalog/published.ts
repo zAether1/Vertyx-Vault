@@ -39,12 +39,13 @@ export async function searchPublishedSubmissions(filters: CatalogSearchFilters) 
   return (await loadPublishedSubmissions()).map(toCatalogTitle).filter((item) => matches(item, filters));
 }
 
-export async function findPublishedSubmission(id: string) {
-  return (await loadPublishedSubmissions()).find((item) => item.id === id);
+export async function findPublishedSubmission(id: string): Promise<CatalogTitle | undefined> {
+  const item = (await loadPublishedSubmissions()).find((entry) => entry.id === id);
+  return item ? toCatalogTitle(item) : undefined;
 }
 
 export async function getPublishedPlaybackSource(request: PlaybackRequest): Promise<MediaSource | undefined> {
-  const item = await findPublishedSubmission(request.titleId);
+  const item = (await loadPublishedSubmissions()).find((entry) => entry.id === request.titleId);
   if (!item) return undefined;
   return item.playbackKind === 'embed'
     ? { kind: 'embed', url: item.playbackUrl, title: item.title }
