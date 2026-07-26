@@ -3,7 +3,8 @@ import { readProfileFromRequest } from '@/server/session/cookies';
 import { findDiscordUserId } from '@/server/session/oauth';
 import { PRO_BENEFITS, type ProActionResult, type ProStatus, type ProSubscriptionState } from '@/types/pro';
 
-const paypalBaseUrl = process.env.PAYPAL_MODE === 'live' ? 'https://api-m.paypal.com' : 'https://api-m.sandbox.paypal.com';
+const paypalMode = process.env.PAYPAL_MODE === 'live' ? 'live' : 'sandbox';
+const paypalBaseUrl = paypalMode === 'live' ? 'https://api-m.paypal.com' : 'https://api-m.sandbox.paypal.com';
 const paypalReady = Boolean(process.env.PAYPAL_CLIENT_ID && process.env.PAYPAL_CLIENT_SECRET && process.env.PAYPAL_WEBHOOK_ID && hasDatabase());
 const discordReady = Boolean(process.env.DISCORD_BOT_TOKEN && process.env.DISCORD_GUILD_ID && process.env.DISCORD_PRO_ROLE_ID);
 
@@ -31,8 +32,8 @@ async function accessToken() {
 
 async function paypal(path: string, init: RequestInit = {}) {
   const response = await fetch(`${paypalBaseUrl}${path}`, { ...init, headers: { Authorization: `Bearer ${await accessToken()}`, Accept: 'application/json', ...(init.body ? { 'Content-Type': 'application/json' } : {}), ...init.headers }, cache: 'no-store' });
-  const payload = await response.json().catch(() => ({}));
-  if (!response.ok) throw new Error(`PayPal request failed (${response.status}).`);
+  const payload = await response.json().catch(() => ({})) as { name?: string; message?: string };
+  if (!response.ok) throw new Error(`PayPal request failed (${response.status}): ${payload.name ?? payload.message ?? 'unknown error'}.`);
   return payload;
 }
 
@@ -40,12 +41,13 @@ async function planId() {
   if (process.env.PAYPAL_PLAN_ID) return process.env.PAYPAL_PLAN_ID;
   await ensureVaultSchema();
   const sql = database();
-  const [stored] = await sql`SELECT value FROM vertyx_billing_config WHERE key = 'paypal_plan_id' LIMIT 1` as unknown as { value: string }[];
+  const planKey = `paypal_plan_id:${paypalMode}`;
+  const [stored] = await sql`SELECT value FROM vertyx_billing_config WHERE key = ${planKey} LIMIT 1` as unknown as { value: string }[];
   if (stored?.value) return stored.value;
   const product = await paypal('/v1/catalogs/products', { method: 'POST', body: JSON.stringify({ name: 'Vertyx Vault Pro', description: 'Vertyx Vault Pro monthly subscription', type: 'SERVICE', category: 'SOFTWARE' }) }) as { id: string };
   const plan = await paypal('/v1/billing/plans', { method: 'POST', body: JSON.stringify({ product_id: product.id, name: 'Vertyx Vault Pro Monthly', billing_cycles: [{ frequency: { interval_unit: 'MONTH', interval_count: 1 }, tenure_type: 'REGULAR', sequence: 1, total_cycles: 0, pricing_scheme: { fixed_price: { value: '2.00', currency_code: 'USD' } } }], payment_preferences: { auto_bill_outstanding: true, payment_failure_threshold: 1 } }) }) as { id: string };
-  await sql`INSERT INTO vertyx_billing_config (key, value) VALUES ('paypal_plan_id', ${plan.id}) ON CONFLICT (key) DO NOTHING`;
-  const [saved] = await sql`SELECT value FROM vertyx_billing_config WHERE key = 'paypal_plan_id' LIMIT 1` as unknown as { value: string }[];
+  await sql`INSERT INTO vertyx_billing_config (key, value) VALUES (${planKey}, ${plan.id}) ON CONFLICT (key) DO NOTHING`;
+  const [saved] = await sql`SELECT value FROM vertyx_billing_config WHERE key = ${planKey} LIMIT 1` as unknown as { value: string }[];
   return saved?.value ?? plan.id;
 }
 
@@ -91,7 +93,8 @@ export async function createProCheckout(request: Request): Promise<Response> {
     const checkoutUrl = subscription.links?.find((link) => link.rel === 'approve')?.href;
     if (!checkoutUrl) throw new Error('PayPal did not return an approval URL.');
     return Response.json({ ok: true, ready: true, message: 'Redirigiendo a PayPal.', checkoutUrl, subscription: state('inactive', discordReady ? 'pending' : 'unavailable') } satisfies ProActionResult);
-  } catch {
+  } catch (error) {
+    console.error('PayPal checkout failed', error);
     return Response.json({ ok: false, ready: true, message: 'No se pudo iniciar el checkout de PayPal.' } satisfies ProActionResult, { status: 502 });
   }
 }
