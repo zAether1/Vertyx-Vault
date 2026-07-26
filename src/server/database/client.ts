@@ -54,6 +54,39 @@ export async function ensureVaultSchema() {
       read_at TIMESTAMPTZ,
       created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
     )`;
+    await sql`CREATE TABLE IF NOT EXISTS vertyx_billing_config (
+      key TEXT PRIMARY KEY,
+      value TEXT NOT NULL,
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )`;
+    await sql`CREATE TABLE IF NOT EXISTS vertyx_pro_subscriptions (
+      subscription_id TEXT PRIMARY KEY,
+      user_id TEXT NOT NULL,
+      plan_id TEXT NOT NULL,
+      status VARCHAR(32) NOT NULL,
+      payer_id TEXT,
+      current_period_end TIMESTAMPTZ,
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )`;
+    await sql`CREATE INDEX IF NOT EXISTS vertyx_pro_subscriptions_user_idx ON vertyx_pro_subscriptions(user_id, updated_at DESC)`;
+    await sql`CREATE TABLE IF NOT EXISTS vertyx_oauth_accounts (
+      provider VARCHAR(16) NOT NULL,
+      user_id TEXT NOT NULL,
+      provider_user_id TEXT NOT NULL,
+      email TEXT,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      PRIMARY KEY (provider, user_id),
+      UNIQUE (provider, provider_user_id)
+    )`;
+    await sql`CREATE TABLE IF NOT EXISTS vertyx_oauth_states (
+      state TEXT PRIMARY KEY,
+      provider VARCHAR(16) NOT NULL,
+      user_id TEXT NOT NULL,
+      expires_at TIMESTAMPTZ NOT NULL,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )`;
   })();
   return schemaPromise;
 }
