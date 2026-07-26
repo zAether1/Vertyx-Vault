@@ -99,7 +99,8 @@ export function profileFromSession(profile?: UserProfile): AdvancedProfile {
   const seed = (profile?.id ?? 'guest').replace(/[^a-z0-9]/gi, '').slice(-6).toLowerCase() || 'vault';
   const role = profile?.role ?? 'guest';
   const plan = profile?.plan ?? 'free';
-  const username = profile?.name ? profile.name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '.').replace(/^\.|\.$/g, '').slice(0, 24) || `user.${seed}` : `guest.${seed}`;
+  const usernameSource = profile?.username ?? profile?.name;
+  const username = usernameSource ? usernameSource.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '.').replace(/^\.|\.$/g, '').slice(0, 24) || `user.${seed}` : `guest.${seed}`;
 
   return {
     id: profile?.id ?? `guest-${seed}`,

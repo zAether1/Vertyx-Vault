@@ -6,6 +6,7 @@ export type AuthProvider = 'guest' | 'local' | 'google' | 'discord';
 export interface UserProfile {
   id: string;
   name: string;
+  username?: string;
   email?: string;
   avatarUrl?: string;
   plan?: 'free' | 'pro';
