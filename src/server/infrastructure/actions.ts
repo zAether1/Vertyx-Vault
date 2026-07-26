@@ -80,7 +80,7 @@ export async function getAdminOverview(request: Request): Promise<AdminOverview 
 export async function moderateSubmission(request: Request, id: string, action: ModerationAction): Promise<Response> {
   const profile = readProfileFromRequest(request);
   if (!profile || !can(profile.role, 'submission:review')) return new Response(JSON.stringify({ ok: false, ready: true, message: 'No autorizado' } satisfies ModerationResult), { status: 403, headers: { 'Content-Type': 'application/json' } });
-  const status = statusFromModerationAction(action);
+  const status = action === 'approve' ? 'published' : statusFromModerationAction(action);
   if (hasDatabase()) {
     try {
       const item = await updateSubmission(id, status, profile.id);
