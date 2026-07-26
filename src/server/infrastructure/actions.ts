@@ -1,12 +1,34 @@
 import { can } from '@/server/access/permissions';
 import { cookieOptions, encodeJsonCookie, readProfileFromRequest, SUBMISSIONS_COOKIE } from '@/server/session/cookies';
 import { readLocalSubmissions } from '@/server/submissions/local-cookie';
-import type { AdminOverview, ModerationAction, ModerationResult, OAuthActionResult, OAuthProvider, ProCheckoutIntent, ProfileAssetIntent, ProfileAssetKind } from '@/types/infrastructure';
+import type { AdminOverview, CatalogAdminEntry, ModerationAction, ModerationResult, OAuthActionResult, OAuthProvider, ProCheckoutIntent, ProfileAssetIntent, ProfileAssetKind } from '@/types/infrastructure';
 import { statusFromModerationAction } from '@/types/infrastructure';
-import { hasDatabase, listAllSubmissions, listProfiles, updateSubmission, updateSubmissionSource } from '@/server/database/repositories';
-import type { PlaybackKind } from '@/types/submission';
+import { hasDatabase, listAllSubmissions, listProfiles, updateSubmission, updateSubmissionSource, upsertSubmission } from '@/server/database/repositories';
+import type { ContentSubmission, PlaybackKind } from '@/types/submission';
+import { catalog } from '@/lib/catalog';
 
 const proBenefits = ['Insignia Pro animada', 'Marcos y banners exclusivos', 'Colores premium', 'Sin anuncios', 'Acceso anticipado', 'Sincronización futura con Discord'];
+
+function toCatalogAdminEntry(item: ContentSubmission): CatalogAdminEntry {
+  return {
+    id: item.id,
+    title: item.title,
+    kind: item.kind,
+    description: item.description,
+    category: item.category,
+    provider: item.provider,
+    playbackUrl: item.playbackUrl,
+    playbackKind: item.playbackKind,
+    coverUrl: item.coverUrl,
+    year: item.year,
+    language: item.language,
+    quality: item.quality,
+    genres: item.genres,
+    notes: item.notes,
+    status: item.status,
+    submittedAt: item.submittedAt,
+  };
+}
 
 export function createOAuthIntent(provider: OAuthProvider): OAuthActionResult {
   const ready = provider === 'google' ? Boolean(process.env.VERTYX_GOOGLE_AUTH_URL || process.env.GOOGLE_CLIENT_ID) : Boolean(process.env.VERTYX_DISCORD_AUTH_URL || process.env.DISCORD_CLIENT_ID || process.env.VERTYX_DISCORD_CLIENT_ID);
@@ -53,6 +75,28 @@ export async function getAdminOverview(request: Request): Promise<AdminOverview 
   if (!profile || !can(profile.role, 'activity:read')) return new Response(JSON.stringify({ error: 'No autorizado' }), { status: 403, headers: { 'Content-Type': 'application/json' } });
   const localSubmissions = readLocalSubmissions(request);
   const submissions = hasDatabase() ? await listAllSubmissions().catch(() => localSubmissions) : localSubmissions;
+  const catalogEntries = catalog
+    .map((item) => {
+      const existing = submissions.find((entry) => entry.id === item.id);
+      return existing
+        ? toCatalogAdminEntry(existing)
+        : {
+            id: item.id,
+            title: item.title,
+            kind: item.kind,
+            description: item.collection ? `Catálogo · ${item.collection}` : 'Contenido del catálogo principal',
+            category: item.collection,
+            provider: 'Catálogo',
+            playbackUrl: '',
+            playbackKind: 'mp4' as const,
+            coverUrl: item.poster,
+            year: item.year,
+            genres: [],
+            status: 'catalog' as const,
+            submittedAt: new Date().toISOString(),
+          } satisfies CatalogAdminEntry;
+    })
+    .filter((entry) => entry.id);
   const persistedUsers = hasDatabase() ? await listProfiles().catch(() => []) : [];
   const now = new Date().toISOString();
   return {
@@ -71,6 +115,7 @@ export async function getAdminOverview(request: Request): Promise<AdminOverview 
       { id: 'activity-queue', label: 'Cola editorial preparada para persistencia compartida', at: now, tone: 'graphite' },
     ],
     submissions,
+    catalogEntries,
   };
 }
 
@@ -102,8 +147,26 @@ export async function updateSubmissionPlayback(request: Request, id: string, pla
   if (!source || !URL.canParse(source)) return new Response(JSON.stringify({ ok: false, ready: true, message: 'La URL del reproductor no es válida.' } satisfies ModerationResult), { status: 400, headers: { 'Content-Type': 'application/json' } });
   if (hasDatabase()) {
     try {
-      const item = await updateSubmissionSource(id, source, playbackKind);
-      if (!item) return new Response(JSON.stringify({ ok: false, ready: true, message: 'Solicitud no encontrada' } satisfies ModerationResult), { status: 404, headers: { 'Content-Type': 'application/json' } });
+      const existing = await updateSubmissionSource(id, source, playbackKind);
+      if (existing) return Response.json({ ok: true, ready: true, item: existing, message: `${existing.title}: fuente actualizada` } satisfies ModerationResult);
+      const catalogItem = catalog.find((entry) => entry.id === id);
+      const item: ContentSubmission = {
+        id,
+        title: catalogItem?.title ?? 'Contenido sin título',
+        description: catalogItem?.collection ? `Catálogo · ${catalogItem.collection}` : 'Contenido publicado desde el catálogo.',
+        category: catalogItem?.collection ?? 'Catálogo',
+        kind: catalogItem?.kind ?? 'movie',
+        genres: [],
+        provider: 'Catálogo',
+        playbackKind,
+        playbackUrl: source,
+        coverUrl: catalogItem?.poster,
+        status: 'published',
+        submittedBy: 'admin',
+        submittedAt: new Date().toISOString(),
+      };
+      const created = await upsertSubmission(item);
+      if (!created) throw new Error('No se pudo crear la entrada de catálogo');
       return Response.json({ ok: true, ready: true, item, message: `${item.title}: fuente actualizada` } satisfies ModerationResult);
     } catch (error) {
       console.error('[submission-source-database]', error);

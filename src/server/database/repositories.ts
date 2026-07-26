@@ -103,6 +103,21 @@ export async function createSubmission(item: ContentSubmission) {
   return true;
 }
 
+export async function upsertSubmission(item: ContentSubmission) {
+  if (!hasDatabase()) return false;
+  await ensureVaultSchema();
+  const sql = database();
+  await sql`INSERT INTO vertyx_submissions (id, submitted_by, status, submission, submitted_at)
+    VALUES (${item.id}, ${item.submittedBy}, ${item.status}, ${JSON.stringify(item)}::jsonb, ${item.submittedAt}::timestamptz)
+    ON CONFLICT (id) DO UPDATE SET
+      submitted_by = EXCLUDED.submitted_by,
+      status = EXCLUDED.status,
+      submission = EXCLUDED.submission,
+      reviewed_by = NULL,
+      reviewed_at = NULL`;
+  return true;
+}
+
 export async function listAllSubmissions() {
   if (!hasDatabase()) return [];
   await ensureVaultSchema();

@@ -1,6 +1,6 @@
 import type { Role } from '@/types/access';
 import type { AuthProvider } from '@/types/session';
-import type { ContentSubmission, SubmissionStatus } from '@/types/submission';
+import type { ContentSubmission, PlaybackKind, SubmissionStatus } from '@/types/submission';
 
 export type OAuthProvider = Extract<AuthProvider, 'google' | 'discord'>;
 export type ProfileAssetKind = 'avatar' | 'banner' | 'cover';
@@ -46,11 +46,31 @@ export interface ManagedUserSummary {
   lastSeenAt: string;
 }
 
+export interface CatalogAdminEntry {
+  id: string;
+  title: string;
+  kind: 'movie' | 'series';
+  description?: string;
+  category?: string;
+  provider?: string;
+  playbackUrl: string;
+  playbackKind: PlaybackKind;
+  coverUrl?: string;
+  year?: string;
+  language?: string;
+  quality?: string;
+  genres: string[];
+  notes?: string;
+  status: SubmissionStatus | 'catalog';
+  submittedAt: string;
+}
+
 export interface AdminOverview {
   metrics: Array<{ label: string; value: string; detail: string }>;
   users: ManagedUserSummary[];
   activity: Array<{ id: string; label: string; at: string; tone: 'violet' | 'blue' | 'gold' | 'graphite' }>;
   submissions: ContentSubmission[];
+  catalogEntries: CatalogAdminEntry[];
 }
 
 export function statusFromModerationAction(action: ModerationAction): SubmissionStatus {
