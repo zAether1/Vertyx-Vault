@@ -1,4 +1,4 @@
-import { createDemoProfile, createGuestProfile, encodeJsonCookie, cookieOptions, SESSION_COOKIE } from '@/server/session/cookies';
+import { createDemoProfile, createGuestProfile, encodeSessionCookie, cookieOptions, SESSION_COOKIE } from '@/server/session/cookies';
 
 export async function POST(request: Request) {
   const body = await request.json().catch(() => ({})) as { name?: string; mode?: 'guest' | 'local' };
@@ -7,7 +7,7 @@ export async function POST(request: Request) {
     status: 200,
     headers: {
       'Content-Type': 'application/json',
-      'Set-Cookie': `${SESSION_COOKIE}=${encodeJsonCookie(profile)}; ${cookieOptions()}`,
+      'Set-Cookie': `${SESSION_COOKIE}=${encodeSessionCookie(profile)}; ${cookieOptions()}`,
     },
   });
 }
