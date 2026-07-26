@@ -24,3 +24,22 @@
 @media(prefers-reduced-motion:reduce){.vault-profile-button,.vault-profile-tabs--refined .vault-profile-tabs__tab{transition:none}.vault-profile-button:hover:not(:disabled),.vault-profile-tabs--refined .vault-profile-tabs__tab:hover{transform:none}}
 
 .vault-profile-button--submit{background:linear-gradient(135deg,rgba(38,106,84,.6),rgba(23,70,64,.42));border-color:rgba(99,240,165,.28)}
+
+/* Perfil autenticado: composición compacta para banners sin imagen y controles actuales. */
+.vault-profile-studio--refined{gap:1.25rem;margin-top:0}
+.vault-profile-hero-card{background:linear-gradient(145deg,rgba(22,19,34,.94),rgba(11,11,18,.94))}
+.vault-profile-hero-card__banner{height:clamp(8.5rem,16vw,11.5rem);background:radial-gradient(circle at 18% 18%,color-mix(in srgb,var(--profile-accent) 48%,transparent),transparent 30%),radial-gradient(circle at 82% 18%,rgba(36,93,145,.42),transparent 34%),linear-gradient(118deg,#0b0a12,#171124 54%,#0b1627)}
+.vault-profile-hero-card__content{gap:1.25rem;padding:0 clamp(1.1rem,3vw,1.7rem) 1.2rem}
+.vault-profile-avatar-refined{border-radius:1.1rem}
+.vault-profile-identity-block{padding:.25rem 0}
+.vault-profile-card__status{margin:.45rem 0 0;color:#c9a8f0;font-size:.82rem;font-weight:650}
+.vault-profile-bio{margin-top:.3rem;max-width:42rem}
+.vault-profile-quick-actions{gap:.55rem}
+.vault-profile-button{border-radius:.8rem;font-size:.78rem}
+.vault-profile-stat-strip{background:rgba(7,7,13,.36)}
+.vault-profile-stat-strip div{padding:.9rem 1.15rem}
+.vault-profile-main{gap:1.25rem}
+.vault-profile-rail,.vault-profile-workspace--refined{border-color:rgba(201,168,240,.12);background:rgba(18,17,27,.72)}
+.vault-profile-workspace--refined{padding:1.25rem}
+.vault-profile-tabs--refined{margin-top:.85rem}
+@media(max-width:700px){.vault-profile-studio--refined{margin-top:0}.vault-profile-hero-card__banner{height:8.25rem}.vault-profile-hero-card__content{padding-bottom:1rem}.vault-profile-quick-actions{width:100%}.vault-profile-button{flex:1 1 12rem}.vault-profile-main{gap:.85rem}}

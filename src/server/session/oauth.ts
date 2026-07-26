@@ -14,10 +14,11 @@ type DiscordGuildMember = { roles?: string[] };
 const DISCORD_SUBMISSION_ROLE_ID = process.env.DISCORD_SUBMISSION_ROLE_ID ?? '1513325445196546118';
 const DISCORD_ADMIN_ROLE_ID = process.env.DISCORD_ADMIN_ROLE_ID ?? '1530764542378901616';
 
-async function discordRole(accessToken: string): Promise<Role> {
+async function discordRole(discordUserId: string): Promise<Role> {
   const guildId = process.env.DISCORD_GUILD_ID;
-  if (!guildId) return 'user';
-  const response = await fetch(`https://discord.com/api/users/@me/guilds/${guildId}/member`, { headers: { Authorization: `Bearer ${accessToken}`, Accept: 'application/json' }, cache: 'no-store' });
+  const botToken = process.env.DISCORD_BOT_TOKEN;
+  if (!guildId || !botToken) return 'user';
+  const response = await fetch(`https://discord.com/api/v10/guilds/${guildId}/members/${discordUserId}`, { headers: { Authorization: `Bot ${botToken}`, Accept: 'application/json' }, cache: 'no-store' });
   const member = await response.json().catch(() => ({})) as DiscordGuildMember;
   if (!response.ok) return 'user';
   if (member.roles?.includes(DISCORD_ADMIN_ROLE_ID)) return 'admin';
@@ -48,7 +49,7 @@ export async function completeOAuthAuthorization(request: Request, provider: OAu
   const [linked] = await sql`SELECT user_id FROM vertyx_oauth_accounts WHERE provider = ${provider} AND provider_user_id = ${identity.id} LIMIT 1` as unknown as { user_id: string }[];
   const userId = stateRow.user_id ?? linked?.user_id ?? `user-${crypto.randomUUID()}`;
   const savedProfile = await findProfile(userId);
-  const role = provider === 'discord' ? await discordRole(token.access_token) : savedProfile?.role ?? 'user';
+  const role = provider === 'discord' ? await discordRole(identity.id) : savedProfile?.role ?? 'user';
   const displayName = identity.name ?? identity.global_name ?? identity.username ?? 'Usuario Vertyx';
   const username = identity.username ?? identity.email?.split('@')[0] ?? displayName;
   const avatarUrl = provider === 'discord' && identity.avatar
