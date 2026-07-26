@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import { useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { ContentRowData, RowCard } from '@/types/content';
 import { contentHref, contentIdFromLegacyHref } from '@/lib/routes';
 import { ChevronLeftIcon, ChevronRightIcon } from '@/components/icons';
@@ -66,11 +66,30 @@ function PosterCard({ card }: { card: RowCard }) {
  */
 export default function ContentRow({ row }: { row: ContentRowData }) {
   const scrollRef = useRef<HTMLDivElement>(null);
+  const timeoutRef = useRef<number | null>(null);
+  const [showLeft, setShowLeft] = useState(false);
+  const [showRight, setShowRight] = useState(true);
   const scrollAmount = 300;
+
+  const updateArrowVisibility = () => {
+    const el = scrollRef.current;
+    if (!el) return;
+    setShowLeft(el.scrollLeft > 0);
+    setShowRight(el.scrollLeft < el.scrollWidth - el.clientWidth - 4);
+  };
 
   const scrollBy = (left: number) => {
     scrollRef.current?.scrollBy({ left, behavior: 'smooth' });
+    if (timeoutRef.current) window.clearTimeout(timeoutRef.current);
+    timeoutRef.current = window.setTimeout(updateArrowVisibility, 220);
   };
+
+  useEffect(() => {
+    updateArrowVisibility();
+    return () => {
+      if (timeoutRef.current) window.clearTimeout(timeoutRef.current);
+    };
+  }, []);
 
   return (
     <div className="scroll-section mt-4 mb-12">
@@ -83,31 +102,40 @@ export default function ContentRow({ row }: { row: ContentRowData }) {
               Ver todo
             </a>
           </div>
-          <div className="scroll-buttons flex space-x-2">
-            <button
-              className="bg-transparent text-[#b8a8c8] hover:text-[#eee9f4] p-1 rounded-full"
-              onClick={() => scrollBy(-scrollAmount)}
-            >
-              <ChevronLeftIcon className="h-6 w-6" />
-            </button>
-            <button
-              className="bg-transparent text-[#b8a8c8] hover:text-[#eee9f4] p-1 rounded-full"
-              onClick={() => scrollBy(scrollAmount)}
-            >
-              <ChevronRightIcon className="h-6 w-6" />
-            </button>
-          </div>
         </div>
 
-        <div className="relative">
+        <div className="relative vault-rail-wrap">
+          <button
+            type="button"
+            aria-label="Desplazar fila a la izquierda"
+            className={`vault-rail-arrow vault-rail-arrow--left ${showLeft ? '' : 'vault-rail-arrow--hidden'}`}
+            onClick={() => scrollBy(-scrollAmount)}
+          >
+            <span className="vault-rail-arrow-btn">
+              <ChevronLeftIcon className="h-5 w-5" />
+            </span>
+          </button>
+
           <div
             ref={scrollRef}
+            onScroll={updateArrowVisibility}
             className="flex items-center space-x-6 overflow-x-scroll scrollbar-hide py-4 px-4 md:px-8 select-none will-change-scroll cursor-grab"
           >
             {row.cards.map((card, i) => (
               <PosterCard key={`${card.href}-${i}`} card={card} />
             ))}
           </div>
+
+          <button
+            type="button"
+            aria-label="Desplazar fila a la derecha"
+            className={`vault-rail-arrow vault-rail-arrow--right ${showRight ? '' : 'vault-rail-arrow--hidden'}`}
+            onClick={() => scrollBy(scrollAmount)}
+          >
+            <span className="vault-rail-arrow-btn">
+              <ChevronRightIcon className="h-5 w-5" />
+            </span>
+          </button>
         </div>
       </div>
     </div>
