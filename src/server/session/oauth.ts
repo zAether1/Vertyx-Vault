@@ -1,6 +1,6 @@
 import { database, ensureVaultSchema, hasDatabase } from '@/server/database/client';
 import { cookieOptions, encodeJsonCookie, readProfileFromRequest, SESSION_COOKIE } from '@/server/session/cookies';
-import { saveProfile } from '@/server/database/repositories';
+import { findProfile, saveProfile } from '@/server/database/repositories';
 import { profileFromSession } from '@/types/profile';
 import type { UserProfile } from '@/types/session';
 
@@ -8,7 +8,7 @@ export type OAuthProvider = 'google' | 'discord';
 const configuration = { google: { clientId: process.env.GOOGLE_CLIENT_ID, clientSecret: process.env.GOOGLE_CLIENT_SECRET, authorizeUrl: 'https://accounts.google.com/o/oauth2/v2/auth', tokenUrl: 'https://oauth2.googleapis.com/token', userUrl: 'https://openidconnect.googleapis.com/v1/userinfo', scope: 'openid email profile' }, discord: { clientId: process.env.DISCORD_CLIENT_ID, clientSecret: process.env.DISCORD_CLIENT_SECRET, authorizeUrl: 'https://discord.com/oauth2/authorize', tokenUrl: 'https://discord.com/api/oauth2/token', userUrl: 'https://discord.com/api/users/@me', scope: 'identify email' } } as const;
 function callbackUrl(request: Request, provider: OAuthProvider) { return new URL(`/api/session/oauth/${provider}/callback`, request.url).toString(); }
 function ready(provider: OAuthProvider) { const item = configuration[provider]; return Boolean(item.clientId && item.clientSecret && hasDatabase()); }
-type Identity = { id: string; email?: string; name?: string; global_name?: string; username?: string };
+type Identity = { id: string; email?: string; name?: string; global_name?: string; username?: string; picture?: string; avatar?: string | null };
 
 export async function createOAuthAuthorization(request: Request, provider: OAuthProvider) {
   if (!ready(provider)) return { ok: false, ready: false, message: 'Configura OAuth y Neon antes de continuar.' };
@@ -33,8 +33,13 @@ export async function completeOAuthAuthorization(request: Request, provider: OAu
   const [linked] = await sql`SELECT user_id FROM vertyx_oauth_accounts WHERE provider = ${provider} AND provider_user_id = ${identity.id} LIMIT 1` as unknown as { user_id: string }[];
   const userId = stateRow.user_id ?? linked?.user_id ?? `user-${crypto.randomUUID()}`;
   const displayName = identity.name ?? identity.global_name ?? identity.username ?? 'Usuario Vertyx';
-  const profile: UserProfile = { id: userId, name: displayName, email: identity.email, plan: 'free', role: 'user', provider, createdAt: new Date().toISOString() };
-  await saveProfile(profileFromSession(profile));
+  const username = identity.username ?? identity.email?.split('@')[0] ?? displayName;
+  const avatarUrl = provider === 'discord' && identity.avatar
+    ? `https://cdn.discordapp.com/avatars/${identity.id}/${identity.avatar}.${identity.avatar.startsWith('a_') ? 'gif' : 'png'}?size=256`
+    : identity.picture;
+  const profile: UserProfile = { id: userId, name: displayName, username, email: identity.email, avatarUrl, plan: 'free', role: 'user', provider, createdAt: new Date().toISOString() };
+  const savedProfile = await findProfile(userId);
+  if (!savedProfile) await saveProfile(profileFromSession(profile));
   await sql`INSERT INTO vertyx_oauth_accounts (provider, user_id, provider_user_id, email) VALUES (${provider}, ${userId}, ${identity.id}, ${identity.email ?? null}) ON CONFLICT (provider, user_id) DO UPDATE SET provider_user_id = EXCLUDED.provider_user_id, email = EXCLUDED.email, updated_at = NOW()`;
   return { redirect: new URL('/profile?oauth=success', url).toString(), profile };
 }
