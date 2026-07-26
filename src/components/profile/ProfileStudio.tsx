@@ -129,7 +129,7 @@ export default function ProfileStudio() {
     } finally { setBusy(false); }
   };
   const continueWithProvider = async (provider: 'google' | 'discord') => { const result = await runAction(`/api/profile/oauth/${provider}`); if (result.authorizationUrl) window.location.assign(result.authorizationUrl); };
-  const signIn = async () => { setBusy(true); const response = await fetch('/api/session/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ mode: 'guest' }) }); if (response.ok) await refresh(); else setNotice('No se pudo iniciar como invitado.'); setBusy(false); };
+  const signIn = async () => { setBusy(true); const response = await fetch('/api/session/login', { method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ mode: 'guest' }) }); if (response.ok) window.location.assign('/profile'); else { setNotice('No se pudo iniciar como invitado.'); setBusy(false); } };
   const logout = async () => { setBusy(true); await fetch('/api/session/logout', { method: 'POST' }); window.localStorage.removeItem(`vertyx-profile:${profile.id}`); await refresh(); setBusy(false); };
 
   const requestAssetPersistence = async (kind: ProfileAssetKind, file?: File) => {

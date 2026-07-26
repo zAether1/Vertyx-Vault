@@ -1,6 +1,6 @@
 import { database, ensureVaultSchema, hasDatabase } from '@/server/database/client';
 import { cookieOptions, encodeJsonCookie, readProfileFromRequest, SESSION_COOKIE } from '@/server/session/cookies';
-import { findProfile, saveProfile } from '@/server/database/repositories';
+import { findProfile, resolveProfileUsername, saveProfile } from '@/server/database/repositories';
 import { profileFromSession } from '@/types/profile';
 import type { UserProfile } from '@/types/session';
 import type { Role } from '@/types/access';
@@ -63,10 +63,15 @@ export async function completeOAuthAuthorization(request: Request, provider: OAu
   const avatarUrl = provider === 'discord' && identity.avatar
     ? `https://cdn.discordapp.com/avatars/${identity.id}/${identity.avatar}.${identity.avatar.startsWith('a_') ? 'gif' : 'png'}?size=256`
     : identity.picture;
-  const profile: UserProfile = { id: userId, name: displayName, username, email: identity.email, avatarUrl, plan: savedProfile?.plan ?? 'free', role, provider, createdAt: savedProfile?.createdAt ?? new Date().toISOString() };
-  await saveProfile(savedProfile ? { ...savedProfile, role, security: { ...savedProfile.security, providers: { ...savedProfile.security.providers, discord: provider === 'discord' || savedProfile.security.providers.discord } } } : profileFromSession(profile));
+  const sessionProfile: UserProfile = { id: userId, name: displayName, username, email: identity.email, avatarUrl, plan: savedProfile?.plan ?? 'free', role, provider, createdAt: savedProfile?.createdAt ?? new Date().toISOString() };
+  const nextProfile = savedProfile
+    ? { ...savedProfile, role, security: { ...savedProfile.security, providers: { ...savedProfile.security.providers, discord: provider === 'discord' || savedProfile.security.providers.discord, google: provider === 'google' || savedProfile.security.providers.google } } }
+    : profileFromSession(sessionProfile);
+  const resolvedUsername = await resolveProfileUsername(userId, nextProfile.username);
+  const persistedProfile = { ...nextProfile, username: resolvedUsername };
+  await saveProfile(persistedProfile);
   await sql`INSERT INTO vertyx_oauth_accounts (provider, user_id, provider_user_id, email) VALUES (${provider}, ${userId}, ${identity.id}, ${identity.email ?? null}) ON CONFLICT (provider, user_id) DO UPDATE SET provider_user_id = EXCLUDED.provider_user_id, email = EXCLUDED.email, updated_at = NOW()`;
-  return { redirect: new URL('/profile?oauth=success', url).toString(), profile };
+  return { redirect: new URL('/profile?oauth=success', url).toString(), profile: { ...sessionProfile, username: resolvedUsername } };
 }
 export function sessionCookie(profile: UserProfile) { return `${SESSION_COOKIE}=${encodeJsonCookie(profile)}; ${cookieOptions()}`; }
 export async function findDiscordUserId(userId: string) { if (!hasDatabase()) return undefined; await ensureVaultSchema(); const [row] = await database()`SELECT provider_user_id FROM vertyx_oauth_accounts WHERE provider = 'discord' AND user_id = ${userId} LIMIT 1` as unknown as { provider_user_id: string }[]; return row?.provider_user_id; }
