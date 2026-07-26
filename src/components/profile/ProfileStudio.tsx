@@ -186,14 +186,7 @@ export default function ProfileStudio() {
     const result = await runAction(`/api/profile/oauth/${provider}`) as Partial<ActionResult> & { authorizationUrl?: string };
     if (result.authorizationUrl) window.location.assign(result.authorizationUrl);
   };
-  const continueWithProvider = async (provider: OAuthProvider) => {
-    setBusy(true); setNotice(undefined);
-    const response = await fetch('/api/session/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ mode: 'local', name }) });
-    if (!response.ok) { setNotice('No se pudo preparar tu cuenta.'); setBusy(false); return; }
-    await refresh();
-    setBusy(false);
-    await requestOAuth(provider);
-  };
+  const continueWithProvider = async (provider: OAuthProvider) => { await requestOAuth(provider); };
   const requestProCheckout = async () => {
     const result = await runAction('/api/profile/pro/checkout') as Partial<ActionResult> & { checkoutUrl?: string; subscription?: ProSubscriptionState };
     if (result.subscription) setPro(result.subscription);
@@ -211,12 +204,12 @@ export default function ProfileStudio() {
   const requestDeleteAccount = () => window.confirm('¿Eliminar esta cuenta de Vertyx Vault? Escribe ELIMINAR en el proveedor real para completar la acción.') && void runAction('/api/account/delete', { confirmation: 'ELIMINAR' });
   const publicUrl = profilePublicUrl(profile.username);
   const isPro = profile.plan === 'pro';
-  const [accessStep, setAccessStep] = useState<'start' | 'providers'>('start');
   const stats = useMemo(() => ({ ...profile.stats, favorites, saved: favorites + history, hoursPlayed: Math.max(profile.stats.hoursPlayed, Math.round(progress * 1.6)) }), [favorites, history, profile.stats, progress]);
   const activeTabIndex = Math.max(0, TABS.findIndex((tab) => tab.id === activeTab));
   const bannerBackground = PROFILE_BACKGROUNDS.find((item) => item.id === profile.theme.backgroundId)?.preview;
 
   if (!ready) return null;
+  if (!session.profile) return <section className="vault-auth-card"><div className="vault-auth-card__brand">VERTYX</div><span className="vault-page__eyebrow">Acceso seguro</span><h2>Entra a tu cuenta</h2><p>Continúa con un proveedor para iniciar sesión o crear tu cuenta. No creamos ningún perfil hasta que el proveedor confirme tu identidad.</p><div className="vault-auth-card__providers"><button type="button" disabled={busy} onClick={() => continueWithProvider('google')}>Continuar con Google</button><button type="button" disabled={busy} onClick={() => continueWithProvider('discord')}>Continuar con Discord</button><button type="button" className="vault-auth-card__guest" disabled={busy} onClick={() => signIn('guest')}>Explorar como invitado</button></div>{notice && <p className="vault-profile-notice">{notice}</p>}<small>Al continuar aceptas los términos y la política de privacidad de Vertyx.</small></section>;
 
   return <div className="vault-profile-studio vault-profile-studio--refined" style={{ '--profile-accent': profile.theme.accent, '--profile-color': profile.theme.profileColor, '--tab-index': activeTabIndex } as React.CSSProperties}>
     <section className="vault-profile-hero-card" data-profile-reveal>
@@ -240,7 +233,7 @@ export default function ProfileStudio() {
         </div>
         <div className="vault-profile-quick-actions">
           <Link className="vault-profile-button vault-profile-button--primary" href={publicUrl}>Perfil público</Link>
-          {session.profile ? <button type="button" className="vault-profile-button" onClick={logout} disabled={busy}>Salir</button> : accessStep === 'start' ? <><button type="button" className="vault-profile-button vault-profile-button--primary" onClick={() => setAccessStep('providers')}>Crear cuenta</button><button type="button" className="vault-profile-button" onClick={() => setAccessStep('providers')}>Unirme</button></> : <div className="vault-profile-access"><input value={name} onChange={(event) => setName(event.target.value)} maxLength={60} placeholder="Nombre visible" aria-label="Nombre visible" /><button type="button" className="vault-profile-button vault-profile-button--primary" disabled={busy} onClick={() => continueWithProvider('google')}>Continuar con Google</button><button type="button" className="vault-profile-button" disabled={busy} onClick={() => continueWithProvider('discord')}>Continuar con Discord</button><button type="button" className="vault-profile-button" disabled={busy} onClick={() => signIn('guest')}>Continuar como invitado</button><small>Google y Discord crean o vinculan tu cuenta. Invitado no requiere registro.</small></div>}
+          <button type="button" className="vault-profile-button" onClick={logout} disabled={busy}>Salir</button>
         </div>
       </div>
       <div className="vault-profile-stat-strip" aria-label="Estadísticas del perfil">
