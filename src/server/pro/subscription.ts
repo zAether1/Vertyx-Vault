@@ -12,7 +12,7 @@ type PayPalSubscription = { id: string; status?: string; plan_id?: string; custo
 
 function state(status: ProStatus, discordSync: ProSubscriptionState['discordSync'], message?: string): ProSubscriptionState {
   const active = status === 'active';
-  return { ready: paypalReady, status, priceUsd: 5, interval: 'month', discordSync, benefits: PRO_BENEFITS.map((benefit) => ({ ...benefit, enabled: active && (benefit.id !== 'discord-role' || discordSync === 'connected') })), message };
+  return { ready: paypalReady, status, priceUsd: 2, interval: 'month', discordSync, benefits: PRO_BENEFITS.map((benefit) => ({ ...benefit, enabled: active && (benefit.id !== 'discord-role' || discordSync === 'connected') })), message };
 }
 
 function mapStatus(value?: string): ProStatus {
@@ -40,12 +40,13 @@ async function planId() {
   if (process.env.PAYPAL_PLAN_ID) return process.env.PAYPAL_PLAN_ID;
   await ensureVaultSchema();
   const sql = database();
-  const [stored] = await sql`SELECT value FROM vertyx_billing_config WHERE key = 'paypal_plan_id' LIMIT 1` as unknown as { value: string }[];
+  const billingConfigKey = 'paypal_plan_id_usd_2_monthly';
+  const [stored] = await sql`SELECT value FROM vertyx_billing_config WHERE key = ${billingConfigKey} LIMIT 1` as unknown as { value: string }[];
   if (stored?.value) return stored.value;
   const product = await paypal('/v1/catalogs/products', { method: 'POST', body: JSON.stringify({ name: 'Vertyx Vault Pro', description: 'Vertyx Vault Pro monthly subscription', type: 'SERVICE', category: 'SOFTWARE' }) }) as { id: string };
-  const plan = await paypal('/v1/billing/plans', { method: 'POST', body: JSON.stringify({ product_id: product.id, name: 'Vertyx Vault Pro Monthly', billing_cycles: [{ frequency: { interval_unit: 'MONTH', interval_count: 1 }, tenure_type: 'REGULAR', sequence: 1, total_cycles: 0, pricing_scheme: { fixed_price: { value: '5.00', currency_code: 'USD' } } }], payment_preferences: { auto_bill_outstanding: true, payment_failure_threshold: 1 } }) }) as { id: string };
-  await sql`INSERT INTO vertyx_billing_config (key, value) VALUES ('paypal_plan_id', ${plan.id}) ON CONFLICT (key) DO NOTHING`;
-  const [saved] = await sql`SELECT value FROM vertyx_billing_config WHERE key = 'paypal_plan_id' LIMIT 1` as unknown as { value: string }[];
+  const plan = await paypal('/v1/billing/plans', { method: 'POST', body: JSON.stringify({ product_id: product.id, name: 'Vertyx Vault Pro Monthly', billing_cycles: [{ frequency: { interval_unit: 'MONTH', interval_count: 1 }, tenure_type: 'REGULAR', sequence: 1, total_cycles: 0, pricing_scheme: { fixed_price: { value: '2.00', currency_code: 'USD' } } }], payment_preferences: { auto_bill_outstanding: true, payment_failure_threshold: 1 } }) }) as { id: string };
+  await sql`INSERT INTO vertyx_billing_config (key, value) VALUES (${billingConfigKey}, ${plan.id}) ON CONFLICT (key) DO NOTHING`;
+  const [saved] = await sql`SELECT value FROM vertyx_billing_config WHERE key = ${billingConfigKey} LIMIT 1` as unknown as { value: string }[];
   return saved?.value ?? plan.id;
 }
 
