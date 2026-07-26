@@ -1,5 +1,5 @@
 import { database, ensureVaultSchema, hasDatabase } from '@/server/database/client';
-import { cookieOptions, encodeJsonCookie, readProfileFromRequest, SESSION_COOKIE } from '@/server/session/cookies';
+import { cookieOptions, encodeSessionCookie, readProfileFromRequest, SESSION_COOKIE } from '@/server/session/cookies';
 import { findProfile, resolveProfileUsername, saveProfile } from '@/server/database/repositories';
 import { profileFromSession } from '@/types/profile';
 import type { UserProfile } from '@/types/session';
@@ -73,5 +73,5 @@ export async function completeOAuthAuthorization(request: Request, provider: OAu
   await sql`INSERT INTO vertyx_oauth_accounts (provider, user_id, provider_user_id, email) VALUES (${provider}, ${userId}, ${identity.id}, ${identity.email ?? null}) ON CONFLICT (provider, user_id) DO UPDATE SET provider_user_id = EXCLUDED.provider_user_id, email = EXCLUDED.email, updated_at = NOW()`;
   return { redirect: new URL('/profile?oauth=success', url).toString(), profile: { ...sessionProfile, username: resolvedUsername } };
 }
-export function sessionCookie(profile: UserProfile) { return `${SESSION_COOKIE}=${encodeJsonCookie(profile)}; ${cookieOptions()}`; }
+export function sessionCookie(profile: UserProfile) { return `${SESSION_COOKIE}=${encodeSessionCookie(profile)}; ${cookieOptions()}`; }
 export async function findDiscordUserId(userId: string) { if (!hasDatabase()) return undefined; await ensureVaultSchema(); const [row] = await database()`SELECT provider_user_id FROM vertyx_oauth_accounts WHERE provider = 'discord' AND user_id = ${userId} LIMIT 1` as unknown as { provider_user_id: string }[]; return row?.provider_user_id; }

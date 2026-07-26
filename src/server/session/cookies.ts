@@ -1,3 +1,4 @@
+import { createHmac, timingSafeEqual } from 'node:crypto';
 import type { LibrarySnapshot } from '@/types/library';
 import type { UserProfile } from '@/types/session';
 
@@ -36,13 +37,40 @@ export function parseCookieHeader(header?: string | null) {
   return cookies;
 }
 
+function sessionSecret() {
+  return process.env.VERTYX_SESSION_SECRET ?? process.env.DATABASE_URL;
+}
+
+function sessionSignature(payload: string, secret: string) {
+  return createHmac('sha256', secret).update(payload).digest('base64url');
+}
+
+export function encodeSessionCookie(profile: UserProfile) {
+  const secret = sessionSecret();
+  if (!secret) throw new Error('Missing server-side session secret.');
+  const payload = encodeJsonCookie(profile);
+  return `${payload}.${sessionSignature(payload, secret)}`;
+}
+
+export function decodeSessionCookie(value?: string | null): UserProfile | undefined {
+  const secret = sessionSecret();
+  if (!value || !secret) return undefined;
+  const separator = value.lastIndexOf('.');
+  if (separator < 1) return undefined;
+  const payload = value.slice(0, separator);
+  const signature = value.slice(separator + 1);
+  const expected = sessionSignature(payload, secret);
+  if (signature.length !== expected.length || !timingSafeEqual(Buffer.from(signature), Buffer.from(expected))) return undefined;
+  return decodeJsonCookie<UserProfile>(payload);
+}
+
 export function cookieOptions(maxAge = 60 * 60 * 24 * 30) {
-  return `Path=/; Max-Age=${maxAge}; SameSite=Lax; HttpOnly`;
+  return `Path=/; Max-Age=${maxAge}; SameSite=Lax; HttpOnly${process.env.NODE_ENV === 'production' ? '; Secure' : ''}`;
 }
 
 export function readProfileFromRequest(request?: Request): UserProfile | undefined {
   const cookies = parseCookieHeader(request?.headers.get('cookie'));
-  return decodeJsonCookie<UserProfile>(cookies.get(SESSION_COOKIE));
+  return decodeSessionCookie(cookies.get(SESSION_COOKIE));
 }
 
 export function readLibraryFromRequest(request?: Request): LibrarySnapshot | undefined {
