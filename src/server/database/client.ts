@@ -83,10 +83,11 @@ export async function ensureVaultSchema() {
     await sql`CREATE TABLE IF NOT EXISTS vertyx_oauth_states (
       state TEXT PRIMARY KEY,
       provider VARCHAR(16) NOT NULL,
-      user_id TEXT NOT NULL,
+      user_id TEXT,
       expires_at TIMESTAMPTZ NOT NULL,
       created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
     )`;
+    await sql`ALTER TABLE vertyx_oauth_states ALTER COLUMN user_id DROP NOT NULL`;
   })();
   return schemaPromise;
 }

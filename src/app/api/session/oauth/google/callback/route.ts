@@ -1,6 +1,3 @@
 import { NextResponse } from 'next/server';
-import { completeOAuthAuthorization } from '@/server/session/oauth';
-
-export async function GET(request: Request) {
-  return NextResponse.redirect(await completeOAuthAuthorization(request, 'google'));
-}
+import { completeOAuthAuthorization, sessionCookie } from '@/server/session/oauth';
+export async function GET(request: Request) { const result = await completeOAuthAuthorization(request, 'google'); const response = NextResponse.redirect(result.redirect); if (result.profile) response.headers.set('Set-Cookie', sessionCookie(result.profile)); return response; }
