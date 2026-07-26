@@ -25,6 +25,19 @@ export async function findPublicProfile(username: string) {
   return row?.profile;
 }
 
+export async function resolveProfileUsername(userId: string, username: string) {
+  if (!hasDatabase()) return username;
+  await ensureVaultSchema();
+  const sql = database();
+  const normalized = username.toLowerCase().slice(0, 32) || 'user';
+  const [existing] = await sql`SELECT user_id FROM vertyx_profiles WHERE username = ${normalized} LIMIT 1` as unknown as { user_id: string }[];
+  if (!existing || existing.user_id === userId) return normalized;
+  const suffix = userId.replace(/[^a-z0-9]/gi, '').slice(-6).toLowerCase() || 'vault';
+  const candidate = `${normalized.slice(0, Math.max(1, 32 - suffix.length - 1))}-${suffix}`;
+  const [candidateOwner] = await sql`SELECT user_id FROM vertyx_profiles WHERE username = ${candidate} LIMIT 1` as unknown as { user_id: string }[];
+  return !candidateOwner || candidateOwner.user_id === userId ? candidate : `${candidate.slice(0, 25)}-${crypto.randomUUID().slice(0, 6)}`;
+}
+
 export async function saveProfile(profile: AdvancedProfile) {
   if (!hasDatabase()) return false;
   await ensureVaultSchema();
