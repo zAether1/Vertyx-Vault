@@ -15,8 +15,6 @@ export default function MediaPlayer({ source, title, initialTime = 0, onProgress
   const vidRef = useRef<HTMLVideoElement>(null);
   const boxRef = useRef<HTMLDivElement>(null);
   const seekRef = useRef<HTMLDivElement>(null);
-  const gainRef = useRef<GainNode | null>(null);
-  const ctxRef = useRef<AudioContext | null>(null);
   const hideT = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   const [err, setErr] = useState(false);
@@ -44,38 +42,15 @@ export default function MediaPlayer({ source, title, initialTime = 0, onProgress
     return () => hls?.destroy();
   }, [source]);
 
-  // Try to setup audio boost (may fail on cross-origin sources - that's OK)
-  const boostAudio = useCallback(() => {
-    const v = vidRef.current;
-    if (!v || ctxRef.current) return;
-    try {
-      const c = new AudioContext();
-      const s = c.createMediaElementSource(v);
-      const g = c.createGain();
-      s.connect(g); g.connect(c.destination);
-      ctxRef.current = c; gainRef.current = g;
-      g.gain.value = vol / 100;
-    } catch {
-      // Cross-origin source — boost not available, normal volume only
-      ctxRef.current = null; gainRef.current = null;
-    }
-  }, []);
-
-  // Apply volume
+  // Volume — simple and reliable, always works
   useEffect(() => {
     const v = vidRef.current;
     if (!v) return;
-    const val = mute ? 0 : vol / 100;
-    if (gainRef.current) {
-      v.volume = 1; v.muted = false;
-      gainRef.current.gain.value = val;
-    } else {
-      v.volume = Math.min(val, 1);
-      v.muted = mute;
-    }
+    v.volume = mute ? 0 : Math.min(vol / 100, 1);
+    v.muted = mute;
   }, [vol, mute]);
 
-  // Auto-hide
+  // Auto-hide controls
   const arm = useCallback(() => {
     setCtrl(true);
     clearTimeout(hideT.current);
@@ -93,8 +68,8 @@ export default function MediaPlayer({ source, title, initialTime = 0, onProgress
         case ' ': case 'k': e.preventDefault(); v.paused ? v.play() : v.pause(); break;
         case 'ArrowLeft': e.preventDefault(); v.currentTime = Math.max(0, v.currentTime - 10); break;
         case 'ArrowRight': e.preventDefault(); v.currentTime = Math.min(v.duration, v.currentTime + 10); break;
-        case 'ArrowUp': e.preventDefault(); setVol(p => Math.min(200, p + 10)); break;
-        case 'ArrowDown': e.preventDefault(); setVol(p => Math.max(0, p - 10)); break;
+        case 'ArrowUp': e.preventDefault(); setVol(p => Math.min(100, p + 5)); break;
+        case 'ArrowDown': e.preventDefault(); setVol(p => Math.max(0, p - 5)); break;
         case 'm': setMute(m => !m); break;
         case 'f': doFs(); break;
         case 'p': doPip(); break;
@@ -137,9 +112,8 @@ export default function MediaPlayer({ source, title, initialTime = 0, onProgress
 
   const doPlay = useCallback(() => {
     const v = vidRef.current; if (!v) return;
-    boostAudio();
     v.paused ? v.play() : v.pause();
-  }, [boostAudio]);
+  }, []);
 
   const doFs = () => { const b = boxRef.current; if (!b) return; document.fullscreenElement ? document.exitFullscreen() : b.requestFullscreen(); };
   const doPip = () => { const v = vidRef.current; if (!v) return; document.pictureInPictureElement ? document.exitPictureInPicture() : v.requestPictureInPicture().catch(() => {}); };
@@ -172,7 +146,7 @@ export default function MediaPlayer({ source, title, initialTime = 0, onProgress
       <video ref={vidRef} className="vp__video" playsInline poster={source.poster}
         onClick={doPlay} onDoubleClick={doFs}
         onLoadedMetadata={onMeta} onTimeUpdate={onTime}
-        onPlay={() => { setPlaying(true); boostAudio(); }}
+        onPlay={() => setPlaying(true)}
         onPause={() => { setPlaying(false); const v = vidRef.current; if (v) onProgress?.(v.currentTime, v.duration); }}
         onError={() => setErr(true)}
       >{source.kind === 'mp4' && <source src={source.url} type="video/mp4" />}</video>
@@ -209,8 +183,8 @@ export default function MediaPlayer({ source, title, initialTime = 0, onProgress
                     : <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-3-7.86-7-8.77z"/></svg>}
               </button>
               {volUI && <div className="vp__vol-box">
-                <input type="range" className="vp__vol-range" min="0" max="200" value={mute ? 0 : vol}
-                  onChange={e => { setVol(Number(e.target.value)); setMute(false); boostAudio(); }} />
+                <input type="range" className="vp__vol-range" min="0" max="100" value={mute ? 0 : vol}
+                  onChange={e => { setVol(Number(e.target.value)); setMute(false); }} />
                 <span className="vp__vol-pct">{mute ? 0 : vol}%</span>
               </div>}
             </div>
