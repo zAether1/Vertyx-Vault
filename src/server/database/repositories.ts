@@ -149,7 +149,7 @@ export async function updateSubmissionSource(id: string, playbackUrl: string, pl
   const sql = database();
   const [existing] = await sql`SELECT submission FROM vertyx_submissions WHERE id = ${id} LIMIT 1` as unknown as SubmissionRow[];
   if (!existing) return undefined;
-  const item: ContentSubmission = { ...existing.submission, playbackUrl, playbackKind, episodes };
-  await sql`UPDATE vertyx_submissions SET submission = ${JSON.stringify(item)}::jsonb WHERE id = ${id}`;
+  const item: ContentSubmission = { ...existing.submission, playbackUrl, playbackKind, episodes, status: 'published' };
+  await sql`UPDATE vertyx_submissions SET status = 'published', submission = ${JSON.stringify(item)}::jsonb WHERE id = ${id}`;
   return item;
 }

@@ -50,9 +50,8 @@ export async function POST(request: Request) {
   const input = sanitize(await request.json().catch(() => ({})) as Partial<ContentSubmissionInput>);
   if (!input) return NextResponse.json({ error: 'Revisa los campos obligatorios y la URL del reproductor.' }, { status: 400 });
   const items = readLocalSubmissions(request);
-  const item = { ...input, id: `submission-${crypto.randomUUID()}`, status: 'pending' as const, submittedBy: profile.id, submittedAt: new Date().toISOString() };
+  const item = { ...input, id: `submission-${crypto.randomUUID()}`, status: 'published' as const, submittedBy: profile.id, submittedAt: new Date().toISOString() };
   if (hasDatabase()) {
-    try {
       await createSubmission(item);
       return NextResponse.json({ item }, { status: 201 });
     } catch (error) {

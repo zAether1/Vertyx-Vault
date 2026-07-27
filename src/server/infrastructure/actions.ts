@@ -176,7 +176,7 @@ export async function updateSubmissionPlayback(request: Request, id: string, pla
   const items = readLocalSubmissions(request);
   const item = items.find((entry) => entry.id === id);
   if (!item) return new Response(JSON.stringify({ ok: false, ready: true, message: 'Solicitud no encontrada' } satisfies ModerationResult), { status: 404, headers: { 'Content-Type': 'application/json' } });
-  const updated = { ...item, playbackUrl: source, playbackKind, episodes, reviewedBy: profile.id, reviewedAt: new Date().toISOString() };
+  const updated = { ...item, playbackUrl: source, playbackKind, episodes, status: 'published' as const, reviewedBy: profile.id, reviewedAt: new Date().toISOString() };
   const snapshot = items.map((entry) => entry.id === id ? updated : entry);
   return new Response(JSON.stringify({ ok: true, ready: true, item: updated, message: `${item.title}: fuente actualizada` } satisfies ModerationResult), { status: 200, headers: { 'Content-Type': 'application/json', 'Set-Cookie': `${SUBMISSIONS_COOKIE}=${encodeJsonCookie(snapshot)}; ${cookieOptions(60 * 60 * 24 * 14)}` } });
 }
