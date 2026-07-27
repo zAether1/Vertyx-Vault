@@ -41,17 +41,52 @@ export default function MediaPlayer({ source, title, initialTime = 0, onProgress
   // Get subtitles from source (if available)
   const subs: SubtitleTrack[] = source && source.kind !== 'embed' ? (source.subtitles ?? []) : [];
 
-  // HLS
+  // Reset error on source change
   useEffect(() => {
-    if (!source || source.kind !== 'hls' || !vidRef.current) return;
+    setErr(false);
+    setLen(0);
+    setTime(0);
+    setBuf(0);
+  }, [source?.url]);
+
+  // HLS & MP4 native source management
+  useEffect(() => {
+    if (!source || !vidRef.current) return;
     const v = vidRef.current;
-    if (v.canPlayType('application/vnd.apple.mpegurl')) { v.src = source.url; return; }
-    let hls: import('hls.js').default | undefined;
-    void import('hls.js').then(({ default: Hls }) => {
-      if (!Hls.isSupported()) return;
-      hls = new Hls(); hls.loadSource(source.url); hls.attachMedia(v);
-    }).catch(() => setErr(true));
-    return () => hls?.destroy();
+    
+    if (source.kind === 'mp4') {
+      v.src = source.url;
+      v.load();
+      return;
+    }
+    
+    if (source.kind === 'hls') {
+      if (v.canPlayType('application/vnd.apple.mpegurl')) { 
+        v.src = source.url; 
+        return; 
+      }
+      let hls: import('hls.js').default | undefined;
+      void import('hls.js').then(({ default: Hls }) => {
+        if (!Hls.isSupported()) return;
+        hls = new Hls(); 
+        
+        hls.on(Hls.Events.ERROR, (event, data) => {
+          if (data.fatal) {
+            console.error('HLS Error:', data);
+            if (data.type === Hls.ErrorTypes.NETWORK_ERROR) {
+              setErr(true);
+            } else {
+              setErr(true);
+              hls?.destroy();
+            }
+          }
+        });
+
+        hls.loadSource(source.url); 
+        hls.attachMedia(v);
+      }).catch(() => setErr(true));
+      return () => hls?.destroy();
+    }
   }, [source]);
 
   // Volume — simple video.volume (0 to 1)
@@ -184,7 +219,24 @@ export default function MediaPlayer({ source, title, initialTime = 0, onProgress
   if (!source) return <div className="vp__empty"><span>Contenido disponible próximamente</span><small>Este título aún no tiene una fuente autorizada asociada.</small></div>;
   if (source.kind === 'embed') return <iframe className="vp__frame" src={source.url} title={source.title} allow="autoplay; fullscreen; picture-in-picture" allowFullScreen />;
   if (source.kind === 'dash') return <div className="vp__empty"><span>Fuente DASH</span><small>Conecta el adaptador DASH para reproducir {title}.</small></div>;
-  if (err) return <div className="vp__empty"><span>Error de reproducción</span><small>Verifica la fuente del proveedor.</small></div>;
+  if (err) return (
+    <div className="vp__empty">
+      <span>Error de reproducción</span>
+      <small>La fuente nativa falló o fue bloqueada (CORS/404). Si el enlace es una página web externa, intenta abrirlo como sitio incrustado (Iframe).</small>
+      <button className="vp__btn vp__btn--fallback" style={{ marginTop: '1rem', padding: '0.5rem 1rem', background: 'rgba(255,255,255,0.1)', borderRadius: '4px' }} onClick={() => {
+        if (vidRef.current) {
+          vidRef.current.pause();
+          vidRef.current.removeAttribute('src');
+          vidRef.current.load();
+        }
+        // Force an in-place mutation and remount to try as iframe
+        source.kind = 'embed';
+        setErr(false);
+      }}>
+        Intentar como Iframe
+      </button>
+    </div>
+  );
 
   return (
     <div ref={boxRef} className={`vp${ctrl ? '' : ' vp--hide'}${full ? ' vp--fs' : ''}`} onMouseMove={arm} onMouseLeave={() => playing && setCtrl(false)}>
@@ -194,7 +246,7 @@ export default function MediaPlayer({ source, title, initialTime = 0, onProgress
         onPlay={() => setPlaying(true)}
         onPause={() => { setPlaying(false); const v = vidRef.current; if (v) onProgress?.(v.currentTime, v.duration); }}
         onError={() => setErr(true)}
-      >{source.kind === 'mp4' && <source src={source.url} type="video/mp4" />}
+      >
         {subs.map(s => <track key={s.lang} kind="subtitles" src={s.url} srcLang={s.lang} label={s.label} />)}
       </video>
 
