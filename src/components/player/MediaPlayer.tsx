@@ -138,12 +138,24 @@ export default function MediaPlayer({ source, title, initialTime = 0, onProgress
   const onTime = () => {
     const v = vidRef.current; if (!v) return;
     setTime(v.currentTime);
+    // Aggressively capture duration — HLS streams may report it late
+    if (v.duration > 0 && Number.isFinite(v.duration)) setLen(v.duration);
     if (Number.isFinite(v.duration) && v.currentTime > 0) onProgress?.(v.currentTime, v.duration);
     if (v.buffered.length > 0) setBuf(v.buffered.end(v.buffered.length - 1) / (v.duration || 1) * 100);
   };
 
-  const onMeta = () => { const v = vidRef.current; if (!v) return; if (Number.isFinite(v.duration)) setLen(v.duration); if (initialTime > 0 && v.currentTime === 0) v.currentTime = initialTime; };
-  const onDurChange = () => { const v = vidRef.current; if (v && Number.isFinite(v.duration) && v.duration > 0) setLen(v.duration); };
+  const onMeta = () => { const v = vidRef.current; if (!v) return; if (v.duration > 0 && Number.isFinite(v.duration)) setLen(v.duration); if (initialTime > 0 && v.currentTime === 0) v.currentTime = initialTime; };
+  const onDurChange = () => { const v = vidRef.current; if (v && v.duration > 0 && Number.isFinite(v.duration)) setLen(v.duration); };
+
+  // Fallback: poll for duration if not captured yet (some HLS sources are slow)
+  useEffect(() => {
+    if (len > 0) return;
+    const id = setInterval(() => {
+      const v = vidRef.current;
+      if (v && v.duration > 0 && Number.isFinite(v.duration)) { setLen(v.duration); clearInterval(id); }
+    }, 500);
+    return () => clearInterval(id);
+  }, [len]);
 
   const pct = len > 0 ? (time / len) * 100 : 0;
 
