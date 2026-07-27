@@ -90,12 +90,39 @@ export async function enrichCatalogTitle(title: CatalogTitle): Promise<CatalogTi
   
   const path = title.kind === 'series' ? `/tv/${tmdbId}` : `/movie/${tmdbId}`;
   
-  const data = await fetchTmdb(path, {
+  const data = await fetchTmdb<any>(path, {
     append_to_response: 'credits,images',
     include_image_language: 'es,en,null'
   });
 
   if (!data) return title;
   
-  return formatTmdbData(data, title);
+  const enriched = formatTmdbData(data, title);
+
+  // Fetch real episodes if it's a series
+  if (title.kind === 'series' && data.seasons) {
+    const validSeasons = data.seasons.filter((s: any) => s.season_number > 0);
+    const seasonPromises = validSeasons.map((s: any) => fetchTmdb<any>(`/tv/${tmdbId}/season/${s.season_number}`));
+    const seasonsData = await Promise.all(seasonPromises);
+
+    enriched.seasons = validSeasons.map((s: any, idx: number) => {
+      const sData = seasonsData[idx];
+      return {
+        id: `${title.id}-s${s.season_number}`,
+        title: s.name || `Temporada ${s.season_number}`,
+        seasonNumber: s.season_number,
+        episodes: (sData?.episodes || []).map((ep: any) => ({
+          id: `${title.id}-s${s.season_number}e${ep.episode_number}`,
+          title: ep.name || `Episodio ${ep.episode_number}`,
+          episodeNumber: ep.episode_number,
+          seasonNumber: s.season_number,
+          overview: ep.overview,
+          durationMinutes: ep.runtime,
+          poster: ep.still_path ? `${TMDB_IMG_W500}${ep.still_path}` : undefined,
+        })),
+      };
+    }).filter((season: any) => season.episodes.length > 0);
+  }
+
+  return enriched;
 }

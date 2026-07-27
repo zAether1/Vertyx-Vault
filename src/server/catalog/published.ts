@@ -82,10 +82,18 @@ export async function getPublishedPlaybackSource(request: PlaybackRequest): Prom
 
   // If requesting a specific episode, find it
   if (request.episodeId && item.episodes?.length) {
-    const ep = item.episodes.find(e => e.id === request.episodeId);
+    const tmdbMatch = request.episodeId.match(/-s(\d+)e(\d+)$/);
+    let ep = item.episodes.find(e => e.id === request.episodeId);
+    
+    if (!ep && tmdbMatch) {
+      const s = parseInt(tmdbMatch[1], 10);
+      const e = parseInt(tmdbMatch[2], 10);
+      ep = item.episodes.find(e => e.season === s && e.episode === e);
+    }
+
     if (ep) {
       return ep.playbackKind === 'embed'
-        ? { kind: 'embed', url: ep.playbackUrl, title: `${item.title} - ${ep.title}` }
+        ? { kind: 'embed', url: ep.playbackUrl, title: `${item.title} - T${ep.season} E${ep.episode}` }
         : { kind: ep.playbackKind, url: ep.playbackUrl, poster: item.coverUrl };
     }
   }
