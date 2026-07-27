@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import type { MediaSource } from '@/types/media';
+import type { MediaSource, SubtitleTrack } from '@/types/media';
 
 interface Props { source?: MediaSource; title: string; initialTime?: number; onProgress?: (currentTime: number, duration: number) => void; }
 
@@ -28,6 +28,18 @@ export default function MediaPlayer({ source, title, initialTime = 0, onProgress
   const [ctrl, setCtrl] = useState(true);
   const [volUI, setVolUI] = useState(false);
   const [buf, setBuf] = useState(0);
+  const [subLang, setSubLang] = useState<string>('off');
+  const [subUI, setSubUI] = useState(false);
+
+  const SUB_OPTIONS: { code: string; label: string }[] = [
+    { code: 'off', label: 'Desactivado' },
+    { code: 'es', label: 'Español' },
+    { code: 'en', label: 'English' },
+    { code: 'pt', label: 'Português' },
+  ];
+
+  // Get subtitles from source (if available)
+  const subs: SubtitleTrack[] = source && source.kind !== 'embed' ? (source.subtitles ?? []) : [];
 
   // HLS
   useEffect(() => {
@@ -49,6 +61,16 @@ export default function MediaPlayer({ source, title, initialTime = 0, onProgress
     v.volume = mute ? 0 : vol / 100;
     v.muted = mute;
   }, [vol, mute]);
+
+  // Manage text tracks based on selected subtitle language
+  useEffect(() => {
+    const v = vidRef.current;
+    if (!v) return;
+    for (let i = 0; i < v.textTracks.length; i++) {
+      const t = v.textTracks[i];
+      t.mode = (subLang !== 'off' && t.language === subLang) ? 'showing' : 'hidden';
+    }
+  }, [subLang]);
 
   // Auto-hide controls
   const arm = useCallback(() => {
@@ -172,7 +194,9 @@ export default function MediaPlayer({ source, title, initialTime = 0, onProgress
         onPlay={() => setPlaying(true)}
         onPause={() => { setPlaying(false); const v = vidRef.current; if (v) onProgress?.(v.currentTime, v.duration); }}
         onError={() => setErr(true)}
-      >{source.kind === 'mp4' && <source src={source.url} type="video/mp4" />}</video>
+      >{source.kind === 'mp4' && <source src={source.url} type="video/mp4" />}
+        {subs.map(s => <track key={s.lang} kind="subtitles" src={s.url} srcLang={s.lang} label={s.label} />)}
+      </video>
 
       <div className="vp__shade" />
 
@@ -214,6 +238,22 @@ export default function MediaPlayer({ source, title, initialTime = 0, onProgress
             <span className="vp__time">{fmt(time)} / {fmt(len)}</span>
           </div>
           <div className="vp__right">
+            {/* Subtítulos */}
+            <div className="vp__sub" onMouseEnter={() => setSubUI(true)} onMouseLeave={() => setSubUI(false)}>
+              <button className={`vp__btn${subLang !== 'off' ? ' vp__btn--active' : ''}`} title="Subtítulos">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V6h16v12zM6 10h2v2H6v-2zm0 4h8v2H6v-2zm10 0h2v2h-2v-2zm-6-4h8v2h-8v-2z"/></svg>
+              </button>
+              {subUI && <div className="vp__sub-menu">
+                <div className="vp__sub-title">Subtítulos</div>
+                {SUB_OPTIONS.map(opt => {
+                  const available = opt.code === 'off' || subs.some(s => s.lang === opt.code);
+                  return <button key={opt.code}
+                    className={`vp__sub-opt${subLang === opt.code ? ' vp__sub-opt--on' : ''}${!available && opt.code !== 'off' ? ' vp__sub-opt--na' : ''}`}
+                    onClick={() => { if (available || opt.code === 'off') setSubLang(opt.code); }}
+                  >{subLang === opt.code && <svg viewBox="0 0 24 24" fill="currentColor" className="vp__sub-check"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>}{opt.label}{!available && opt.code !== 'off' && <span className="vp__sub-na">No disponible</span>}</button>;
+                })}
+              </div>}
+            </div>
             <button className="vp__btn" onClick={doPip} title="Mini reproductor">
               <svg viewBox="0 0 24 24" fill="currentColor">{mini
                 ? <path d="M21 3H3a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h18a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2zm0 16H3V5h18v14z"/>
