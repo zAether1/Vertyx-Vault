@@ -20,7 +20,7 @@ export default function MediaPlayer({ source, title, initialTime = 0, onProgress
   const gainNodeRef = useRef<GainNode | null>(null);
   const audioCtxRef = useRef<AudioContext | null>(null);
   const progressRef = useRef<HTMLDivElement>(null);
-  const hideTimer = useRef<ReturnType<typeof setTimeout>>();
+  const hideTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   const [error, setError] = useState(false);
   const [playing, setPlaying] = useState(false);
