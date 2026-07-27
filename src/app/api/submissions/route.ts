@@ -52,6 +52,7 @@ export async function POST(request: Request) {
   const items = readLocalSubmissions(request);
   const item = { ...input, id: `submission-${crypto.randomUUID()}`, status: 'published' as const, submittedBy: profile.id, submittedAt: new Date().toISOString() };
   if (hasDatabase()) {
+    try {
       await createSubmission(item);
       return NextResponse.json({ item }, { status: 201 });
     } catch (error) {
