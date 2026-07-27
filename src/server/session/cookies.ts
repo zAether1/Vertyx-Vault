@@ -38,7 +38,7 @@ export function parseCookieHeader(header?: string | null) {
 }
 
 function sessionSecret() {
-  return process.env.VERTYX_SESSION_SECRET ?? process.env.DATABASE_URL;
+  return process.env.VERTYX_SESSION_SECRET ?? process.env.DATABASE_URL ?? 'vertyx-fallback-session-secret-for-guests-only';
 }
 
 function sessionSignature(payload: string, secret: string) {
