@@ -25,12 +25,22 @@ export interface CatalogTitle {
   kind: CatalogKind;
   poster: string;
   backdrop?: string;
+  logo?: string;
   year?: string;
   rating?: number;
   description?: string;
   collection?: string;
   genres?: string[];
   seasons?: CatalogSeason[];
+  
+  // Detailed metadata from TMDB
+  status?: string;
+  releaseDate?: string;
+  runtime?: number;
+  budget?: number;
+  revenue?: number;
+  productionCompanies?: Array<{ name: string; logoUrl?: string }>;
+  cast?: Array<{ id: number; name: string; character: string; profileUrl?: string }>;
 }
 
 export interface CatalogSearchFilters {

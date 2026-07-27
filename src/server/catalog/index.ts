@@ -1,6 +1,7 @@
 import { localCatalogProvider } from '@/server/catalog/local';
 import { hasRemoteCatalogProvider, remoteCatalogProvider } from '@/server/catalog/remote';
 import { findPublishedSubmission, getPublishedPlaybackSource, searchPublishedSubmissions } from '@/server/catalog/published';
+import { enrichCatalogTitle } from '@/server/tmdb';
 import type { CatalogProvider, CatalogSearchFilters, PlaybackRequest } from '@/types/catalog';
 
 const provider: CatalogProvider = hasRemoteCatalogProvider() ? remoteCatalogProvider : localCatalogProvider;
@@ -25,7 +26,10 @@ export async function searchCatalog(filters: CatalogSearchFilters) {
 
 export async function findCatalogTitle(id: string) {
   const published = await findPublishedSubmission(id);
-  return published ?? withFallback(() => provider.findById(id), () => localCatalogProvider.findById(id));
+  const baseTitle = published ?? await withFallback(() => provider.findById(id), () => localCatalogProvider.findById(id));
+  
+  if (!baseTitle) return undefined;
+  return enrichCatalogTitle(baseTitle);
 }
 
 export function getRecommendations(id: string) {

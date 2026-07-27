@@ -1,6 +1,6 @@
 import type { Role } from '@/types/access';
 import type { AuthProvider } from '@/types/session';
-import type { ContentSubmission, PlaybackKind, SubmissionStatus } from '@/types/submission';
+import type { ContentSubmission, EpisodeEntry, PlaybackKind, SubmissionStatus } from '@/types/submission';
 
 export type OAuthProvider = Extract<AuthProvider, 'google' | 'discord'>;
 export type ProfileAssetKind = 'avatar' | 'banner' | 'cover';
@@ -61,6 +61,7 @@ export interface CatalogAdminEntry {
   quality?: string;
   genres: string[];
   notes?: string;
+  episodes?: EpisodeEntry[];
   status: SubmissionStatus | 'catalog';
   submittedAt: string;
 }
