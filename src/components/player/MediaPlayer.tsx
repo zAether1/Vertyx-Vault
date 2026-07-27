@@ -31,6 +31,8 @@ export default function MediaPlayer({ source, title, initialTime = 0, onProgress
   const [subLang, setSubLang] = useState<string>('off');
   const [subUI, setSubUI] = useState(false);
 
+  const [useIframeFallback, setUseIframeFallback] = useState(false);
+
   const SUB_OPTIONS: { code: string; label: string }[] = [
     { code: 'off', label: 'Desactivado' },
     { code: 'es', label: 'Español' },
@@ -44,6 +46,7 @@ export default function MediaPlayer({ source, title, initialTime = 0, onProgress
   // Reset error on source change
   useEffect(() => {
     setErr(false);
+    setUseIframeFallback(false);
     setLen(0);
     setTime(0);
     setBuf(0);
@@ -51,7 +54,7 @@ export default function MediaPlayer({ source, title, initialTime = 0, onProgress
 
   // HLS & MP4 native source management
   useEffect(() => {
-    if (!source || !vidRef.current) return;
+    if (!source || !vidRef.current || useIframeFallback) return;
     const v = vidRef.current;
     
     if (source.kind === 'mp4') {
@@ -87,7 +90,7 @@ export default function MediaPlayer({ source, title, initialTime = 0, onProgress
       }).catch(() => setErr(true));
       return () => hls?.destroy();
     }
-  }, [source]);
+  }, [source, useIframeFallback]);
 
   // Volume — simple video.volume (0 to 1)
   useEffect(() => {
@@ -216,6 +219,7 @@ export default function MediaPlayer({ source, title, initialTime = 0, onProgress
 
   const pct = len > 0 ? (time / len) * 100 : 0;
 
+  if (useIframeFallback && source) return <iframe className="vp__frame" src={source.url} title={source.title} allow="autoplay; fullscreen; picture-in-picture" allowFullScreen />;
   if (!source) return <div className="vp__empty"><span>Contenido disponible próximamente</span><small>Este título aún no tiene una fuente autorizada asociada.</small></div>;
   if (source.kind === 'embed') return <iframe className="vp__frame" src={source.url} title={source.title} allow="autoplay; fullscreen; picture-in-picture" allowFullScreen />;
   if (source.kind === 'dash') return <div className="vp__empty"><span>Fuente DASH</span><small>Conecta el adaptador DASH para reproducir {title}.</small></div>;
@@ -229,8 +233,7 @@ export default function MediaPlayer({ source, title, initialTime = 0, onProgress
           vidRef.current.removeAttribute('src');
           vidRef.current.load();
         }
-        // Force an in-place mutation and remount to try as iframe
-        source.kind = 'embed';
+        setUseIframeFallback(true);
         setErr(false);
       }}>
         Intentar como Iframe
