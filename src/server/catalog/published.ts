@@ -87,8 +87,8 @@ export async function getPublishedPlaybackSource(request: PlaybackRequest): Prom
     
     if (!ep && tmdbMatch) {
       const s = parseInt(tmdbMatch[1], 10);
-      const e = parseInt(tmdbMatch[2], 10);
-      ep = item.episodes.find(e => e.season === s && e.episode === e);
+      const parsedE = parseInt(tmdbMatch[2], 10);
+      ep = item.episodes.find(epEntry => epEntry.season === s && epEntry.episode === parsedE);
     }
 
     if (ep) {
