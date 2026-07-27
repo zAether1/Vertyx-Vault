@@ -16,8 +16,6 @@ export default function MediaPlayer({ source, title, initialTime = 0, onProgress
   const boxRef = useRef<HTMLDivElement>(null);
   const seekRef = useRef<HTMLDivElement>(null);
   const hideT = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
-  const gainRef = useRef<GainNode | null>(null);
-  const boosted = useRef<boolean | null>(null); // null = not tried, true = active, false = failed
 
   const [err, setErr] = useState(false);
   const [playing, setPlaying] = useState(false);
@@ -44,41 +42,12 @@ export default function MediaPlayer({ source, title, initialTime = 0, onProgress
     return () => hls?.destroy();
   }, [source]);
 
-  // Try to enable volume boost via Web Audio (GainNode)
-  const tryBoost = useCallback(() => {
-    if (boosted.current !== null) return; // already tried
-    const v = vidRef.current;
-    if (!v) return;
-    boosted.current = false; // mark as tried
-    try {
-      const ctx = new AudioContext();
-      const src = ctx.createMediaElementSource(v);
-      const gain = ctx.createGain();
-      src.connect(gain);
-      gain.connect(ctx.destination);
-      gainRef.current = gain;
-      boosted.current = true;
-    } catch {
-      // CORS or browser restriction — boost not available
-      gainRef.current = null;
-      boosted.current = false;
-    }
-  }, []);
-
-  // Apply volume
+  // Volume — simple video.volume (0 to 1)
   useEffect(() => {
     const v = vidRef.current;
     if (!v) return;
-    if (gainRef.current && boosted.current === true) {
-      // Web Audio active: video at max, gain controls volume
-      v.volume = 1;
-      v.muted = false;
-      gainRef.current.gain.value = mute ? 0 : vol / 100;
-    } else {
-      // Normal: cap at 100%
-      v.volume = mute ? 0 : Math.min(vol / 100, 1);
-      v.muted = mute;
-    }
+    v.volume = mute ? 0 : vol / 100;
+    v.muted = mute;
   }, [vol, mute]);
 
   // Auto-hide controls
@@ -200,7 +169,7 @@ export default function MediaPlayer({ source, title, initialTime = 0, onProgress
       <video ref={vidRef} className="vp__video" playsInline poster={source.poster}
         onClick={doPlay} onDoubleClick={doFs}
         onLoadedMetadata={onMeta} onDurationChange={onDurChange} onTimeUpdate={onTime}
-        onPlay={() => { setPlaying(true); tryBoost(); }}
+        onPlay={() => setPlaying(true)}
         onPause={() => { setPlaying(false); const v = vidRef.current; if (v) onProgress?.(v.currentTime, v.duration); }}
         onError={() => setErr(true)}
       >{source.kind === 'mp4' && <source src={source.url} type="video/mp4" />}</video>
@@ -237,8 +206,8 @@ export default function MediaPlayer({ source, title, initialTime = 0, onProgress
                     : <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-3-7.86-7-8.77z"/></svg>}
               </button>
               {volUI && <div className="vp__vol-box">
-                <input type="range" className="vp__vol-range" min="0" max="200" value={mute ? 0 : vol}
-                  onChange={e => { const v = Number(e.target.value); setVol(v); setMute(false); if (v > 100) tryBoost(); }} />
+                <input type="range" className="vp__vol-range" min="0" max="100" value={mute ? 0 : vol}
+                  onChange={e => { setVol(Number(e.target.value)); setMute(false); }} />
                 <span className="vp__vol-pct">{mute ? 0 : vol}%</span>
               </div>}
             </div>
