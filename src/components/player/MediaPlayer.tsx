@@ -219,7 +219,7 @@ export default function MediaPlayer({ source, title, initialTime = 0, onProgress
 
   const pct = len > 0 ? (time / len) * 100 : 0;
 
-  if (useIframeFallback && source) return <iframe className="vp__frame" src={source.url} title={source.title} allow="autoplay; fullscreen; picture-in-picture" allowFullScreen />;
+  if (useIframeFallback && source) return <iframe className="vp__frame" src={source.url} title={title} allow="autoplay; fullscreen; picture-in-picture" allowFullScreen />;
   if (!source) return <div className="vp__empty"><span>Contenido disponible próximamente</span><small>Este título aún no tiene una fuente autorizada asociada.</small></div>;
   if (source.kind === 'embed') return <iframe className="vp__frame" src={source.url} title={source.title} allow="autoplay; fullscreen; picture-in-picture" allowFullScreen />;
   if (source.kind === 'dash') return <div className="vp__empty"><span>Fuente DASH</span><small>Conecta el adaptador DASH para reproducir {title}.</small></div>;
