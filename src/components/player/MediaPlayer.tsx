@@ -118,11 +118,21 @@ export default function MediaPlayer({ source, title, initialTime = 0, onProgress
   const doFs = () => { const b = boxRef.current; if (!b) return; document.fullscreenElement ? document.exitFullscreen() : b.requestFullscreen(); };
   const doPip = () => { const v = vidRef.current; if (!v) return; document.pictureInPictureElement ? document.exitPictureInPicture() : v.requestPictureInPicture().catch(() => {}); };
 
-  const doSeek = (e: React.MouseEvent<HTMLDivElement>) => {
+  const seekTo = (clientX: number) => {
     const v = vidRef.current, b = seekRef.current;
-    if (!v || !b) return;
+    if (!v || !b || !Number.isFinite(v.duration)) return;
     const r = b.getBoundingClientRect();
-    v.currentTime = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width)) * v.duration;
+    const ratio = Math.max(0, Math.min(1, (clientX - r.left) / r.width));
+    v.currentTime = ratio * v.duration;
+  };
+
+  const onSeekDown = (e: React.MouseEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    seekTo(e.clientX);
+    const onMove = (ev: MouseEvent) => seekTo(ev.clientX);
+    const onUp = () => { document.removeEventListener('mousemove', onMove); document.removeEventListener('mouseup', onUp); };
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onUp);
   };
 
   const onTime = () => {
@@ -132,7 +142,8 @@ export default function MediaPlayer({ source, title, initialTime = 0, onProgress
     if (v.buffered.length > 0) setBuf(v.buffered.end(v.buffered.length - 1) / (v.duration || 1) * 100);
   };
 
-  const onMeta = () => { const v = vidRef.current; if (!v) return; setLen(v.duration); if (initialTime > 0 && v.currentTime === 0) v.currentTime = initialTime; };
+  const onMeta = () => { const v = vidRef.current; if (!v) return; if (Number.isFinite(v.duration)) setLen(v.duration); if (initialTime > 0 && v.currentTime === 0) v.currentTime = initialTime; };
+  const onDurChange = () => { const v = vidRef.current; if (v && Number.isFinite(v.duration) && v.duration > 0) setLen(v.duration); };
 
   const pct = len > 0 ? (time / len) * 100 : 0;
 
@@ -145,7 +156,7 @@ export default function MediaPlayer({ source, title, initialTime = 0, onProgress
     <div ref={boxRef} className={`vp${ctrl ? '' : ' vp--hide'}${full ? ' vp--fs' : ''}`} onMouseMove={arm} onMouseLeave={() => playing && setCtrl(false)}>
       <video ref={vidRef} className="vp__video" playsInline poster={source.poster}
         onClick={doPlay} onDoubleClick={doFs}
-        onLoadedMetadata={onMeta} onTimeUpdate={onTime}
+        onLoadedMetadata={onMeta} onDurationChange={onDurChange} onTimeUpdate={onTime}
         onPlay={() => setPlaying(true)}
         onPause={() => { setPlaying(false); const v = vidRef.current; if (v) onProgress?.(v.currentTime, v.duration); }}
         onError={() => setErr(true)}
@@ -160,7 +171,7 @@ export default function MediaPlayer({ source, title, initialTime = 0, onProgress
       <div className="vp__head">{title}</div>
 
       <div className="vp__bar" onClick={e => e.stopPropagation()}>
-        <div className="vp__seek" ref={seekRef} onClick={doSeek}>
+        <div className="vp__seek" ref={seekRef} onMouseDown={onSeekDown}>
           <div className="vp__seek-buf" style={{ width: `${buf}%` }} />
           <div className="vp__seek-val" style={{ width: `${pct}%` }} />
           <div className="vp__seek-dot" style={{ left: `${pct}%` }} />
