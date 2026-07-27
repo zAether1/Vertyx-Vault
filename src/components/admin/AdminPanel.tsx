@@ -9,7 +9,7 @@ import type { AdminOverview, CatalogAdminEntry, ModerationResult } from '@/types
 import type { PlaybackKind } from '@/types/submission';
 
 type ManagedUser = { id: string; name: string; username: string; email?: string; role: Role; plan?: string };
-const emptyOverview: AdminOverview = { metrics: [], users: [], activity: [], submissions: [] };
+const emptyOverview: AdminOverview = { metrics: [], users: [], activity: [], submissions: [], catalogEntries: [] };
 
 function SubmissionReview({ item, onModerate, onSave }: { item: CatalogAdminEntry; onModerate: (id: string, action: 'approve' | 'reject') => void; onSave: (id: string, playbackUrl: string, playbackKind: PlaybackKind) => Promise<string | undefined> }) {
   const [playbackUrl, setPlaybackUrl] = useState(item.playbackUrl);
