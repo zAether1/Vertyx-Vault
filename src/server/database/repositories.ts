@@ -1,7 +1,7 @@
 import { database, ensureVaultSchema, hasDatabase } from '@/server/database/client';
 import type { LibrarySnapshot } from '@/types/library';
 import type { AdvancedProfile } from '@/types/profile';
-import type { ContentSubmission, PlaybackKind, SubmissionStatus } from '@/types/submission';
+import type { ContentSubmission, PlaybackKind, SubmissionStatus, EpisodeEntry } from '@/types/submission';
 
 export { hasDatabase };
 
