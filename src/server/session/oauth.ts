@@ -8,8 +8,9 @@ import type { Role } from '@/types/access';
 export type OAuthProvider = 'google' | 'discord';
 const configuration = { google: { clientId: process.env.GOOGLE_CLIENT_ID, clientSecret: process.env.GOOGLE_CLIENT_SECRET, authorizeUrl: 'https://accounts.google.com/o/oauth2/v2/auth', tokenUrl: 'https://oauth2.googleapis.com/token', userUrl: 'https://openidconnect.googleapis.com/v1/userinfo', scope: 'openid email profile' }, discord: { clientId: process.env.DISCORD_CLIENT_ID, clientSecret: process.env.DISCORD_CLIENT_SECRET, authorizeUrl: 'https://discord.com/oauth2/authorize', tokenUrl: 'https://discord.com/api/oauth2/token', userUrl: 'https://discord.com/api/users/@me', scope: 'identify email' } } as const;
 function callbackUrl(request: Request, provider: OAuthProvider) {
-  const host = request.headers.get('x-forwarded-host') || request.headers.get('host');
-  const protocol = request.headers.get('x-forwarded-proto') || (host?.includes('localhost') ? 'http' : 'https');
+  let host = request.headers.get('x-forwarded-host') || request.headers.get('host');
+  if (host && host.includes(',')) host = host.split(',')[0].trim();
+  const protocol = request.headers.get('x-forwarded-proto')?.split(',')[0].trim() || (host?.includes('localhost') ? 'http' : 'https');
   const base = host ? `${protocol}://${host}` : request.url;
   return new URL(`/api/session/oauth/${provider}/callback`, base).toString();
 }
@@ -45,13 +46,14 @@ export async function createOAuthAuthorization(request: Request, provider: OAuth
   await sql`DELETE FROM vertyx_oauth_states WHERE expires_at < NOW()`;
   await sql`INSERT INTO vertyx_oauth_states (state, provider, user_id, expires_at) VALUES (${state}, ${provider}, ${current?.id ?? null}, NOW() + INTERVAL '10 minutes')`;
   const item = configuration[provider]; const url = new URL(item.authorizeUrl);
-  url.searchParams.set('client_id', item.clientId!); url.searchParams.set('redirect_uri', callbackUrl(request, provider)); url.searchParams.set('response_type', 'code'); url.searchParams.set('scope', item.scope); url.searchParams.set('state', state);
+  url.searchParams.set('client_id', item.clientId!); url.searchParams.set('redirect_uri', callbackUrl(request, provider)); url.searchParams.set('response_type', 'code'); url.searchParams.set('scope', item.scope); url.searchParams.set('prompt', 'consent'); url.searchParams.set('state', state);
   return { ok: true, ready: true, provider, authorizationUrl: url.toString(), message: `Redirigiendo a ${provider}.` };
 }
 
 export async function completeOAuthAuthorization(request: Request, provider: OAuthProvider) {
-  const host = request.headers.get('x-forwarded-host') || request.headers.get('host');
-  const protocol = request.headers.get('x-forwarded-proto') || (host?.includes('localhost') ? 'http' : 'https');
+  let host = request.headers.get('x-forwarded-host') || request.headers.get('host');
+  if (host && host.includes(',')) host = host.split(',')[0].trim();
+  const protocol = request.headers.get('x-forwarded-proto')?.split(',')[0].trim() || (host?.includes('localhost') ? 'http' : 'https');
   const base = host ? `${protocol}://${host}` : request.url;
   const url = new URL(request.url, base);
   const code = url.searchParams.get('code'); const state = url.searchParams.get('state');
