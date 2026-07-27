@@ -143,13 +143,13 @@ export async function updateSubmission(id: string, status: SubmissionStatus, rev
   return item;
 }
 
-export async function updateSubmissionSource(id: string, playbackUrl: string, playbackKind: PlaybackKind) {
+export async function updateSubmissionSource(id: string, playbackUrl: string, playbackKind: PlaybackKind, episodes?: EpisodeEntry[]) {
   if (!hasDatabase()) return undefined;
   await ensureVaultSchema();
   const sql = database();
   const [existing] = await sql`SELECT submission FROM vertyx_submissions WHERE id = ${id} LIMIT 1` as unknown as SubmissionRow[];
   if (!existing) return undefined;
-  const item: ContentSubmission = { ...existing.submission, playbackUrl, playbackKind };
+  const item: ContentSubmission = { ...existing.submission, playbackUrl, playbackKind, episodes };
   await sql`UPDATE vertyx_submissions SET submission = ${JSON.stringify(item)}::jsonb WHERE id = ${id}`;
   return item;
 }

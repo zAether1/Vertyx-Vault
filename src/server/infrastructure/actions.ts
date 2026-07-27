@@ -4,7 +4,7 @@ import { readLocalSubmissions } from '@/server/submissions/local-cookie';
 import type { AdminOverview, CatalogAdminEntry, ModerationAction, ModerationResult, OAuthActionResult, OAuthProvider, ProCheckoutIntent, ProfileAssetIntent, ProfileAssetKind } from '@/types/infrastructure';
 import { statusFromModerationAction } from '@/types/infrastructure';
 import { hasDatabase, listAllSubmissions, listProfiles, updateSubmission, updateSubmissionSource, upsertSubmission } from '@/server/database/repositories';
-import type { ContentSubmission, PlaybackKind } from '@/types/submission';
+import type { ContentSubmission, PlaybackKind, EpisodeEntry } from '@/types/submission';
 import { catalog } from '@/lib/catalog';
 
 const proBenefits = ['Insignia Pro animada', 'Marcos y banners exclusivos', 'Colores premium', 'Sin anuncios', 'Acceso anticipado', 'Sincronización futura con Discord'];
@@ -140,14 +140,14 @@ export async function moderateSubmission(request: Request, id: string, action: M
   return new Response(JSON.stringify({ ok: true, ready: true, item: updated, status, message: `${item.title}: ${status}` } satisfies ModerationResult), { status: 200, headers: { 'Content-Type': 'application/json', 'Set-Cookie': `${SUBMISSIONS_COOKIE}=${encodeJsonCookie(snapshot)}; ${cookieOptions(60 * 60 * 24 * 14)}` } });
 }
 
-export async function updateSubmissionPlayback(request: Request, id: string, playbackUrl: string, playbackKind: PlaybackKind): Promise<Response> {
+export async function updateSubmissionPlayback(request: Request, id: string, playbackUrl: string, playbackKind: PlaybackKind, episodes?: EpisodeEntry[]): Promise<Response> {
   const profile = readProfileFromRequest(request);
   if (!profile || !can(profile.role, 'submission:review')) return new Response(JSON.stringify({ ok: false, ready: true, message: 'No autorizado' } satisfies ModerationResult), { status: 403, headers: { 'Content-Type': 'application/json' } });
   const source = playbackUrl.trim();
   if (!source || !URL.canParse(source)) return new Response(JSON.stringify({ ok: false, ready: true, message: 'La URL del reproductor no es válida.' } satisfies ModerationResult), { status: 400, headers: { 'Content-Type': 'application/json' } });
   if (hasDatabase()) {
     try {
-      const existing = await updateSubmissionSource(id, source, playbackKind);
+      const existing = await updateSubmissionSource(id, source, playbackKind, episodes);
       if (existing) return Response.json({ ok: true, ready: true, item: existing, message: `${existing.title}: fuente actualizada` } satisfies ModerationResult);
       const catalogItem = catalog.find((entry) => entry.id === id);
       const item: ContentSubmission = {
@@ -160,6 +160,7 @@ export async function updateSubmissionPlayback(request: Request, id: string, pla
         provider: 'Catálogo',
         playbackKind,
         playbackUrl: source,
+        episodes,
         coverUrl: catalogItem?.poster,
         status: 'published',
         submittedBy: 'admin',
@@ -175,7 +176,7 @@ export async function updateSubmissionPlayback(request: Request, id: string, pla
   const items = readLocalSubmissions(request);
   const item = items.find((entry) => entry.id === id);
   if (!item) return new Response(JSON.stringify({ ok: false, ready: true, message: 'Solicitud no encontrada' } satisfies ModerationResult), { status: 404, headers: { 'Content-Type': 'application/json' } });
-  const updated = { ...item, playbackUrl: source, playbackKind, reviewedBy: profile.id, reviewedAt: new Date().toISOString() };
+  const updated = { ...item, playbackUrl: source, playbackKind, episodes, reviewedBy: profile.id, reviewedAt: new Date().toISOString() };
   const snapshot = items.map((entry) => entry.id === id ? updated : entry);
   return new Response(JSON.stringify({ ok: true, ready: true, item: updated, message: `${item.title}: fuente actualizada` } satisfies ModerationResult), { status: 200, headers: { 'Content-Type': 'application/json', 'Set-Cookie': `${SUBMISSIONS_COOKIE}=${encodeJsonCookie(snapshot)}; ${cookieOptions(60 * 60 * 24 * 14)}` } });
 }
