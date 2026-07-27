@@ -46,7 +46,7 @@ export async function createOAuthAuthorization(request: Request, provider: OAuth
   await sql`DELETE FROM vertyx_oauth_states WHERE expires_at < NOW()`;
   await sql`INSERT INTO vertyx_oauth_states (state, provider, user_id, expires_at) VALUES (${state}, ${provider}, ${current?.id ?? null}, NOW() + INTERVAL '10 minutes')`;
   const item = configuration[provider]; const url = new URL(item.authorizeUrl);
-  url.searchParams.set('client_id', item.clientId!); url.searchParams.set('redirect_uri', callbackUrl(request, provider)); url.searchParams.set('response_type', 'code'); url.searchParams.set('scope', item.scope); url.searchParams.set('prompt', 'consent'); url.searchParams.set('state', state);
+  url.searchParams.set('client_id', item.clientId!.trim()); url.searchParams.set('redirect_uri', callbackUrl(request, provider)); url.searchParams.set('response_type', 'code'); url.searchParams.set('scope', item.scope); url.searchParams.set('prompt', 'consent'); url.searchParams.set('state', state);
   return { ok: true, ready: true, provider, authorizationUrl: url.toString(), message: `Redirigiendo a ${provider}.` };
 }
 
