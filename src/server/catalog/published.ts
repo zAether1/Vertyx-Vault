@@ -1,15 +1,17 @@
 import { listPublishedSubmissions } from '@/server/database/repositories';
+import { findContent } from '@/lib/catalog';
 import type { CatalogSearchFilters, CatalogTitle, PlaybackRequest } from '@/types/catalog';
 import type { MediaSource } from '@/types/media';
 import type { ContentSubmission } from '@/types/submission';
 
 function toCatalogTitle(item: ContentSubmission): CatalogTitle {
+  const catalogItem = findContent(item.id);
   return {
     id: item.id,
     title: item.title,
     kind: item.kind,
-    poster: '/vertyx-vault-logo.png',
-    backdrop: item.coverUrl,
+    poster: item.coverUrl || catalogItem?.poster || '/vertyx-vault-logo.png',
+    backdrop: catalogItem?.backdrop,
     year: item.year,
     description: item.description,
     collection: item.category,
