@@ -12,6 +12,19 @@ function fmt(s: number): string {
 }
 
 export default function MediaPlayer({ source, title, initialTime = 0, onProgress }: Props) {
+  if (source?.url) {
+    try {
+      const u = new URL(source.url);
+      if (u.hostname === 'voe.sx' || u.hostname === 'www.voe.sx') {
+        const id = u.pathname.split('/').filter(Boolean).pop();
+        if (id && id !== 'e') { // Avoid duplicating if it was already /e/id
+          source = { ...source, kind: 'embed', title, url: `https://voe.sx/e/${id}` };
+        } else if (id === 'e') {
+          source = { ...source, kind: 'embed', title };
+        }
+      }
+    } catch(e) {}
+  }
   const vidRef = useRef<HTMLVideoElement>(null);
   const boxRef = useRef<HTMLDivElement>(null);
   const seekRef = useRef<HTMLDivElement>(null);
