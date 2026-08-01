@@ -22,8 +22,8 @@ export default function AdPopunder() {
           if (Math.random() < 0.25) {
             localStorage.setItem('vertyx_last_popunder', now.toString());
             
-            // TODO: Reemplaza esta URL con el enlace de tu red de anuncios (CPA, PopAds, etc.)
-            const adUrl = 'https://example.com/tu-anuncio-aqui'; 
+            // Enlace inteligente (SmartLink/Direct Link) de Adsterra
+            const adUrl = 'https://www.effectivecpmnetwork.com/bi5nwffx42?key=5738c320d3d89f994cd06989aee686f1'; 
             
             // Abre el anuncio en una nueva pestaña
             window.open(adUrl, '_blank');
