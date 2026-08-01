@@ -23,7 +23,7 @@ export default function AdPopunder() {
             localStorage.setItem('vertyx_last_popunder', now.toString());
             
             // Enlace inteligente (SmartLink/Direct Link) de Adsterra
-            const adUrl = 'https://www.effectivecpmnetwork.com/bi5nwffx42?key=5738c320d3d89f994cd06989aee686f1'; 
+            const adUrl = 'https://www.effectivecpmnetwork.com/cpg0kewf1j?key=fdc3c2c8de84e6d47f73f305e7c41caf'; 
             
             // Abre el anuncio en una nueva pestaña
             window.open(adUrl, '_blank');
