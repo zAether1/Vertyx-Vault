@@ -20,6 +20,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
     <html lang="es">
       <head>
         <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5148520806929313" crossOrigin="anonymous"></script>
+        <script type='text/javascript' src='//pl30627933.effectivecpmnetwork.com/86/78/30/86783013856778154df262d9add97b99.js'></script>
       </head>
       <body>
         {children}

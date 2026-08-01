@@ -14,12 +14,12 @@ export default function AdPopunder() {
         const lastPop = localStorage.getItem('vertyx_last_popunder');
         const now = Date.now();
         
-        // Configuración: Cooldown de 30 minutos (1800000 ms) para que no sea molesto
-        const COOLDOWN_MS = 1800000; 
+        // Configuración para que puedas probarlo AHORA: Cooldown de 0 minutos y 100% de probabilidad
+        const COOLDOWN_MS = 0; 
         
         if (!lastPop || now - parseInt(lastPop) > COOLDOWN_MS) {
-          // 25% de probabilidad de que se abra el anuncio, para que no sea intrusivo
-          if (Math.random() < 0.25) {
+          // 100% de probabilidad temporalmente para que lo veas funcionar
+          if (Math.random() < 1.0) {
             localStorage.setItem('vertyx_last_popunder', now.toString());
             
             // Enlace inteligente (SmartLink/Direct Link) de Adsterra
