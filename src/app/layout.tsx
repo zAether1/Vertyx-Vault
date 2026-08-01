@@ -4,6 +4,7 @@ import { SpeedInsights } from '@vercel/speed-insights/next';
 import './globals.css';
 import LibrarySync from '@/components/LibrarySync';
 import ProWelcomeOffer from '@/components/ProExperience';
+import AdPopunder from '@/components/AdPopunder';
 
 export const metadata: Metadata = {
   title: 'Vertyx Vault — Tu espacio audiovisual',
@@ -24,6 +25,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         {children}
         <LibrarySync />
         <ProWelcomeOffer />
+        <AdPopunder />
         <Analytics />
         <SpeedInsights />
       </body>
