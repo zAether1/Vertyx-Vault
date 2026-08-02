@@ -131,8 +131,21 @@ export async function enrichCatalogTitle(title: CatalogTitle): Promise<CatalogTi
 export async function enrichSubmission(submission: ContentSubmission): Promise<ContentSubmission> {
   if (!TMDB_API_KEY) return submission;
   
-  const match = submission.id.match(/\d+/);
-  const tmdbId = match ? match[0] : submission.id;
+  let tmdbId: string | null = null;
+  
+  if (submission.id.startsWith('submission-')) {
+    const searchPath = submission.kind === 'series' ? `/search/tv` : `/search/movie`;
+    const searchData = await fetchTmdb<any>(searchPath, { query: submission.title, language: 'es-ES' });
+    if (searchData && searchData.results && searchData.results.length > 0) {
+      tmdbId = searchData.results[0].id.toString();
+    }
+  } else {
+    const match = submission.id.match(/\d+/);
+    tmdbId = match ? match[0] : null;
+  }
+  
+  if (!tmdbId) return submission;
+
   const path = submission.kind === 'series' ? `/tv/${tmdbId}` : `/movie/${tmdbId}`;
   
   const data = await fetchTmdb<any>(path, { language: 'es-ES' });
