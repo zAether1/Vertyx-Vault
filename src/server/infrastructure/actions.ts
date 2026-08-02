@@ -153,7 +153,7 @@ export async function moderateSubmission(request: Request, id: string, action: M
   const item = items.find((entry) => entry.id === id);
   if (!item) return new Response(JSON.stringify({ ok: false, ready: true, message: 'Solicitud no encontrada' } satisfies ModerationResult), { status: 404, headers: { 'Content-Type': 'application/json' } });
   
-  let updated = { ...item, status, reviewedBy: profile.id, reviewedAt: new Date().toISOString() };
+  let updated: ContentSubmission = { ...item, status, reviewedBy: profile.id, reviewedAt: new Date().toISOString() };
   if (action === 'approve') {
     updated = await enrichSubmission(updated);
   }
