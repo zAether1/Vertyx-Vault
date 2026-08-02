@@ -143,6 +143,20 @@ export async function updateSubmission(id: string, status: SubmissionStatus, rev
   return item;
 }
 
+export async function replaceSubmissionId(oldId: string, item: ContentSubmission) {
+  if (!hasDatabase()) return false;
+  await ensureVaultSchema();
+  const sql = database();
+  // Insert the new one
+  await sql`INSERT INTO vertyx_submissions (id, submitted_by, status, submission, submitted_at, reviewed_by, reviewed_at)
+    VALUES (${item.id}, ${item.submittedBy}, ${item.status}, ${JSON.stringify(item)}::jsonb, ${item.submittedAt}::timestamptz, ${item.reviewedBy || null}, NOW())`;
+  // Delete the old one if the ID changed
+  if (oldId !== item.id) {
+    await sql`DELETE FROM vertyx_submissions WHERE id = ${oldId}`;
+  }
+  return true;
+}
+
 export async function updateSubmissionSource(id: string, playbackUrl: string, playbackKind: PlaybackKind, episodes?: EpisodeEntry[]) {
   if (!hasDatabase()) return undefined;
   await ensureVaultSchema();

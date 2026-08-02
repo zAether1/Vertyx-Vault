@@ -3,9 +3,10 @@ import { cookieOptions, encodeJsonCookie, readProfileFromRequest, SUBMISSIONS_CO
 import { readLocalSubmissions } from '@/server/submissions/local-cookie';
 import type { AdminOverview, CatalogAdminEntry, ModerationAction, ModerationResult, OAuthActionResult, OAuthProvider, ProCheckoutIntent, ProfileAssetIntent, ProfileAssetKind } from '@/types/infrastructure';
 import { statusFromModerationAction } from '@/types/infrastructure';
-import { hasDatabase, listAllSubmissions, listProfiles, updateSubmission, updateSubmissionSource, upsertSubmission } from '@/server/database/repositories';
+import { hasDatabase, listAllSubmissions, listProfiles, updateSubmission, updateSubmissionSource, upsertSubmission, replaceSubmissionId } from '@/server/database/repositories';
 import type { ContentSubmission, PlaybackKind, EpisodeEntry } from '@/types/submission';
 import { catalog } from '@/lib/catalog';
+import { enrichSubmission } from '@/server/tmdb';
 
 const proBenefits = ['Insignia Pro animada', 'Marcos y banners exclusivos', 'Colores premium', 'Sin anuncios', 'Acceso anticipado', 'Sincronización futura con Discord'];
 
@@ -122,22 +123,45 @@ export async function getAdminOverview(request: Request): Promise<AdminOverview 
 export async function moderateSubmission(request: Request, id: string, action: ModerationAction): Promise<Response> {
   const profile = readProfileFromRequest(request);
   if (!profile || !can(profile.role, 'submission:review')) return new Response(JSON.stringify({ ok: false, ready: true, message: 'No autorizado' } satisfies ModerationResult), { status: 403, headers: { 'Content-Type': 'application/json' } });
+  
   const status = action === 'approve' ? 'published' : statusFromModerationAction(action);
+  let updatedItem: ContentSubmission | undefined;
+
   if (hasDatabase()) {
     try {
+      // For DB, we would ideally fetch, enrich, and then update. 
+      // For now, since updateSubmission just updates status, we can't easily change ID.
+      // But we will use the existing DB method which will keep the old ID for now.
       const item = await updateSubmission(id, status, profile.id);
       if (!item) return new Response(JSON.stringify({ ok: false, ready: true, message: 'Solicitud no encontrada' } satisfies ModerationResult), { status: 404, headers: { 'Content-Type': 'application/json' } });
-      return Response.json({ ok: true, ready: true, item, status, message: `${item.title}: ${status}` } satisfies ModerationResult);
+      
+      updatedItem = item;
+      if (action === 'approve') {
+        updatedItem = await enrichSubmission(item);
+        if (updatedItem.id !== id || updatedItem !== item) {
+          await replaceSubmissionId(id, updatedItem);
+        }
+      }
+      
+      return Response.json({ ok: true, ready: true, item: updatedItem, status, message: `${updatedItem.title}: ${status}` } satisfies ModerationResult);
     } catch (error) {
       console.error('[moderation-database]', error);
     }
   }
+
   const items = readLocalSubmissions(request);
   const item = items.find((entry) => entry.id === id);
   if (!item) return new Response(JSON.stringify({ ok: false, ready: true, message: 'Solicitud no encontrada' } satisfies ModerationResult), { status: 404, headers: { 'Content-Type': 'application/json' } });
-  const updated = { ...item, status, reviewedBy: profile.id, reviewedAt: new Date().toISOString() };
+  
+  let updated = { ...item, status, reviewedBy: profile.id, reviewedAt: new Date().toISOString() };
+  if (action === 'approve') {
+    updated = await enrichSubmission(updated);
+  }
+
+  // Si el ID cambió al enriquecer, removemos el viejo y ponemos el nuevo
   const snapshot = items.map((entry) => entry.id === id ? updated : entry);
-  return new Response(JSON.stringify({ ok: true, ready: true, item: updated, status, message: `${item.title}: ${status}` } satisfies ModerationResult), { status: 200, headers: { 'Content-Type': 'application/json', 'Set-Cookie': `${SUBMISSIONS_COOKIE}=${encodeJsonCookie(snapshot)}; ${cookieOptions(60 * 60 * 24 * 14)}` } });
+  
+  return new Response(JSON.stringify({ ok: true, ready: true, item: updated, status, message: `${updated.title}: ${status}` } satisfies ModerationResult), { status: 200, headers: { 'Content-Type': 'application/json', 'Set-Cookie': `${SUBMISSIONS_COOKIE}=${encodeJsonCookie(snapshot)}; ${cookieOptions(60 * 60 * 24 * 14)}` } });
 }
 
 export async function updateSubmissionPlayback(request: Request, id: string, playbackUrl: string, playbackKind: PlaybackKind, episodes?: EpisodeEntry[]): Promise<Response> {

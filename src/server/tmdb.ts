@@ -1,4 +1,5 @@
 import type { CatalogTitle } from '@/types/catalog';
+import type { ContentSubmission } from '@/types/submission';
 
 const TMDB_API_KEY = process.env.TMDB_API_KEY;
 const TMDB_BASE_URL = 'https://api.themoviedb.org/3';
@@ -125,4 +126,28 @@ export async function enrichCatalogTitle(title: CatalogTitle): Promise<CatalogTi
   }
 
   return enriched;
+}
+
+export async function enrichSubmission(submission: ContentSubmission): Promise<ContentSubmission> {
+  if (!TMDB_API_KEY) return submission;
+  
+  const match = submission.id.match(/\d+/);
+  const tmdbId = match ? match[0] : submission.id;
+  const path = submission.kind === 'series' ? `/tv/${tmdbId}` : `/movie/${tmdbId}`;
+  
+  const data = await fetchTmdb<any>(path, { language: 'es-ES' });
+  if (!data) return submission;
+
+  const numericId = data.id || tmdbId;
+  const newId = `${submission.kind}-${numericId}`;
+
+  return {
+    ...submission,
+    id: newId,
+    title: data.title || data.name || submission.title,
+    description: data.overview || submission.description,
+    coverUrl: data.poster_path ? `${TMDB_IMG_W500}${data.poster_path}` : submission.coverUrl,
+    year: (data.release_date || data.first_air_date || submission.year || '').substring(0, 4),
+    genres: (data.genres || []).map((g: any) => g.name),
+  };
 }
