@@ -159,7 +159,7 @@ export async function enrichSubmission(submission: ContentSubmission): Promise<C
     id: newId,
     title: data.title || data.name || submission.title,
     description: data.overview || submission.description,
-    coverUrl: data.poster_path ? `${TMDB_IMG_W500}${data.poster_path}` : submission.coverUrl,
+    coverUrl: submission.coverUrl || (data.poster_path ? `${TMDB_IMG_W500}${data.poster_path}` : ''),
     year: (data.release_date || data.first_air_date || submission.year || '').substring(0, 4),
     genres: (data.genres || []).map((g: any) => g.name),
   };

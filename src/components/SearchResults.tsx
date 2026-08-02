@@ -22,7 +22,7 @@ export default function SearchResults({ id, state }: SearchResultsProps) {
         return (
           <a key={item.id} href={searchItemLink(item)} className="flex items-center p-3 hover:bg-[#5f318f]/16 transition-colors border-b border-[#b9a9ca]/12 last:border-0">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={item.poster ?? '/vertyx-vault-logo.png'} alt="" className="w-12 h-[72px] object-cover rounded-md bg-[#5f318f]/10" />
+            <img src={item.poster || '/vertyx-vault-logo.png'} alt="" className="w-12 h-[72px] object-cover rounded-md bg-[#5f318f]/10" />
             <div className="ml-3 flex-1 min-w-0">
               <h3 className="text-[#eee9f4] font-medium truncate">{title}</h3>
               <p className="text-[#eee9f4]/65 text-sm mt-1 truncate">{item.overview}</p>
